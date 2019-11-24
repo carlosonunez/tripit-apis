@@ -115,7 +115,7 @@ resource "aws_dynamodb_table" "state_associations" {
   }
 }
 
-resource "aws_dynamodb_table" "${var.app_name}_tokens" {
+resource "aws_dynamodb_table" "app_tokens" {
   name = "${var.app_name}_auth_state_state_associations"
   hash_key = "state_id"
   read_capacity = 2

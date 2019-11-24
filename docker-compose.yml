@@ -62,6 +62,7 @@ services:
       LOAD_PATH: "/app/spec/unit;/app/spec;/app/lib"
       SELENIUM_HOST: selenium
       SELENIUM_PORT: 4444
+      DISABLE_TRIPIT_CALLBACK_UPDATING: 'true'
     volumes:
       - "$PWD/secrets:/secrets"
     command:

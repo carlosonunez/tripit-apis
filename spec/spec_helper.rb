@@ -3,7 +3,7 @@ require 'httparty'
 require 'capybara'
 require 'capybara/dsl'
 require 'selenium-webdriver'
-require 'tripit-api'
+require 'tripit'
 require 'timeout'
 Dir.glob('/app/spec/helpers/**/*.rb') do |file|
   require_relative file

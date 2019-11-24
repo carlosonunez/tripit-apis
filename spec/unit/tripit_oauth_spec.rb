@@ -18,7 +18,7 @@ describe "TripIt OAuth methods" do
       allow(HTTParty).to receive(:post)
         .with(url_to_mock, request_opts)
         .and_return(double(HTTParty::Response, code: 200, body: mocked_response_body))
-      response = TripIt::TripIt::OAuth.access(client_id: 'fake',
+      response = TripIt::Core::OAuth.access(client_id: 'fake',
                                                client_secret: 'fake',
                                                code: 'fake',
                                                redirect_uri: 'fake')
@@ -43,7 +43,7 @@ describe "TripIt OAuth methods" do
       allow(HTTParty).to receive(:get)
         .with(url_to_mock, request_opts)
         .and_return(double(HTTParty::Response, body: mocked_response_body))
-      expect(TripIt::TripIt::OAuth.token_expired?(token: 'fake-token')).to be true
+      expect(TripIt::Core::OAuth.token_expired?(token: 'fake-token')).to be true
     end
 
     it "Should tell me when tokens are not expired", :wip do
@@ -57,7 +57,7 @@ describe "TripIt OAuth methods" do
       allow(HTTParty).to receive(:get)
         .with(url_to_mock, request_opts)
         .and_return(double(HTTParty::Response, body: { ok: true }.to_json))
-      expect(TripIt::TripIt::OAuth.token_expired?(token: 'fake-token')).to be false
+      expect(TripIt::Core::OAuth.token_expired?(token: 'fake-token')).to be false
     end
   end
 end

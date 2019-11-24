@@ -1,0 +1,6 @@
+.env
+.terraform
+.serverless
+secrets
+vendor
+Gemfile.lock

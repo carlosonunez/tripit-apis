@@ -198,7 +198,7 @@ state=fake-state-id"
           Host: 'example.host'
         }
       }.to_json)
-      allow(TripIt::TripIt::OAuth).to receive(:access).and_return(OpenStruct.new(
+      allow(TripIt::Core::OAuth).to receive(:access).and_return(OpenStruct.new(
         body: {
           ok: true,
           access_token: 'fake-token',

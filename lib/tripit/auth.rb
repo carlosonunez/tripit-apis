@@ -1,6 +1,6 @@
 require 'aws-sdk-dynamodb'
-require 'tripit-api/aws_helpers/api_gateway'
-require 'tripit-api/tripit'
+require 'tripit/aws_helpers/api_gateway'
+require 'tripit/core'
 require 'logger'
 require 'securerandom'
 require 'dynamoid'
@@ -51,7 +51,7 @@ module TripIt
       else
         callback_url = 'https://' + TripIt::AWSHelpers::APIGateway.get_endpoint(event) + \
           event['requestContext']['path']
-        token_response = TripIt::TripIt::OAuth.access(client_id: ENV['TRIPIT_APP_CLIENT_ID'],
+        token_response = TripIt::Core::OAuth.access(client_id: ENV['TRIPIT_APP_CLIENT_ID'],
                                                        client_secret: ENV['TRIPIT_APP_CLIENT_SECRET'],
                                                        redirect_uri: callback_url,
                                                        code: code)

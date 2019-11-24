@@ -41,7 +41,7 @@ services:
     command:
       - deploy
       - --stage
-      - v1
+      - production
   deploy-serverless-infra-test:
     extends: terraform
     environment:
