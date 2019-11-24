@@ -5,7 +5,7 @@ require 'logger'
 require 'securerandom'
 require 'dynamoid'
 
-module TripItAPI
+module TripIt
   module Auth
     class TripItToken
       Dynamoid.configure do |config|
@@ -35,7 +35,7 @@ module TripItAPI
 =end
     def self.handle_callback(event)
       if !self.configure_aws!
-        return TripItAPI::AWSHelpers::APIGateway.error(
+        return TripIt::AWSHelpers::APIGateway.error(
           message: 'Please set APP_AWS_ACCESS_KEY and APP_AWS_SECRET_KEY')
       end
       parameters = event['queryStringParameters']
@@ -43,38 +43,38 @@ module TripItAPI
       state_id = parameters['state']
       error = parameters['error']
       if !error.nil?
-        return TripItAPI::AWSHelpers::APIGateway.unauthenticated(
+        return TripIt::AWSHelpers::APIGateway.unauthenticated(
           message: "User denied access to this app.")
       elsif code.nil? and state_id.nil?
-        return TripItAPI::AWSHelpers::APIGateway.error(
+        return TripIt::AWSHelpers::APIGateway.error(
           message: "TripIt didn't send a code or state_id upon calling back.")
       else
-        callback_url = 'https://' + TripItAPI::AWSHelpers::APIGateway.get_endpoint(event) + \
+        callback_url = 'https://' + TripIt::AWSHelpers::APIGateway.get_endpoint(event) + \
           event['requestContext']['path']
-        token_response = TripItAPI::TripIt::OAuth.access(client_id: ENV['TRIPIT_APP_CLIENT_ID'],
+        token_response = TripIt::TripIt::OAuth.access(client_id: ENV['TRIPIT_APP_CLIENT_ID'],
                                                        client_secret: ENV['TRIPIT_APP_CLIENT_SECRET'],
                                                        redirect_uri: callback_url,
                                                        code: code)
         if token_response.body.nil?
-          return TripItAPI::AWSHelpers::APIGateway.error(
+          return TripIt::AWSHelpers::APIGateway.error(
             message: 'Unable to get TripIt token.')
         end
         token_response_json = JSON.parse(token_response.body)
         if !token_response_json['ok'].nil? and !token_response_json['ok']
-          return TripItAPI::AWSHelpers::APIGateway.unauthenticated(
+          return TripIt::AWSHelpers::APIGateway.unauthenticated(
             message: "Token request failed: #{token_response_json['error']}"
           )
         end
         token = token_response_json['access_token']
         access_key_from_state = self.get_access_key_from_state(state_id: state_id)
         if access_key_from_state.nil?
-          return TripItAPI::AWSHelpers::APIGateway.error(
+          return TripIt::AWSHelpers::APIGateway.error(
             message: "No access key exists for this state ID: #{state_id}")
         end
         if self.put_tripit_token(access_key: access_key_from_state, tripit_token: token)
-          return TripItAPI::AWSHelpers::APIGateway.ok
+          return TripIt::AWSHelpers::APIGateway.ok
         else
-          return TripItAPI::AWSHelpers::APIGateway.error(message: "Unable to save TripIt token.")
+          return TripIt::AWSHelpers::APIGateway.error(message: "Unable to save TripIt token.")
         end
       end
     end
@@ -84,14 +84,14 @@ module TripItAPI
 =end
     def self.begin_authentication_flow(event, client_id:)
       if !self.configure_aws!
-        return TripItAPI::AWSHelpers::APIGateway.error(
+        return TripIt::AWSHelpers::APIGateway.error(
           message: 'Please set APP_AWS_ACCESS_KEY and APP_AWS_SECRET_KEY')
       end
       if !self.reauthenticate?(event: event) and self.has_token? event: event
-        return TripItAPI::AWSHelpers::APIGateway.ok(message: 'You already have a token.')
+        return TripIt::AWSHelpers::APIGateway.ok(message: 'You already have a token.')
       end
       scopes_csv = ENV['TRIPIT_APP_CLIENT_SCOPES'] || "users.profile:read,users.profile:write"
-      redirect_uri = "https://#{TripItAPI::AWSHelpers::APIGateway.get_endpoint(event)}/callback"
+      redirect_uri = "https://#{TripIt::AWSHelpers::APIGateway.get_endpoint(event)}/callback"
       workspace = self.get_workspace(event)
       state_id = self.generate_state_id
       if workspace.nil?
@@ -109,28 +109,28 @@ module TripItAPI
 copy/paste this URL to get started: #{tripit_authorization_uri}"
       if !self.associate_access_key_to_state_id!(event: event,
                                                  state_id: state_id)
-        return TripItAPI::AWSHelpers::APIGateway.error(
+        return TripIt::AWSHelpers::APIGateway.error(
           message: "Couldn't map state to access key.")
       end
-      return TripItAPI::AWSHelpers::APIGateway.ok(message: message)
+      return TripIt::AWSHelpers::APIGateway.ok(message: message)
     end
 
     # Retrives a TripIt OAuth token from a API Gateway key
     def self.get_tripit_token(event:)
       if !self.configure_aws!
-        return TripItAPI::AWSHelpers::APIGateway.error(
+        return TripIt::AWSHelpers::APIGateway.error(
           message: 'Please set APP_AWS_ACCESS_KEY and APP_AWS_SECRET_KEY')
       end
       access_key = self.get_access_key_from_event(event)
       if access_key.nil?
-        return TripItAPI::AWSHelpers::APIGateway.error(message: 'Access key missing.')
+        return TripIt::AWSHelpers::APIGateway.error(message: 'Access key missing.')
       end
       tripit_token = self.get_tripit_token_from_access_key(access_key)
       if tripit_token.nil?
-        return TripItAPI::AWSHelpers::APIGateway.not_found(
+        return TripIt::AWSHelpers::APIGateway.not_found(
           message: 'No token exists for this access key.')
       end
-      TripItAPI::AWSHelpers::APIGateway.ok(
+      TripIt::AWSHelpers::APIGateway.ok(
         additional_json: { token: tripit_token })
     end
 
@@ -157,7 +157,7 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
         return nil if results.count == 0
         results.first.tripit_token
       rescue Aws::DynamoDB::Errors::ResourceNotFoundException
-        TripItAPI.logger.warn("TripIt tokens table not created yet.")
+        TripIt.logger.warn("TripIt tokens table not created yet.")
         return nil
       end
     end
@@ -174,7 +174,7 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
 existing tokens and provide a refresh mechanism in a future commit."
         return true
       rescue Exception => e
-        TripItAPI.logger.error("We weren't able to save this token: #{e}")
+        TripIt.logger.error("We weren't able to save this token: #{e}")
         return false
       end
     end
@@ -186,7 +186,7 @@ existing tokens and provide a refresh mechanism in a future commit."
         return nil if results.nil? or results.count == 0
         !results.first.tripit_token.nil?
       rescue Exception => e
-        TripItAPI.logger.warn("Error while querying for an existing token; beware stranger tings: #{e}")
+        TripIt.logger.warn("Error while querying for an existing token; beware stranger tings: #{e}")
         return false
       end
     end
@@ -220,7 +220,7 @@ access key with state."
         association.save
         return true
       rescue Exception => e
-        TripItAPI.logger.error("Unable to save auth state: #{e}")
+        TripIt.logger.error("Unable to save auth state: #{e}")
         return false
       end
     end
@@ -232,7 +232,7 @@ access key with state."
         return nil if results.nil? or results.count == 0
         results.first.access_key
       rescue Aws::DynamoDB::Errors::ResourceNotFoundException
-        TripItAPI.logger.warn("State associations table not created yet.")
+        TripIt.logger.warn("State associations table not created yet.")
         return nil
       end
     end
@@ -247,7 +247,7 @@ access key with state."
                                               ENV['APP_AWS_SECRET_ACCESS_KEY']))
         return true
       rescue Exception => e
-        TripItAPI.logger.error("Unable to configure Aws: #{e}")
+        TripIt.logger.error("Unable to configure Aws: #{e}")
         return false
       end
     end

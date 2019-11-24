@@ -6,6 +6,6 @@ describe 'TripIt API Basics' do
       body: { message: 'sup dawg' }.to_json,
       statusCode: 200
     }
-    expect(TripItAPI::Health.ping).to eq expected_response
+    expect(TripIt::Health.ping).to eq expected_response
   end
 end
