@@ -51,7 +51,6 @@ services:
     command:
       - --tag
       - unit
-      - --fail-fast
       - --format
       - documentation
   integration:
