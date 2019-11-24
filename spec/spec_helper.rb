@@ -64,7 +64,7 @@ run 'docker-compose run --rm integration-setup'" \
     if !$callback_updated
       if ENV['DISABLE_TRIPIT_CALLBACK_UPDATING'] != 'true'
         puts "INFO: Updating TripIt callback URIs."
-        if !Helpers::TripIt::OAuth.update_callback_uri! \
+        if !Helpers::OAuth::CallbackHandling.update_callback_uri! \
           callback_uri: "#{$api_gateway_url}/callback"
           raise "Unable to update TripIt callback URIs; stopping early to prevent later failures."
         end
