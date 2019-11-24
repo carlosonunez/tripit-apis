@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+ENVIRONMENT="${ENVIRONMENT:-test}"
+DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
+set -e
+
+docker-compose run --rm vendor
+case "$ENVIRONMENT" in
+  test)
+    for stage in deploy-serverless-infra-test deploy-serverless-functions-test
+    do
+      if test "$stage" == "deploy-serverless-infra-test" && \
+        test "$DEPLOY_FUNCTIONS_ONLY" == "true"
+      then
+        continue
+      fi
+      docker-compose -f docker-compose.deploy.yml run --rm "$stage"
+    done
+    ;;
+  production)
+    for stage in deploy-serverless-infra deploy-serverless-domain deploy-serverless-functions
+    do
+      docker-compose -f docker-compose.deploy.yml run -e ENVIRONMENT=production --rm "$stage"
+    done
+    ;;
+  *)
+    >&2 echo "ERROR: Invalid environment: $ENVIRONMENT"
+    exit 1
+    ;;
+esac

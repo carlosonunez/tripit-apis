@@ -1,0 +1,58 @@
+version: '2.2'
+services:
+  serverless:
+    build:
+      dockerfile: serverless.Dockerfile
+      context: .
+    env_file: .env
+    volumes:
+      - $PWD:/app
+    working_dir: /app
+  terraform:
+    image: hashicorp/terraform
+    env_file: .env
+    environment:
+      - TF_CLI_ARGS_destroy="-force"
+    volumes:
+      - $PWD:/app
+    working_dir: /app
+    entrypoint: 
+      - sh
+      - ./scripts/execute_terraform.sh
+  validate-serverless-infra:
+    extends: terraform
+    command:
+      - plan
+      - --input=false
+  deploy-serverless-infra:
+    extends: terraform
+    command:
+      - apply
+      - --auto-approve=true
+      - --input=false
+  deploy-serverless-domain:
+    extends: serverless
+    environment:
+      SLS_DEBUG: "true" # this command is janky af
+    command:
+      - create_domain
+  deploy-serverless-functions:
+    extends: serverless
+    command:
+      - deploy
+      - --stage
+      - v1
+  deploy-serverless-infra-test:
+    extends: terraform
+    environment:
+      TF_VAR_no_certs: "true"
+    command:
+      - apply
+      - --auto-approve=true
+      - --input=false
+  deploy-serverless-functions-test:
+    extends: serverless
+    command:
+      - deploy
+      - --stage
+      - develop

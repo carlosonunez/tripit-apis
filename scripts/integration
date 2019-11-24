@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+KEEP_INTEGRATION_ENVIRONMENT_UP="${KEEP_INTEGRATION_ENVIRONMENT_UP:-false}"
+DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
+>&2 echo "INFO: Staging integration environment."
+docker-compose up -d selenium
+
+ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy || exit 1
+for stage in integration-setup integration
+do
+  >&2 echo "INFO: Running stage: $stage"
+  docker-compose run --rm "$stage" || exit 1
+done
+if [ "$KEEP_INTEGRATION_ENVIRONMENT_UP" == "true" ]
+then
+  >&2 echo "INFO: Integration environment will stay up as requested. \
+Tear it down by running: docker-compose run --rm integration-teardown."
+else
+  scripts/integration_teardown
+fi

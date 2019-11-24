@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+docker-compose up -d dynamodb && \
+docker-compose run --rm unit
+docker-compose down

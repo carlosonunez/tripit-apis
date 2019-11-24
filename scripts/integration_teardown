@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+docker-compose -f docker-compose.deploy.yml run --rm serverless remove --stage develop && \
+docker-compose -f docker-compose.deploy.yml run --rm terraform destroy -force && \
+rm -rf vendor && \
+rm -rf secrets

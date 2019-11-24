@@ -1,0 +1,84 @@
+version: '2.2'
+services:
+  selenium:
+    image: selenium/standalone-chrome-debug
+    volumes:
+      - /dev/shm:/dev/shm
+    ports:
+      - 4444:4444
+      - 5900:5900
+  serverless:
+    build:
+      dockerfile: serverless.Dockerfile
+      context: .
+    env_file: .env
+    volumes:
+      - $PWD:/app
+    working_dir: /app
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000
+  ruby:
+    build:
+      context: .
+      dockerfile: ruby.Dockerfile
+      args:
+        ENVIRONMENT: test
+    env_file: .env
+    volumes:
+      - $PWD:/app:ro,delegated # fix rspec slowness due to size of vendor dir
+    working_dir: /app
+    entrypoint: sh
+    command:
+      - "-c"
+      - "not meant to be run with the stack"
+  vendor:
+    extends: ruby
+    volumes:
+      - "$PWD:/app:cached"
+      - "$PWD/vendor:/vendor:cached"
+      - "$PWD/Gemfile:/Gemfile"
+    command:
+      - -c
+      - "echo 'INFO: Vendoring dependencies...' && bundle install --without test --path /vendor/bundle"
+  unit:
+    extends: ruby
+    entrypoint: rspec
+    environment:
+      LOAD_PATH: "/app/spec/unit;/app/spec;/app/lib"
+      AWS_DYNAMODB_ENDPOINT_URL: "http://dynamodb:8000"
+    command:
+      - --tag
+      - unit
+      - --fail-fast
+      - --format
+      - documentation
+  integration:
+    extends: ruby
+    entrypoint: rspec
+    env_file: .env
+    environment:
+      LOAD_PATH: "/app/spec/unit;/app/spec;/app/lib"
+      SELENIUM_HOST: selenium
+      SELENIUM_PORT: 4444
+    volumes:
+      - "$PWD/secrets:/secrets"
+    command:
+      - --tag
+      - integration
+      - --fail-fast
+      - --format
+      - documentation
+  integration-setup:
+    extends: serverless
+    entrypoint: bash
+    command:
+      - -c
+      - ./scripts/integration_setup.sh
+  integration-teardown:
+    extends: serverless
+    entrypoint: bash
+    command:
+      - -c
+      - ./scripts/integration_teardown.sh
