@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'cgi'
 require 'base64'
 
 describe "TripIt OAuth" do
@@ -30,16 +31,44 @@ describe "TripIt OAuth" do
         oauth_timestamp: oauth_timestamp,
         oauth_signature_method: 'HMAC-SHA1',
         oauth_version: '1.0',
-        oauth_signature: expected_signature,
+        oauth_signature: CGI.escape(expected_signature),
       }
       expected_auth_headers = "OAuth " + expected_auth_headers_hash.map {|key, value|
-        "#{key}=#{Base64.encode64(value)}"
+        "#{key}=#{value}"
       }.join(',')
       expect(TripIt::Core::OAuth.generate_request_auth_headers(consumer_key: oauth_consumer_key,
                                                                consumer_secret: oauth_consumer_secret,
                                                                nonce: oauth_nonce,
                                                                timestamp: oauth_timestamp))
         .to eq expected_auth_headers
+    end
+
+    it "Should give us a request token and secret", :unit do
+      mocked_time = Time.parse("2019-11-24 14:39:41 -0600")
+      fake_token='fake-token'
+      fake_token_secret='fake-secret'
+      mocked_response = double(HTTParty::Response,
+                               body: "oauth_token=#{fake_token}&oauth_token_secret=#{fake_token_secret}",
+                               code: 200)
+      oauth_consumer_key = ENV['TRIPIT_APP_CLIENT_ID'] || raise("No client ID found.")
+      oauth_consumer_secret = ENV['TRIPIT_APP_CLIENT_SECRET'] || raise("No client secret found.")
+      oauth_nonce = 'fake-nonce'
+      oauth_timestamp = mocked_time.to_i
+      uri_being_mocked = 'https://api.tripit.com/oauth/request_token'
+      mocked_headers = TripIt::Core::OAuth.generate_request_auth_headers(
+        consumer_key: oauth_consumer_key,
+        consumer_secret: oauth_consumer_secret,
+        nonce: oauth_nonce,
+        timestamp: oauth_timestamp)
+      expect(Time).to receive(:now).and_return(mocked_time)
+      expect(SecureRandom).to receive(:hex).and_return(oauth_nonce)
+      expect(HTTParty).to receive(:post)
+        .with(uri_being_mocked, { headers: { 'Authorization': mocked_headers } })
+        .and_return(mocked_response)
+      expect(TripIt::Core::OAuth.get_request_tokens).to eq({
+        token: fake_token,
+        token_secret: fake_token_secret
+      })
     end
   end
 

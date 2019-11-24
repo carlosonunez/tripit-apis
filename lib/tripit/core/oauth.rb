@@ -1,11 +1,42 @@
 require 'base64'
 require 'cgi'
 require 'openssl'
+require 'securerandom'
 require 'tripit/core/api'
 
 module TripIt
   module Core
     module OAuth
+      def self.get_request_tokens
+        ['TRIPIT_APP_CLIENT_ID','TRIPIT_APP_CLIENT_SECRET'].each {|required|
+          raise "Parameter missing: #{required}" if ENV[required].nil?
+        }
+        auth_header = self.generate_request_auth_headers(
+          consumer_key: ENV['TRIPIT_APP_CLIENT_ID'],
+          consumer_secret: ENV['TRIPIT_APP_CLIENT_SECRET'],
+          nonce: SecureRandom.hex,
+          timestamp:  Time.now.to_i)
+        url = 'https://api.tripit.com/oauth/request_token'
+        response = HTTParty.post(url, {
+          headers: { 'Authorization': auth_header }
+        })
+        if response.code != 200
+          raise "Failed to get request token: #{response.body}"
+        end
+        token_data = {}
+        response.body.split('&').each do |attribute|
+          key = attribute.split('=').first
+          value = attribute.split('=').last
+          case key
+          when 'oauth_token'
+            token_data[:token] = value
+          when 'oauth_token_secret'
+            token_data[:token_secret] = value
+          end
+        end
+        token_data
+      end
+
       def self.generate_request_auth_headers(consumer_key:,
                                              consumer_secret:,
                                              nonce:,
@@ -19,12 +50,12 @@ module TripIt
           realm: 'https://api.tripit.com/oauth/request_token',
           oauth_consumer_key: consumer_key,
           oauth_nonce: nonce,
-          oauth_timestamp: timestamp,
+          oauth_timestamp: timestamp.to_s,
           oauth_signature_method: 'HMAC-SHA1',
           oauth_version: '1.0',
-          oauth_signature: signature,
+          oauth_signature: CGI.escape(signature),
         }
-        return "OAuth " + headers.map{|k,v| "#{k}=#{Base64.encode64(v)}"}.join(',')
+        return "OAuth " + headers.map{|k,v| "#{k}=#{v}"}.join(',')
       end
 
       # Since this uses OAuth v1, we need to generate a signature by hand.
