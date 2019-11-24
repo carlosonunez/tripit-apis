@@ -2,6 +2,18 @@ require 'spec_helper'
 require 'ostruct'
 
 describe "TripIt OAuth" do
+  context "OAuth v1 Signatures" do
+    it "Should yield a correct signature", :unit do
+      expected_signature = "aTe5fXaR5Nfb2ukwebPEuNPLJNs="
+      oauth_consumer_key = 'fake-key'
+      oauth_nonce = 'fake-nonce'
+      oauth_timestamp = '1574621346'
+      expect(TripIt::Core::OAuth.generate_signature_for_request_token(consumer_key: oauth_consumer_key,
+                                                                      nonce: oauth_nonce,
+                                                                      timestamp: oauth_timestamp))
+        .to eq expected_signature
+    end
+  end
   context 'Handling state associations' do
     it "Should save access keys with state IDs", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
@@ -88,7 +100,7 @@ state=fake-state-id"
         .to eq 'fake-key'
     end
 
-    it "Should give the user an auth init prompt when a workspace is provided", :wip do
+    it "Should give the user an auth init prompt", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       expect(SecureRandom).to receive(:hex).and_return('fake-state-id')
       fake_event = JSON.parse({
