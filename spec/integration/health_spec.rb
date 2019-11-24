@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'TripIt API Health', :integration do
+describe 'TripIt API Health', :wip do
   it "Should ping back" do
     response = Net::HTTP.get_response URI("#{$api_gateway_url}/ping")
     expect(response.code.to_i).to eq 200

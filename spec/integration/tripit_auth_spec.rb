@@ -6,7 +6,7 @@ describe "TripIt OAuth" do
   end
 
   context "Step 1" do
-    it "Should give me a URL to continue authenticating", :integration do
+    it "Should give me a URL to continue authenticating", :wip do
       uri = "#{$api_gateway_url}/auth?workspace=#{ENV['TRIPIT_WORKSPACE_NAME']}&reauthenticate=true"
       response = HTTParty.get(uri, {
         headers: { 'x-api-key': $test_api_key }
@@ -25,7 +25,7 @@ redirect_uri=#{$api_gateway_url}/callback&state=[a-zA-Z0-9]{32}}
   # We need to use Capybara here since retrieving the final authentication URL
   # requires user action through a GUI.
   context "Step 2" do
-    it "Should save my token with my API key", :integration do
+    it "Should save my token with my API key", :wip do
       uri = "#{$api_gateway_url}/auth?workspace=#{ENV['TRIPIT_WORKSPACE_NAME']}&reauthenticate=true"
       response = HTTParty.get(uri, {
         headers: { 'x-api-key': $test_api_key }
@@ -50,7 +50,7 @@ redirect_uri=#{$api_gateway_url}/callback&state=[a-zA-Z0-9]{32}}
   end
 
   context "Step 3" do
-    it "Should provide me with a token", :integration do
+    it "Should provide me with a token", :wip do
       response = HTTParty.get("#{$api_gateway_url}/getToken", {
         headers: { 'x-api-key': $test_api_key }
       })

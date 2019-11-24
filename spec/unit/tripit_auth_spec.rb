@@ -3,7 +3,7 @@ require 'ostruct'
 
 describe "TripIt OAuth" do
   context 'Handling state associations' do
-    it "Should save access keys with state IDs", :unit do
+    it "Should save access keys with state IDs", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       fake_event = JSON.parse({
         requestContext: {
@@ -20,7 +20,7 @@ describe "TripIt OAuth" do
   end
 
   context 'Handling tokens' do
-    it "Should give me an error message Retrieving tokens while not authenticated", :unit do
+    it "Should give me an error message Retrieving tokens while not authenticated", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       fake_event = JSON.parse({
         requestContext: {
@@ -36,7 +36,7 @@ describe "TripIt OAuth" do
       expect(TripItAPI::Auth::get_tripit_token(event: fake_event)).to eq expected_response
     end
 
-    it "Should persist tokens with their associated API keys", :unit do
+    it "Should persist tokens with their associated API keys", :wip do
       fake_event = JSON.parse({
         requestContext: {
           identity: {
@@ -54,7 +54,7 @@ describe "TripIt OAuth" do
     end
   end
   context "We aren't authenticated yet" do
-    it "Should give the user an auth init prompt without providing a workspace", :unit do
+    it "Should give the user an auth init prompt without providing a workspace", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       expect(SecureRandom).to receive(:hex).and_return('fake-state-id')
       fake_event = JSON.parse({
@@ -88,7 +88,7 @@ state=fake-state-id"
         .to eq 'fake-key'
     end
 
-    it "Should give the user an auth init prompt when a workspace is provided", :unit do
+    it "Should give the user an auth init prompt when a workspace is provided", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       expect(SecureRandom).to receive(:hex).and_return('fake-state-id')
       fake_event = JSON.parse({
@@ -119,7 +119,7 @@ state=fake-state-id"
         .to eq 'fake-key'
     end
 
-    it "Should short-circuit this process if the user already has a token", :unit do
+    it "Should short-circuit this process if the user already has a token", :wip do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       TripItAPI::Auth.put_tripit_token(access_key: 'fake-key', tripit_token: 'fake')
       fake_event = JSON.parse({
@@ -141,7 +141,7 @@ state=fake-state-id"
                                                       client_id: 'fake'))
           .to eq expected_response
     end
-    it "Should avoid short-circuiting if we tell it to", :unit do
+    it "Should avoid short-circuiting if we tell it to", :wip do
         Helpers::Aws::DynamoDBLocal.drop_tables!
         expect(SecureRandom).to receive(:hex).and_return('fake-state-id')
         TripItAPI::Auth.put_tripit_token(access_key: 'fake-key-again', tripit_token: 'fake')
@@ -178,7 +178,7 @@ state=fake-state-id"
   end
 
   context "We've been authenticated" do
-    it "Should ok if I was able to get a token", :unit do
+    it "Should ok if I was able to get a token", :wip do
       expected_response = {
         statusCode: 200,
         body: { status: 'ok' }.to_json

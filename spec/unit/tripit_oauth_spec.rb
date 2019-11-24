@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "TripIt OAuth methods" do
   context 'Getting tokens' do
-    it "Should get a token", :unit do
+    it "Should get a token", :wip do
       url_to_mock = 'https://tripit.com/api/oauth.access'
       request_opts = {
         headers: { 'Content-Type': 'application/x-www-formencoded' },
@@ -28,7 +28,7 @@ describe "TripIt OAuth methods" do
   end
 
   context "Validating tokens" do
-    it "Should tell me when tokens are expired", :unit do
+    it "Should tell me when tokens are expired", :wip do
       url_to_mock = 'https://tripit.com/api/auth.test'
       request_opts = {
         headers: { 'Content-Type': 'application/json' },
@@ -46,7 +46,7 @@ describe "TripIt OAuth methods" do
       expect(TripItAPI::TripIt::OAuth.token_expired?(token: 'fake-token')).to be true
     end
 
-    it "Should tell me when tokens are not expired", :unit do
+    it "Should tell me when tokens are not expired", :wip do
       url_to_mock = 'https://tripit.com/api/auth.test'
       request_opts = {
         headers: { 'Content-Type': 'application/json' },
