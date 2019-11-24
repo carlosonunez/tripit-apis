@@ -26,9 +26,10 @@ module TripIt
       end
 
       include Dynamoid::Document
-      table name: :state_associations, key: :state_id, read_capacity: 2, write_capacity: 2
+      table name: :state_associations, key: :tripit_token, read_capacity: 2, write_capacity: 2
       field :access_key
-      field :state_id
+      field :tripit_token
+      field :tripit_token_secret
     end
 =begin
     Handle TripIt OAuth callbacks.
@@ -82,7 +83,7 @@ module TripIt
 =begin
     Provide a first step for the authentication flow.
 =end
-    def self.begin_authentication_flow(event, client_id:)
+    def self.begin_authentication_flow(event)
       if !self.configure_aws!
         return TripIt::AWSHelpers::APIGateway.error(
           message: 'Please set APP_AWS_ACCESS_KEY and APP_AWS_SECRET_KEY')
@@ -90,25 +91,23 @@ module TripIt
       if !self.reauthenticate?(event: event) and self.has_token? event: event
         return TripIt::AWSHelpers::APIGateway.ok(message: 'You already have a token.')
       end
-      scopes_csv = ENV['TRIPIT_APP_CLIENT_SCOPES'] || "users.profile:read,users.profile:write"
-      redirect_uri = "https://#{TripIt::AWSHelpers::APIGateway.get_endpoint(event)}/callback"
-      workspace = self.get_workspace(event)
-      state_id = self.generate_state_id
-      if workspace.nil?
-        workspace_url = "tripit.com"
-      else
-        workspace_url = "#{workspace}.tripit.com"
+      begin
+        token_data = TripIt::Core::OAuth.get_request_tokens
+        token = token_data[:token]
+        token_secret = token_data[:token_secret]
+      rescue Exception => e
+        TripIt::AWSHelpers::APIGateway.error(message: "Failed to get a TripIt token: #{e}")
       end
+      redirect_uri = "https://#{TripIt::AWSHelpers::APIGateway.get_endpoint(event)}/callback"
       tripit_authorization_uri = [
-        "https://#{workspace_url}/oauth/authorize?client_id=#{client_id}",
-        "scope=#{scopes_csv}",
-        "redirect_uri=#{redirect_uri}",
-        "state=#{state_id}"
+        "https://www.tripit.com/oauth/authorize?oauth_token=#{token}",
+        "oauth_callback=#{redirect_uri}"
       ].join '&'
       message = "You will need to authenticate into TripIt first; click on or \
 copy/paste this URL to get started: #{tripit_authorization_uri}"
       if !self.associate_access_key_to_state_id!(event: event,
-                                                 state_id: state_id)
+          token: token,
+          token_secret: token_secret)
         return TripIt::AWSHelpers::APIGateway.error(
           message: "Couldn't map state to access key.")
       end
@@ -199,13 +198,13 @@ existing tokens and provide a refresh mechanism in a future commit."
     # user successfully authenticates, /callback will not be able to resolve
     # the original client's API key. We use that API key to store their token
     # and (later) their default workspace. This fixes that by creating a
-    # table mapping access keys to `state_id`s.
+    # table mapping access keys to tokens and token secrets.
     #
     # This introduces a security vulnerability where someone can change
     # another user's TripIt token by invoking
     # /callback (a public method, as required by TripIt OAuth) with a correct
     # state ID. We will need to fix that at some point.
-    def self.associate_access_key_to_state_id!(event:, state_id:)
+    def self.associate_access_key_to_state_id!(event:, token:, token_secret:)
       begin
         access_key = self.get_access_key_from_event(event)
       rescue
@@ -215,8 +214,9 @@ access key with state."
       end
 
       begin
-        association = TripItAuthState.new(state_id: state_id,
-                                         access_key: access_key)
+        association = TripItAuthState.new(tripit_token: token,
+                                          tripit_token_secret: token_secret,
+                                          access_key: access_key)
         association.save
         return true
       rescue Exception => e
@@ -226,11 +226,22 @@ access key with state."
     end
 
     # Gets an access key from a given state ID
-    def self.get_access_key_from_state(state_id:)
+    def self.get_access_key_from_state(token:)
       begin
-        results = TripItAuthState.where(state_id: state_id)
+        results = TripItAuthState.where(tripit_token: token)
         return nil if results.nil? or results.count == 0
         results.first.access_key
+      rescue Aws::DynamoDB::Errors::ResourceNotFoundException
+        TripIt.logger.warn("State associations table not created yet.")
+        return nil
+      end
+    end
+
+    def self.get_token_secret_from_state(token:)
+      begin
+        results = TripItAuthState.where(tripit_token: token)
+        return nil if results.nil? or results.count == 0
+        results.first.tripit_token_secret
       rescue Aws::DynamoDB::Errors::ResourceNotFoundException
         TripIt.logger.warn("State associations table not created yet.")
         return nil

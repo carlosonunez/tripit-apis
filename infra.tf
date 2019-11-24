@@ -117,11 +117,11 @@ resource "aws_dynamodb_table" "state_associations" {
 
 resource "aws_dynamodb_table" "app_tokens" {
   name = "${var.app_name}_auth_state_state_associations"
-  hash_key = "state_id"
+  hash_key = "tripit_token"
   read_capacity = 2
   write_capacity = 2
   attribute {
-    name = "state_id"
+    name = "tripit_token"
     type = "S"
   }
 }
