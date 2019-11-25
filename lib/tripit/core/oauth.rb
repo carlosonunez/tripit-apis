@@ -62,7 +62,6 @@ module TripIt
           end
           token_data
         end
-        private
       end
 
       module Access
@@ -93,6 +92,39 @@ module TripIt
               oauth_signature_method: 'HMAC-SHA1',
               oauth_version: '1.0',
             })
+        end
+
+        def self.get_tokens(request_token:, request_token_secret:)
+          ['TRIPIT_APP_CLIENT_ID','TRIPIT_APP_CLIENT_SECRET'].each {|required|
+            raise "Parameter missing: #{required}" if ENV[required].nil?
+          }
+          timestamp = Time.now.to_i
+          auth_header = self.generate_headers(
+            consumer_key: ENV['TRIPIT_APP_CLIENT_ID'],
+            consumer_secret: ENV['TRIPIT_APP_CLIENT_SECRET'],
+            nonce: SecureRandom.hex,
+            token: request_token,
+            token_secret: request_token_secret,
+            timestamp:  timestamp)
+          url = 'https://api.tripit.com/oauth/access_token'
+          response = HTTParty.get(url, {
+            headers: { 'Authorization': auth_header }
+          })
+          if response.code != 200
+            raise "Failed to get request token: #{response.body}"
+          end
+          token_data = {}
+          response.body.split('&').each do |attribute|
+            key = attribute.split('=').first
+            value = attribute.split('=').last
+            case key
+            when 'oauth_token'
+              token_data[:token] = value
+            when 'oauth_token_secret'
+              token_data[:token_secret] = value
+            end
+          end
+          token_data
         end
       end
 

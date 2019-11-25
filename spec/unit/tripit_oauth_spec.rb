@@ -25,6 +25,7 @@ describe "TripIt OAuth methods" do
                                                            timestamp: oauth_timestamp))
         .to eq expected_auth_headers
     end
+
     it "Should give us a request token and secret", :unit do
       ENV['TRIPIT_APP_CLIENT_ID'] = 'fake-client-id'
       ENV['TRIPIT_APP_CLIENT_SECRET'] = 'fake-client-secret'
@@ -84,6 +85,42 @@ describe "TripIt OAuth methods" do
                                                           token_secret: oauth_token_secret,
                                                           timestamp: oauth_timestamp))
         .to eq expected_auth_headers
+    end
+    it "Should give us an authenticated access token and secret", :unit do
+      ENV['TRIPIT_APP_CLIENT_ID'] = 'fake-client-id'
+      ENV['TRIPIT_APP_CLIENT_SECRET'] = 'fake-client-secret'
+      mocked_time = Time.parse("1969-12-31 18:02:03 -0600") # 123
+      fake_token='fake-token'
+      fake_token_secret='fake-secret'
+      fake_request_token='fake-request-token'
+      fake_request_token_secret='fake-request-token-secret'
+      mocked_response = double(HTTParty::Response,
+                               body: "oauth_token=#{fake_token}&oauth_token_secret=#{fake_token_secret}",
+                               code: 200)
+      oauth_consumer_key = 'fake-client-id'
+      oauth_consumer_secret = 'fake-client-secret'
+      oauth_nonce = 'fake-nonce'
+      oauth_timestamp = mocked_time.to_i
+      uri_being_mocked = 'https://api.tripit.com/oauth/access_token'
+      mocked_headers = TripIt::Core::OAuth::Access.generate_headers(
+        consumer_key: oauth_consumer_key,
+        consumer_secret: oauth_consumer_secret,
+        nonce: oauth_nonce,
+        token: fake_request_token,
+        token_secret: fake_request_token_secret,
+        timestamp: oauth_timestamp)
+      expect(Time).to receive(:now).and_return(mocked_time)
+      expect(SecureRandom).to receive(:hex).and_return(oauth_nonce)
+      expect(HTTParty).to receive(:get)
+        .with(uri_being_mocked, { headers: { 'Authorization': mocked_headers } })
+        .and_return(mocked_response)
+      token_data =
+        TripIt::Core::OAuth::Access.get_tokens(request_token: fake_request_token,
+                                              request_token_secret: fake_request_token_secret)
+      expect(token_data).to eq({
+        token: fake_token,
+        token_secret: fake_token_secret
+      })
     end
   end
 
