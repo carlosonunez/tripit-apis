@@ -77,8 +77,9 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
       else
         original_token_secret = self.get_token_secret_from_state(token: original_token)
       begin
-        token_data = TripIt::Core::OAuth::Access.get_tokens(token: original_token,
-                                                            token_secret: original_token_secret)
+        token_data = TripIt::Core::OAuth::Access.get_tokens(
+          request_token: original_token,
+          request_token_secret: original_token_secret)
         token = token_data[:token]
         token_secret = token_data[:token_secret]
       rescue Exception => e
