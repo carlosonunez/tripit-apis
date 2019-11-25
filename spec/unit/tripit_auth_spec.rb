@@ -60,9 +60,9 @@ describe "TripIt OAuth" do
   end
 
   context "When retrieving access tokens" do
-    it "Should yield correct authorization headers", :wip do
-      oauth_consumer_key = 'fake-key'
-      oauth_consumer_secret = 'fake-secret'
+    it "Should yield correct authorization headers", :unit do
+      oauth_consumer_key = 'fake-client-id'
+      oauth_consumer_secret = 'fake-client-secret'
       oauth_token = 'fake-token'
       oauth_token_secret = 'fake-token-secret'
       oauth_nonce = 'fake-nonce'
@@ -80,12 +80,12 @@ describe "TripIt OAuth" do
       expected_auth_headers = "OAuth realm=\"#{uri}\"," + \
         expected_auth_headers_hash.sort.to_h.map {|key, value| "#{key}=\"#{value}\""}.join(',')
       expected_auth_headers += ",oauth_signature=\"#{CGI.escape(expected_signature)}\""
-      expect(TripIt::Core::OAuth.generate_access_auth_headers(consumer_key: oauth_consumer_key,
-                                                               consumer_secret: oauth_consumer_secret,
-                                                               nonce: oauth_nonce,
-                                                               token: oauth_token,
-                                                               token_secret: oauth_token_secret,
-                                                               timestamp: oauth_timestamp))
+      expect(TripIt::Core::OAuth::Access.generate_headers(consumer_key: oauth_consumer_key,
+                                                          consumer_secret: oauth_consumer_secret,
+                                                          nonce: oauth_nonce,
+                                                          token: oauth_token,
+                                                          token_secret: oauth_token_secret,
+                                                          timestamp: oauth_timestamp))
         .to eq expected_auth_headers
     end
   end

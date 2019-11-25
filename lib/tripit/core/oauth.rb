@@ -88,6 +88,7 @@ module TripIt
           headers_serialized =
             "OAuth realm=\"#{uri}\"," + headers.sort.to_h.map{|k,v| "#{k}=\"#{v}\""}.join(',')
           headers_serialized += ",oauth_signature=\"#{CGI.escape(signature)}\""
+          puts "Header: #{headers_serialized}"
           return headers_serialized
         end
       end
