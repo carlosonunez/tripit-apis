@@ -9,7 +9,7 @@ require 'json'
 
 # Retrieve tokens for autheticated users.
 def get_token(event: {}, context: {})
-  TripIt::Auth.get_slack_token(event: event)
+  TripIt::Auth.get_tripit_token(event: event)
 end
 
 # Begin the Slack OAuth flow manually.
