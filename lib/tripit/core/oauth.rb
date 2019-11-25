@@ -12,23 +12,24 @@ module TripIt
                                   consumer_secret:,
                                   nonce:,
                                   timestamp:)
-          signature = TripIt::Core::OAuth.generate_signature_for_request_token(
+          uri = "https://api.tripit.com/oauth/request_token"
+          signature =  TripIt::Core::OAuth.generate_signature(
+            uri: uri,
+            method: 'GET',
             consumer_key: consumer_key,
             consumer_secret: consumer_secret,
             nonce: nonce,
             timestamp: timestamp)
-          uri = 'https://api.tripit.com/oauth/request_token'
-          headers = {
-            oauth_consumer_key: consumer_key,
-            oauth_nonce: nonce,
-            oauth_timestamp: timestamp.to_s,
-            oauth_signature_method: 'HMAC-SHA1',
-            oauth_version: '1.0',
-          }
-          headers_serialized =
-            "OAuth realm=\"#{uri}\"," + headers.sort.to_h.map{|k,v| "#{k}=\"#{v}\""}.join(',')
-          headers_serialized += ",oauth_signature=\"#{CGI.escape(signature)}\""
-          return headers_serialized
+          return TripIt::Core::OAuth.generate_auth_header(
+            realm: uri,
+            signature: signature,
+            headers:  {
+              oauth_consumer_key: consumer_key,
+              oauth_nonce: nonce,
+              oauth_timestamp: timestamp.to_s,
+              oauth_signature_method: 'HMAC-SHA1',
+              oauth_version: '1.0',
+            })
         end
 
         def self.get_tokens
@@ -61,7 +62,9 @@ module TripIt
           end
           token_data
         end
+        private
       end
+
       module Access
         def self.generate_headers(consumer_key:,
                                   consumer_secret:,
@@ -69,27 +72,27 @@ module TripIt
                                   token:,
                                   token_secret:,
                                   timestamp:)
-          signature = TripIt::Core::OAuth.generate_signature_for_access_token(
+          uri = "https://api.tripit.com/oauth/access_token"
+          signature =  TripIt::Core::OAuth.generate_signature(
+            uri: uri,
+            method: 'GET',
             consumer_key: consumer_key,
             consumer_secret: consumer_secret,
-            nonce: nonce,
-            timestamp: timestamp,
             token: token,
-            token_secret: token_secret)
-          uri = 'https://api.tripit.com/oauth/access_token'
-          headers = {
-            oauth_consumer_key: consumer_key,
-            oauth_token: token,
-            oauth_nonce: nonce,
-            oauth_timestamp: timestamp.to_s,
-            oauth_signature_method: 'HMAC-SHA1',
-            oauth_version: '1.0',
-          }
-          headers_serialized =
-            "OAuth realm=\"#{uri}\"," + headers.sort.to_h.map{|k,v| "#{k}=\"#{v}\""}.join(',')
-          headers_serialized += ",oauth_signature=\"#{CGI.escape(signature)}\""
-          puts "Header: #{headers_serialized}"
-          return headers_serialized
+            token_secret: token_secret,
+            nonce: nonce,
+            timestamp: timestamp)
+          return TripIt::Core::OAuth.generate_auth_header(
+            realm: uri,
+            signature: signature,
+            headers:  {
+              oauth_consumer_key: consumer_key,
+              oauth_token: token,
+              oauth_nonce: nonce,
+              oauth_timestamp: timestamp.to_s,
+              oauth_signature_method: 'HMAC-SHA1',
+              oauth_version: '1.0',
+            })
         end
       end
 
@@ -113,38 +116,12 @@ module TripIt
         json[:ok] == false and json[:error] == 'invalid_auth'
       end
 
-      private
-      # Since this uses OAuth v1, we need to generate a signature by hand.
-      def self.generate_signature_for_request_token(consumer_key:,
-                                                    consumer_secret:,
-                                                    nonce:,
-                                                    timestamp:)
-        method = 'GET'
-        uri = "https://api.tripit.com/oauth/request_token"
-        return self.generate_signature(uri: uri,
-                                       method: method,
-                                       consumer_key: consumer_key,
-                                       consumer_secret: consumer_secret,
-                                       nonce: nonce,
-                                       timestamp: timestamp)
-      end
-
-      def self.generate_signature_for_access_token(consumer_key:,
-                                                   consumer_secret:,
-                                                   token:,
-                                                   token_secret:,
-                                                   nonce:,
-                                                   timestamp:)
-        method = 'GET'
-        uri = "https://api.tripit.com/oauth/access_token"
-        return self.generate_signature(uri: uri,
-                                       method: method,
-                                       consumer_key: consumer_key,
-                                       consumer_secret: consumer_secret,
-                                       nonce: nonce,
-                                       timestamp: timestamp,
-                                       token: token,
-                                       token_secret: token_secret)
+      def self.generate_auth_header(realm:, headers:, signature:)
+        [
+          "OAuth realm=\"#{realm}\"",
+          headers.sort.to_h.map{|key,value| "#{key}=\"#{value}\""}.join(','),
+          "oauth_signature=\"#{CGI.escape(signature)}\""
+        ].join(',')
       end
 
       def self.generate_signature(method:, uri:, consumer_key:,
@@ -160,10 +137,12 @@ module TripIt
         if !token.nil?
           params[:oauth_token] = token
         end
+        params = params.sort.to_h
         encrypt_key = "#{consumer_secret}&" # This isn't in the TripIt documentation!
         if !token_secret.nil?
           encrypt_key += token_secret
         end
+        require 'pp'
         params_serialized = params.map{|key,value| "#{key}=#{value}"}.join('&')
         sig_base_string = "#{method}&#{CGI.escape uri}&#{CGI.escape params_serialized}"
         raw_signature = OpenSSL::HMAC.digest('SHA1', encrypt_key, sig_base_string)

@@ -93,7 +93,6 @@ module TripIt
       end
       begin
         token_data = TripIt::Core::OAuth.get_request_tokens
-        puts "Token data received: #{token_data}"
         token = token_data[:token]
         token_secret = token_data[:token_secret]
       rescue Exception => e
