@@ -9,7 +9,7 @@ module TripIt
   module Auth
     class TripItToken
       Dynamoid.configure do |config|
-        config.namespace = "tripit_auth"
+        config.namespace = "tripit_auth_#{ENV['ENVIRONMENT'].downcase}"
         config.logger.level = Logger::FATAL
       end
 
@@ -22,7 +22,7 @@ module TripIt
 
     class TripItAuthState
       Dynamoid.configure do |config|
-        config.namespace = "tripit_auth_state"
+        config.namespace = "tripit_auth_state_#{ENV['ENVIRONMENT'].downcase}"
         config.logger.level = Logger::FATAL
       end
 
