@@ -42,6 +42,8 @@ services:
       SLS_DEBUG: "true" # this command is janky af
     command:
       - create_domain
+      - --stage
+      - v1
   deploy-serverless-functions:
     extends: serverless
     environment:
@@ -49,7 +51,7 @@ services:
     command:
       - deploy
       - --stage
-      - production
+      - v1
   deploy-serverless-infra-test:
     extends: terraform
     environment:

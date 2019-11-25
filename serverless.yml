@@ -95,9 +95,9 @@ functions:
 custom:
   enableCustomDomain:
     develop: false
-    production: true
+    v1: true
   customDomain:
-    stage: ${opt.stage, self:provider.stage}
+    stage: v1
     domainName: ${env:DOMAIN_PATH}.${env:DOMAIN_TLD}
     certificateArn: ${file(./secrets/certificate_arn)}
     basePath: 'v1'
