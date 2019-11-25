@@ -129,7 +129,7 @@ oauth_callback=https://example.fake/develop/callback"
                                                      token: 'fake-token',
                                                      token_secret: 'fake-token-secret')
       expect(TripIt::Core::OAuth::Access).to receive(:get_tokens)
-        .with({token: 'fake-token', token_secret: 'fake-token-secret'})
+        .with({request_token: 'fake-token', request_token_secret: 'fake-token-secret'})
         .and_return({ token: 'new-token', token_secret: 'new-token-secret' })
       expect(TripIt::Auth::handle_callback(fake_event)).to eq expected_response
       expect(TripIt::Auth::get_tripit_token(event: fake_event))
