@@ -1,29 +1,89 @@
 require 'spec_helper'
 
 describe "TripIt OAuth methods" do
-  context 'Getting tokens' do
-    it "Should get a token", :wip do
-      url_to_mock = 'https://tripit.com/api/oauth.access'
-      request_opts = {
-        headers: { 'Content-Type': 'application/x-www-formencoded' },
-        body: nil,
-        query: {
-          client_id: 'fake',
-          client_secret: 'fake',
-          code: 'fake',
-          redirect_uri: 'fake'
-        }
+  context 'When retrieving request tokens' do
+    it "Should yield correct authorization headers", :unit do
+      expected_signature = "h6Azudvr61sWzIoqJbU8TVS1Lhw="
+      oauth_consumer_key = 'fake-client-id'
+      oauth_consumer_secret = 'fake-client-secret'
+      oauth_nonce = 'fake-nonce'
+      oauth_timestamp = '123'
+      uri = 'https://api.tripit.com/oauth/request_token'
+      expected_auth_headers_hash = {
+        oauth_consumer_key: oauth_consumer_key,
+        oauth_nonce: oauth_nonce,
+        oauth_timestamp: oauth_timestamp,
+        oauth_signature_method: 'HMAC-SHA1',
+        oauth_version: '1.0'
       }
-      mocked_response_body = { access_token: 'fake-token' }.to_json
-      allow(HTTParty).to receive(:post)
-        .with(url_to_mock, request_opts)
-        .and_return(double(HTTParty::Response, code: 200, body: mocked_response_body))
-      response = TripIt::Core::OAuth.access(client_id: 'fake',
-                                               client_secret: 'fake',
-                                               code: 'fake',
-                                               redirect_uri: 'fake')
-      access_token = JSON.parse(response.body)['access_token']
-      expect(access_token).to eq 'fake-token'
+      expected_auth_headers = "OAuth realm=\"#{uri}\"," + \
+        expected_auth_headers_hash.sort.to_h.map {|key, value| "#{key}=\"#{value}\""}.join(',')
+      expected_auth_headers += ",oauth_signature=\"#{CGI.escape(expected_signature)}\""
+      expect(TripIt::Core::OAuth::Request.generate_headers(consumer_key: oauth_consumer_key,
+                                                           consumer_secret: oauth_consumer_secret,
+                                                           nonce: oauth_nonce,
+                                                           timestamp: oauth_timestamp))
+        .to eq expected_auth_headers
+    end
+    it "Should give us a request token and secret", :unit do
+      ENV['TRIPIT_APP_CLIENT_ID'] = 'fake-client-id'
+      ENV['TRIPIT_APP_CLIENT_SECRET'] = 'fake-client-secret'
+      mocked_time = Time.parse("1969-12-31 18:02:03 -0600") # 123
+      fake_token='fake-token'
+      fake_token_secret='fake-secret'
+      mocked_response = double(HTTParty::Response,
+                               body: "oauth_token=#{fake_token}&oauth_token_secret=#{fake_token_secret}",
+                               code: 200)
+      oauth_consumer_key = 'fake-client-id'
+      oauth_consumer_secret = 'fake-client-secret'
+      oauth_nonce = 'fake-nonce'
+      oauth_timestamp = mocked_time.to_i
+      uri_being_mocked = 'https://api.tripit.com/oauth/request_token'
+      mocked_headers = TripIt::Core::OAuth::Request.generate_headers(
+        consumer_key: oauth_consumer_key,
+        consumer_secret: oauth_consumer_secret,
+        nonce: oauth_nonce,
+        timestamp: oauth_timestamp)
+      expect(Time).to receive(:now).and_return(mocked_time)
+      expect(SecureRandom).to receive(:hex).and_return(oauth_nonce)
+      expect(HTTParty).to receive(:get)
+        .with(uri_being_mocked, { headers: { 'Authorization': mocked_headers } })
+        .and_return(mocked_response)
+      expect(TripIt::Core::OAuth::Request.get_tokens).to eq({
+        token: fake_token,
+        token_secret: fake_token_secret
+      })
+    end
+  end
+
+  context 'When retrieving access tokens' do
+    it "Should yield correct authorization headers", :unit do
+      oauth_consumer_key = 'fake-client-id'
+      oauth_consumer_secret = 'fake-client-secret'
+      oauth_token = 'fake-token'
+      oauth_token_secret = 'fake-token-secret'
+      oauth_nonce = 'fake-nonce'
+      oauth_timestamp = '123'
+      expected_signature = "Gfs0FXIZZm07QMYjPr61yKFgGLk="
+      uri = 'https://api.tripit.com/oauth/access_token'
+      expected_auth_headers_hash = {
+        oauth_consumer_key: oauth_consumer_key,
+        oauth_nonce: oauth_nonce,
+        oauth_timestamp: oauth_timestamp,
+        oauth_signature_method: 'HMAC-SHA1',
+        oauth_version: '1.0',
+        oauth_token: oauth_token
+      }
+      expected_auth_headers = "OAuth realm=\"#{uri}\"," + \
+        expected_auth_headers_hash.sort.to_h.map {|key, value| "#{key}=\"#{value}\""}.join(',')
+      expected_auth_headers += ",oauth_signature=\"#{CGI.escape(expected_signature)}\""
+      expect(TripIt::Core::OAuth::Access.generate_headers(consumer_key: oauth_consumer_key,
+                                                          consumer_secret: oauth_consumer_secret,
+                                                          nonce: oauth_nonce,
+                                                          token: oauth_token,
+                                                          token_secret: oauth_token_secret,
+                                                          timestamp: oauth_timestamp))
+        .to eq expected_auth_headers
     end
   end
 
