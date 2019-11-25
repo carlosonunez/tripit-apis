@@ -23,7 +23,7 @@ oauth_callback=#{$api_gateway_url}/callback}
   # We need to use Capybara here since retrieving the final authentication URL
   # requires user action through a GUI.
   context "Step 2" do
-    it "Should save my token with my API key", :wip do
+    it "Should save my token with my API key", :integration do
       uri = "#{$api_gateway_url}/auth?workspace=#{ENV['TRIPIT_WORKSPACE_NAME']}&reauthenticate=true"
       response = HTTParty.get(uri, {
         headers: { 'x-api-key': $test_api_key }
@@ -32,11 +32,17 @@ oauth_callback=#{$api_gateway_url}/callback}
       auth_url = message.match('^.*get started: (http.*)$').captures[0]
 
       visit(auth_url)
-      fill_in "email", with: ENV['TRIPIT_SANDBOX_ACCOUNT_EMAIL']
+      click_link "Sign in"
+      fill_in "email_address", with: ENV['TRIPIT_SANDBOX_ACCOUNT_EMAIL']
       fill_in "password", with: ENV['TRIPIT_SANDBOX_ACCOUNT_PASSWORD']
-      click_button "signin_btn"
-      click_button "Allow"
+      click_button "Sign In"
 
+      # Sometimes we won't get an allow button for some reason
+      # Might be something that TripIt is doing server-side.
+      begin
+        click_button "Allow"
+      rescue
+      end
 
       # Weird bug with Capybara where it wraps JSON in a HTML block.
       expected_response = "<html><head></head><body>\
@@ -48,7 +54,7 @@ oauth_callback=#{$api_gateway_url}/callback}
   end
 
   context "Step 3" do
-    it "Should provide me with a token", :wip do
+    it "Should provide me with a token", :integration do
       response = HTTParty.get("#{$api_gateway_url}/getToken", {
         headers: { 'x-api-key': $test_api_key }
       })
