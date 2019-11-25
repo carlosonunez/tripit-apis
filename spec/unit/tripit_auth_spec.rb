@@ -25,7 +25,7 @@ oauth_callback=https://example.fake/develop/callback"
         statusCode: 200,
         body: { status: 'ok', message: expected_message }.to_json
       }
-      expect(TripIt::Core::OAuth).to receive(:get_request_tokens)
+        expect(TripIt::Core::OAuth::Request).to receive(:get_tokens)
         .and_return({ token: 'fake-token', token_secret: 'fake-token-secret' })
       expect(TripIt::Auth::begin_authentication_flow(fake_event))
         .to eq expected_response
@@ -37,7 +37,9 @@ oauth_callback=https://example.fake/develop/callback"
 
     it "Should short-circuit this process if the user already has a token", :unit do
       Helpers::Aws::DynamoDBLocal.drop_tables!
-      TripIt::Auth.put_tripit_token(access_key: 'fake-key', tripit_token: 'fake')
+      TripIt::Auth.put_tripit_token(access_key: 'fake-key',
+                                    tripit_token: 'fake',
+                                    tripit_token_secret: 'fake-token-secret')
       fake_event = JSON.parse({
         requestContext: {
           path: '/develop/auth',
@@ -58,7 +60,9 @@ oauth_callback=https://example.fake/develop/callback"
 
     it "Should avoid short-circuiting if we tell it to", :unit do
         Helpers::Aws::DynamoDBLocal.drop_tables!
-        TripIt::Auth.put_tripit_token(access_key: 'fake-key-again', tripit_token: 'fake')
+        TripIt::Auth.put_tripit_token(access_key: 'fake-key-again',
+                                      tripit_token: 'fake',
+                                      tripit_token_secret: 'fake-secret')
         fake_event = JSON.parse({
           requestContext: {
             path: '/develop/auth',
@@ -82,7 +86,7 @@ oauth_callback=https://example.fake/develop/callback"
           statusCode: 200,
           body: { status: 'ok', message: expected_message }.to_json
         }
-        expect(TripIt::Core::OAuth).to receive(:get_request_tokens)
+        expect(TripIt::Core::OAuth::Request).to receive(:get_tokens)
           .and_return({ token: 'fake-token', token_secret: 'fake-token-secret' })
         expect(TripIt::Auth::begin_authentication_flow(fake_event))
           .to eq expected_response
@@ -90,11 +94,23 @@ oauth_callback=https://example.fake/develop/callback"
   end
 
   context "We've been authenticated" do
-    it "Should ok if I was able to get a token", :wip do
+    it "Should ok if I was able to get a token", :unit do
+      Helpers::Aws::DynamoDBLocal.drop_tables!
       expected_response = {
         statusCode: 200,
         body: { status: 'ok' }.to_json
       }
+      expected_response_from_get_tripit_token = {
+        statusCode: 200,
+        body: { status: 'ok', token: 'new-token', token_secret: 'new-token-secret' }.to_json
+      }
+
+      # Some explanation is required here.
+      #
+      # Since TripIt is the callee, we will not get an access key when the callback gets executed.
+      # However, I'm including it in the event anyway since calls to other authenticated endpoints
+      # are private and will require an access key to use, and those will have the access key in the
+      # event.
       fake_event = JSON.parse({
         requestContext: {
           path: '/develop/callback',
@@ -103,15 +119,21 @@ oauth_callback=https://example.fake/develop/callback"
           }
         },
         queryStringParameters: {
-          code: 'fake-code',
-          state: 'fake-state'
+          oauth_token: 'fake-token'
         },
         headers: {
           Host: 'example.host'
         }
       }.to_json)
-      allow(TripIt::Auth).to receive(:get_access_key_from_state).and_return('fake-key')
+      TripIt::Auth.associate_access_key_to_state_id!(event: fake_event,
+                                                     token: 'fake-token',
+                                                     token_secret: 'fake-token-secret')
+      expect(TripIt::Core::OAuth::Access).to receive(:get_tokens)
+        .with({token: 'fake-token', token_secret: 'fake-token-secret'})
+        .and_return({ token: 'new-token', token_secret: 'new-token-secret' })
       expect(TripIt::Auth::handle_callback(fake_event)).to eq expected_response
+      expect(TripIt::Auth::get_tripit_token(event: fake_event))
+        .to eq(expected_response_from_get_tripit_token)
     end
   end
   context 'Handling state associations' do

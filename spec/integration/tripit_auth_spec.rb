@@ -53,7 +53,8 @@ oauth_callback=#{$api_gateway_url}/callback}
         headers: { 'x-api-key': $test_api_key }
       })
       expect(response.code.to_i).to eq 200
-      expect(JSON.parse(response.body)['token']).to match(/^xoxp-/)
+      expect(JSON.parse(response.body)['token']).not_to be nil
+      expect(JSON.parse(response.body)['token_secret']).not_to be nil
     end
   end
 end
