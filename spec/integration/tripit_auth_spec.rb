@@ -6,17 +6,15 @@ describe "TripIt OAuth" do
   end
 
   context "Step 1" do
-    it "Should give me a URL to continue authenticating", :wip do
-      uri = "#{$api_gateway_url}/auth?workspace=#{ENV['TRIPIT_WORKSPACE_NAME']}&reauthenticate=true"
+    it "Should give me a URL to continue authenticating", :integration do
+      uri = "#{$api_gateway_url}/auth?reauthenticate=true"
       response = HTTParty.get(uri, {
         headers: { 'x-api-key': $test_api_key }
       })
       expected_message_re = %r{You will need to authenticate into TripIt first; \
 click on or copy/paste this URL to get started: \
-https://#{ENV['TRIPIT_WORKSPACE_NAME']}.tripit.com\
-/oauth/authorize\?client_id=#{ENV['TRIPIT_APP_CLIENT_ID']}&\
-scope=users.profile:read,users.profile:write&\
-redirect_uri=#{$api_gateway_url}/callback&state=[a-zA-Z0-9]{32}}
+https://www.tripit.com/oauth/authorize\?oauth_token=[a-zA-Z0-9]+&\
+oauth_callback=#{$api_gateway_url}/callback}
       expect(JSON.parse(response.body)['message']).to match expected_message_re
       expect(response.code.to_i).to eq 200
     end

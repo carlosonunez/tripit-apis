@@ -93,10 +93,11 @@ module TripIt
       end
       begin
         token_data = TripIt::Core::OAuth.get_request_tokens
+        puts "Token data received: #{token_data}"
         token = token_data[:token]
         token_secret = token_data[:token_secret]
       rescue Exception => e
-        TripIt::AWSHelpers::APIGateway.error(message: "Failed to get a TripIt token: #{e}")
+        return TripIt::AWSHelpers::APIGateway.error(message: "Failed to get a TripIt token: #{e}")
       end
       redirect_uri = "https://#{TripIt::AWSHelpers::APIGateway.get_endpoint(event)}/callback"
       tripit_authorization_uri = [

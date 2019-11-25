@@ -42,6 +42,7 @@ functions:
     environment:
       GEM_PATH: vendor/bundle/ruby/2.5.0
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
+      TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
     events:

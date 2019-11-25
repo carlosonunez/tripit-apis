@@ -14,7 +14,7 @@ end
 
 # Begin the Slack OAuth flow manually.
 def begin_authentication(event: {}, context: {})
-  TripIt::Auth.begin_authentication_flow(event, client_id: ENV['SLACK_APP_CLIENT_ID'])
+  TripIt::Auth.begin_authentication_flow(event)
 end
 
 # Slack needs a callback URI to send its code too. This is that callback.

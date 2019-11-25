@@ -11,13 +11,14 @@ module TripIt
         ['TRIPIT_APP_CLIENT_ID','TRIPIT_APP_CLIENT_SECRET'].each {|required|
           raise "Parameter missing: #{required}" if ENV[required].nil?
         }
+        timestamp = Time.now.to_i
         auth_header = self.generate_request_auth_headers(
           consumer_key: ENV['TRIPIT_APP_CLIENT_ID'],
           consumer_secret: ENV['TRIPIT_APP_CLIENT_SECRET'],
           nonce: SecureRandom.hex,
-          timestamp:  Time.now.to_i)
+          timestamp:  timestamp)
         url = 'https://api.tripit.com/oauth/request_token'
-        response = HTTParty.post(url, {
+        response = HTTParty.get(url, {
           headers: { 'Authorization': auth_header }
         })
         if response.code != 200
@@ -46,16 +47,18 @@ module TripIt
           consumer_secret: consumer_secret,
           nonce: nonce,
           timestamp: timestamp)
+        uri = 'https://api.tripit.com/oauth/request_token'
         headers = {
-          realm: 'https://api.tripit.com/oauth/request_token',
           oauth_consumer_key: consumer_key,
           oauth_nonce: nonce,
           oauth_timestamp: timestamp.to_s,
           oauth_signature_method: 'HMAC-SHA1',
           oauth_version: '1.0',
-          oauth_signature: CGI.escape(signature),
         }
-        return "OAuth " + headers.map{|k,v| "#{k}=#{v}"}.join(',')
+        headers_serialized =
+          "OAuth realm=\"#{uri}\"," + headers.sort.to_h.map{|k,v| "#{k}=\"#{v}\""}.join(',')
+        headers_serialized += ",oauth_signature=\"#{CGI.escape(signature)}\""
+        return headers_serialized
       end
 
       # Since this uses OAuth v1, we need to generate a signature by hand.

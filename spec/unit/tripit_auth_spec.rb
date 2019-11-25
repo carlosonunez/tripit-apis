@@ -24,18 +24,17 @@ describe "TripIt OAuth" do
       oauth_consumer_secret = ENV['TRIPIT_APP_CLIENT_SECRET'] || raise("No client secret found.")
       oauth_nonce = 'fake-nonce'
       oauth_timestamp = '1574621346'
+      uri = 'https://api.tripit.com/oauth/request_token'
       expected_auth_headers_hash = {
-        realm: 'https://api.tripit.com/oauth/request_token',
         oauth_consumer_key: oauth_consumer_key,
         oauth_nonce: oauth_nonce,
         oauth_timestamp: oauth_timestamp,
         oauth_signature_method: 'HMAC-SHA1',
-        oauth_version: '1.0',
-        oauth_signature: CGI.escape(expected_signature),
+        oauth_version: '1.0'
       }
-      expected_auth_headers = "OAuth " + expected_auth_headers_hash.map {|key, value|
-        "#{key}=#{value}"
-      }.join(',')
+      expected_auth_headers = "OAuth realm=\"#{uri}\"," + \
+        expected_auth_headers_hash.sort.to_h.map {|key, value| "#{key}=\"#{value}\""}.join(',')
+      expected_auth_headers += ",oauth_signature=\"#{CGI.escape(expected_signature)}\""
       expect(TripIt::Core::OAuth.generate_request_auth_headers(consumer_key: oauth_consumer_key,
                                                                consumer_secret: oauth_consumer_secret,
                                                                nonce: oauth_nonce,
@@ -62,7 +61,7 @@ describe "TripIt OAuth" do
         timestamp: oauth_timestamp)
       expect(Time).to receive(:now).and_return(mocked_time)
       expect(SecureRandom).to receive(:hex).and_return(oauth_nonce)
-      expect(HTTParty).to receive(:post)
+      expect(HTTParty).to receive(:get)
         .with(uri_being_mocked, { headers: { 'Authorization': mocked_headers } })
         .and_return(mocked_response)
       expect(TripIt::Core::OAuth.get_request_tokens).to eq({
