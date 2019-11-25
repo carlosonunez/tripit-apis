@@ -166,7 +166,7 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
     def self.put_tripit_token(access_key:, tripit_token:)
       begin
         mapping = TripItToken.new(access_key: access_key,
-                                 tripit_token: tripit_token)
+                                  tripit_token: tripit_token)
         mapping.save
         return true
       rescue Dynamoid::Errors::ConditionalCheckFailedException
