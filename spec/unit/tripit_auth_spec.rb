@@ -98,7 +98,52 @@ oauth_callback=https://example.fake/develop/callback"
       Helpers::Aws::DynamoDBLocal.drop_tables!
       expected_response = {
         statusCode: 200,
-        body: { status: 'ok' }.to_json
+        body: { status: 'ok', token_changed: false }.to_json
+      }
+      expected_response_from_get_tripit_token = {
+        statusCode: 200,
+        body: { status: 'ok', token: 'new-token', token_secret: 'new-token-secret' }.to_json
+      }
+
+      # Some explanation is required here.
+      #
+      # Since TripIt is the callee, we will not get an access key when the callback gets executed.
+      # However, I'm including it in the event anyway since calls to other authenticated endpoints
+      # are private and will require an access key to use, and those will have the access key in the
+      # event.
+      fake_event = JSON.parse({
+        requestContext: {
+          path: '/develop/callback',
+          identity: {
+            apiKey: 'fake-key'
+          }
+        },
+        queryStringParameters: {
+          oauth_token: 'fake-token'
+        },
+        headers: {
+          Host: 'example.host'
+        }
+      }.to_json)
+      TripIt::Auth.associate_access_key_to_state_id!(event: fake_event,
+                                                     token: 'fake-token',
+                                                     token_secret: 'fake-token-secret')
+      expect(TripIt::Core::OAuth::Access).to receive(:get_tokens)
+        .with({request_token: 'fake-token', request_token_secret: 'fake-token-secret'})
+        .and_return({ token: 'new-token', token_secret: 'new-token-secret' })
+      expect(TripIt::Auth::handle_callback(fake_event)).to eq expected_response
+      expect(TripIt::Auth::get_tripit_token(event: fake_event))
+        .to eq(expected_response_from_get_tripit_token)
+    end
+
+    it "Should update the existing token if one was present", :unit do
+      Helpers::Aws::DynamoDBLocal.drop_tables!
+      TripIt::Auth.put_tripit_token(access_key: 'fake-key',
+                                    tripit_token: 'fake',
+                                    tripit_token_secret: 'fake-token-secret')
+      expected_response = {
+        statusCode: 200,
+        body: { status: 'ok', token_changed: true }.to_json
       }
       expected_response_from_get_tripit_token = {
         statusCode: 200,

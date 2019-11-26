@@ -70,6 +70,7 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
           message: 'Please set APP_AWS_ACCESS_KEY and APP_AWS_SECRET_KEY')
       end
       parameters = event['queryStringParameters']
+      token_changed = false
       original_token = parameters['oauth_token']
       if original_token.nil?
         return TripIt::AWSHelpers::APIGateway.error(
@@ -91,10 +92,16 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
           return TripIt::AWSHelpers::APIGateway.error(
             message: "No access key exists for this TripIt token: #{token}")
         end
+        if self.has_token?(event: event)
+          token_changed = true
+          self.delete_existing_tripit_tokens!(access_key: access_key_from_state)
+        end
         if self.put_tripit_token(access_key: access_key_from_state,
             tripit_token: token,
             tripit_token_secret: token_secret)
-          return TripIt::AWSHelpers::APIGateway.ok
+          return TripIt::AWSHelpers::APIGateway.ok(additional_json: {
+            token_changed: token_changed
+          })
         else
           return TripIt::AWSHelpers::APIGateway.error(message: "Unable to save TripIt token.")
         end
@@ -159,6 +166,13 @@ existing tokens and provide a refresh mechanism in a future commit."
       rescue Exception => e
         TripIt.logger.error("We weren't able to save this token: #{e}")
         return false
+      end
+    end
+
+    def self.delete_existing_tripit_tokens!(access_key:)
+      begin
+        TripItToken.where(access_key: access_key).delete_all
+      rescue
       end
     end
 
