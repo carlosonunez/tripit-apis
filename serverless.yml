@@ -16,7 +16,7 @@ provider:
     name: ${env:SERVERLESS_BUCKET_NAME}-${env:ENVIRONMENT}
   deploymentPrefix: serverless
   apiKeys:
-    - default_key_for_tripit_api
+    - ${self:custom.keyName.${opt:stage, self:provider.stage}}
   tracing:
     apiGateway: true
 
@@ -93,6 +93,9 @@ functions:
           method: get
 
 custom:
+  keyName:
+    develop: default-tripit-key-dev
+    v1: default-tripit-key-prod
   enableCustomDomain:
     develop: false
     v1: true
