@@ -205,7 +205,6 @@ module TripIt
         if !token_secret.nil?
           encrypt_key += token_secret
         end
-        require 'pp'
         params_serialized = params.map{|key,value| "#{key}=#{value}"}.join('&')
         sig_base_string = "#{method}&#{CGI.escape uri}&#{CGI.escape params_serialized}"
         raw_signature = OpenSSL::HMAC.digest('SHA1', encrypt_key, sig_base_string)

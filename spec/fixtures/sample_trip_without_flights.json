@@ -1,0 +1,403 @@
+{
+  "timestamp": "1574805003",
+  "num_bytes": "11107",
+  "Trip": {
+    "TripInvitees": {
+      "Invitee": {
+        "@attributes": {
+          "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
+        },
+        "is_read_only": "false",
+        "is_traveler": "true",
+        "is_owner": "true"
+      }
+    },
+    "id": "293554303",
+    "relative_url": "/trip/show/id/293554303",
+    "start_date": "2019-12-15",
+    "end_date": "2019-12-19",
+    "display_name": "Work: Test Client - Week 3",
+    "image_url": "https://www.tripit.com/images/places/generic.jpg",
+    "is_private": "false",
+    "primary_location": "Dayton, OH",
+    "PrimaryLocationAddress": {
+      "address": "Dayton, OH",
+      "city": "Dayton",
+      "state": "OH",
+      "country": "US",
+      "latitude": "39.758950",
+      "longitude": "-84.191610"
+    },
+    "TripPurposes": {
+      "purpose_type_code": "L",
+      "is_auto_generated": "false"
+    },
+    "last_modified": "1574752207",
+    "is_trip_owner_inner_circle_sharer": "false"
+  },
+  "WeatherObject": [
+    {
+      "trip_id": "293554303",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-19",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "4.94",
+      "avg_low_temp_c": "-3.22",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0867"
+    },
+    {
+      "trip_id": "293554303",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-18",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.08",
+      "avg_low_temp_c": "-3.07",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0885"
+    },
+    {
+      "trip_id": "293554303",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-16",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.39",
+      "avg_low_temp_c": "-2.76",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0922"
+    },
+    {
+      "trip_id": "293554303",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-15",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.54",
+      "avg_low_temp_c": "-2.61",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.094"
+    },
+    {
+      "trip_id": "293554303",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-17",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.23",
+      "avg_low_temp_c": "-2.92",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0903"
+    }
+  ],
+  "Profile": {
+    "@attributes": {
+      "ref": "j_Ds3yP_suSBK-2ymtQVEw"
+    },
+    "ProfileEmailAddresses": {
+      "ProfileEmailAddress": {
+        "uuid": "459c7373-d2c6-42bb-a00d-aff2ba379bab",
+        "uuid_ref": "3wBw289x8bBFclk57FtGMMIB3LFM+eZU1UIJFr04yKs=",
+        "email_ref": "tRaF5CFjWPdzuKNF5AuUiQ",
+        "address": "dev@carlosnunez.me",
+        "is_auto_import": "false",
+        "is_confirmed": "true",
+        "is_primary": "true",
+        "is_auto_inbox_eligible": "true"
+      }
+    },
+    "NotificationSettings": {
+      "NotificationSetting": [
+        {
+          "code": "EH",
+          "name": "IsOptInCheckInEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "ED",
+          "name": "IsOptInDepartEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EA",
+          "name": "IsOptInArriveEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EC",
+          "name": "IsOptInCancelEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EP",
+          "name": "IsOptInPriceMonEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "ES",
+          "name": "IsOptInSeatAlertEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EE",
+          "name": "IsOptInSchedChgEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EI",
+          "name": "IsOptInImportsEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "ET",
+          "name": "IsOptInPretripEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "EN",
+          "name": "IsOptInInvsNotifsEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "EL",
+          "name": "IsOptInLoyaltyExpireAlertEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EO",
+          "name": "IsOptInAirportMapAlertEmail",
+          "type": "email",
+          "is_enabled": "true",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "EU",
+          "name": "IsOptedInUpdates",
+          "type": "email",
+          "is_enabled": "false",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "PH",
+          "name": "IsOptInCheckInPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PD",
+          "name": "IsOptInDepartPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PA",
+          "name": "IsOptInArrivePush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PC",
+          "name": "IsOptInCancelPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PP",
+          "name": "IsOptInPriceMonPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PS",
+          "name": "IsOptInSeatAlertPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PE",
+          "name": "IsOptInSchedChgPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PI",
+          "name": "IsOptInImportsPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "PT",
+          "name": "IsOptInPretripPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "PN",
+          "name": "IsOptInInvsNotifsPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "PL",
+          "name": "IsOptInLoyaltyExpireAlertPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PU",
+          "name": "IsOptInProductUpdateOffersPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "FREE"
+        },
+        {
+          "code": "PW",
+          "name": "IsOptInGoNowPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PM",
+          "name": "IsOptInTermGateInfoPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PR",
+          "name": "IsOptInTermGateReminderPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PY",
+          "name": "IsOptInAirportSecurityPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "PO",
+          "name": "IsOptInAirportMapAlertPush",
+          "type": "push",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SH",
+          "name": "IsOptInCheckInSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SD",
+          "name": "IsOptInDepartSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SA",
+          "name": "IsOptInArriveSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SC",
+          "name": "IsOptInCancelSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SP",
+          "name": "IsOptInPriceMonSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SS",
+          "name": "IsOptInSeatAlertSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        },
+        {
+          "code": "SL",
+          "name": "IsOptInLoyaltyExpireAlertSms",
+          "type": "sms",
+          "is_enabled": "false",
+          "is_premium": "PRO"
+        }
+      ]
+    },
+    "is_client": "true",
+    "is_pro": "false",
+    "screen_name": "dev@carlosnunez.me",
+    "public_display_name": "Carlos Nunez",
+    "profile_url": "people/dev%40carlosnunez.me",
+    "language_tag": "en-US",
+    "date_endian_format": "M",
+    "hour_clock": "1",
+    "distance": "M",
+    "temperature": "F",
+    "home_city": "Albuquerque, NM",
+    "home_country_code": "US",
+    "activity_feed_url": "https://www.tripit.com/feed/activities/private/DD7869DC-43C88F08E83F39558734BFD885B2AFF0/activities.atom",
+    "alerts_feed_url": "https://www.tripit.com/feed/alerts/private/DD7869DC-C7B49925C6C9769181CAB1A447411A34/alerts.atom",
+    "ical_url": "https://www.tripit.com/feed/ical/private/DD7869DC-632540AAFE1C79741DCB67DFC2596C1F/tripit.ics",
+    "is_cal_detailed": "true",
+    "is_cal_localtime": "true",
+    "uuid": "6f55aca5-57ef-42de-81b8-605d481dc01f"
+  }
+}

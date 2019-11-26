@@ -1,0 +1,32 @@
+---
+- name: "Personal: Some Trip"
+  city: "Dayton, OH"
+  ends_on: 1546668000
+  flights: []
+  link: "https://tripit.com/trip/show/id/293554303"
+  starts_on: 1546408800
+
+- name: "Work: Test Client - Week 3"
+  city: "Dayton, OH"
+  ends_on: 1576735200
+  flights: []
+  link: "https://tripit.com/trip/show/id/293554303"
+  starts_on: 1576389600
+
+- name: "Work: Test Client - Week 2"
+  city: "Omaha, NE"
+  ends_on: 1575525600
+  flights:
+    - flight_number: "AA356"
+      origin: "DFW"
+      destination: "OMA"
+      depart_time: 1575241860
+      arrive_time: 1575248160
+    - flight_number: "AA357"
+      origin: "OMA"
+      destination: "DFW"
+      depart_time: 1575583320
+      arrive_time: 1575590280
+  link: "https://tripit.com/trip/show/id/293554133"
+  starts_on: 1575180000
+

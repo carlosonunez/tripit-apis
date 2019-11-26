@@ -1,6 +1,7 @@
 require 'logger'
 require 'tripit/health'
 require 'tripit/auth'
+require 'tripit/trips'
 require 'tripit/core/oauth'
 
 module TripIt
