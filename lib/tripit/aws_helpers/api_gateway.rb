@@ -7,6 +7,9 @@ module TripIt
         def self.get_param(event:,param:)
           event.dig('queryStringParameters', param)
         end
+        def self.get_access_key(event)
+          event['requestContext']['identity']['apiKey']
+        end
       end
 =begin
       Retrieves the endpoint from a request, optionally with a part of its path removed.

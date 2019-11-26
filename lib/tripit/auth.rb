@@ -107,7 +107,7 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
         return TripIt::AWSHelpers::APIGateway.error(
           message: 'Please set APP_AWS_ACCESS_KEY and APP_AWS_SECRET_KEY')
       end
-      access_key = self.get_access_key_from_event(event)
+      access_key = TripIt::AWSHelpers::APIGateway::Events.get_access_key(event)
       if access_key.nil?
         return TripIt::AWSHelpers::APIGateway.error(message: 'Access key missing.')
       end
@@ -122,10 +122,6 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
     end
 
     private
-    def self.get_access_key_from_event(event)
-      event['requestContext']['identity']['apiKey']
-    end
-
     def self.get_tripit_token_from_access_key(access_key)
       begin
         results = TripItToken.where(access_key: access_key)
@@ -168,7 +164,7 @@ existing tokens and provide a refresh mechanism in a future commit."
 
     def self.has_token?(event:)
       begin
-        access_key = self.get_access_key_from_event(event)
+        access_key = TripIt::AWSHelpers::APIGateway::Events.get_access_key(event)
         results = TripItToken.where(access_key: access_key)
         return nil if results.nil? or results.count == 0
         !results.first.tripit_token.nil?
@@ -194,7 +190,7 @@ existing tokens and provide a refresh mechanism in a future commit."
     # state ID. We will need to fix that at some point.
     def self.associate_access_key_to_state_id!(event:, token:, token_secret:)
       begin
-        access_key = self.get_access_key_from_event(event)
+        access_key = TripIt::AWSHelpers::APIGateway::Events.get_access_key(event)
       rescue
         puts "WARN: Unable to get access key from context while trying to associate \
 access key with state."
