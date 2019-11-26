@@ -128,6 +128,37 @@ module TripIt
         end
       end
 
+      module Authenticated
+        def self.generate_headers(uri:,
+                                  consumer_key:,
+                                  consumer_secret:,
+                                  nonce:,
+                                  token:,
+                                  token_secret:,
+                                  timestamp:)
+          signature =  TripIt::Core::OAuth.generate_signature(
+            uri: uri,
+            method: 'GET',
+            consumer_key: consumer_key,
+            consumer_secret: consumer_secret,
+            token: token,
+            token_secret: token_secret,
+            nonce: nonce,
+            timestamp: timestamp)
+          return TripIt::Core::OAuth.generate_auth_header(
+            realm: uri,
+            signature: signature,
+            headers:  {
+              oauth_consumer_key: consumer_key,
+              oauth_token: token,
+              oauth_nonce: nonce,
+              oauth_timestamp: timestamp.to_s,
+              oauth_signature_method: 'HMAC-SHA1',
+              oauth_version: '1.0',
+            })
+        end
+      end
+
       # Retrieve an OAuth token from a given code and client ID/secret.
       def self.access(client_id:, client_secret:, code:, redirect_uri:)
         params = {
