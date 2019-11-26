@@ -47,7 +47,7 @@ oauth_callback=#{$api_gateway_url}/callback}
       # Weird bug with Capybara where it wraps JSON in a HTML block.
       expected_response = "<html><head></head><body>\
 <pre style=\"word-wrap: break-word; white-space: pre-wrap;\">\
-{\"status\":\"ok\"}\
+{\"status\":\"ok\",\"token_changed\":false}\
 </pre></body></html>"
       expect(page.html).to match expected_response
     end
