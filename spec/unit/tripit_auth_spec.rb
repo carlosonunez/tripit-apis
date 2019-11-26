@@ -154,7 +154,7 @@ oauth_callback=https://example.fake/develop/callback"
   end
 
   context 'Handling tokens' do
-    it "Should give me an error message Retrieving tokens while not authenticated", :wip do
+    it "Should give me an error message Retrieving tokens while not authenticated", :unit do
       Helpers::Aws::DynamoDBLocal.drop_tables!
       fake_event = JSON.parse({
         requestContext: {
@@ -170,7 +170,7 @@ oauth_callback=https://example.fake/develop/callback"
       expect(TripIt::Auth::get_tripit_token(event: fake_event)).to eq expected_response
     end
 
-    it "Should persist tokens with their associated API keys", :wip do
+    it "Should persist tokens with their associated API keys", :unit do
       fake_event = JSON.parse({
         requestContext: {
           identity: {
@@ -180,10 +180,11 @@ oauth_callback=https://example.fake/develop/callback"
       }.to_json)
       expected_get_response = {
         statusCode: 200,
-        body: { status: 'ok', token: 'fake' }.to_json
+        body: { status: 'ok', token: 'fake', token_secret: 'fake' }.to_json
       }
       expect(TripIt::Auth::put_tripit_token(access_key: 'fake-key',
-                                             tripit_token: 'fake')).to be true
+                                            tripit_token: 'fake',
+                                            tripit_token_secret: 'fake')).to be true
       expect(TripIt::Auth::get_tripit_token(event: fake_event)).to eq expected_get_response
     end
   end
