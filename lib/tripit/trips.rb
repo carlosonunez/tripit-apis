@@ -40,6 +40,25 @@ module TripIt
       })
     end
 
+    def self.get_current_trip(event)
+      all_trips_response = self.get_all(event)
+      if all_trips_response[:statusCode] != 200
+        return TripIt::AWSHelpers::APIGateway.error(
+          message: "Unable to fetch trips: #{all_trips[:body]}"
+        )
+      end
+      all_trips = JSON.parse(all_trips_response[:body],
+                             symbolize_names: true)
+      summarized_current_trip = {}
+      current_time = Time.now.to_i
+      current_trip = all_trips.select {|trip| trip[:starts_on] <= current_time}
+        .sort {|trip| trip[:starts_on]}
+        .last
+      summarized_current_trip[:trip_name] = current_trip[:name]
+      summarized_current_trip[:active_flights] = []
+      summarized_current_trip
+    end
+
     private
     def self.summarize_trip_data(trip, token, token_secret)
       this_trip = {}

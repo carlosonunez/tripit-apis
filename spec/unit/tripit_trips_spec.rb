@@ -61,4 +61,34 @@ describe "Fetching trips" do
       end
     end
   end
+
+  context "When getting the next event" do
+    it "Should only return the trip name if we are not en route to some place", :unit do
+      fake_event = JSON.parse({
+        requestContext: {
+          path: '/develop/auth',
+          identity: {
+            apiKey: 'fake-key'
+          }
+        },
+        headers: {
+          Host: 'example.fake'
+        }
+      }.to_json)
+      expect(TripIt::Trips).to receive(:get_all)
+        .with(fake_event)
+        .and_return({
+        statusCode: 200,
+        body: YAML.load(File.read('spec/fixtures/expected_trip_info.yml')).to_json
+      })
+      expected_trip = {
+        trip_name: 'Work: Test Client - Week 2',
+        active_flights: []
+      }
+      mocked_time = Time.parse('2019-12-01')
+      expect(Time).to receive(:now).and_return(mocked_time)
+      active_trip = TripIt::Trips.get_current_trip(fake_event)
+      expect(active_trip).to eq expected_trip
+    end
+  end
 end
