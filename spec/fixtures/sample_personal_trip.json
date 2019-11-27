@@ -1,108 +1,105 @@
 {
-  "timestamp": "1574804864",
-  "num_bytes": "10596",
-  "Trip": [
+  "timestamp": "1574805003",
+  "num_bytes": "11107",
+  "Trip": {
+    "TripInvitees": {
+      "Invitee": {
+        "@attributes": {
+          "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
+        },
+        "is_read_only": "false",
+        "is_traveler": "true",
+        "is_owner": "true"
+      }
+    },
+    "id": "123456789",
+    "relative_url": "/trip/show/id/123456789",
+    "start_date": "2019-12-15",
+    "end_date": "2019-12-19",
+    "display_name": "Personal: Some Trip",
+    "image_url": "https://www.tripit.com/images/places/generic.jpg",
+    "is_private": "false",
+    "primary_location": "Dayton, OH",
+    "PrimaryLocationAddress": {
+      "address": "Dayton, OH",
+      "city": "Dayton",
+      "state": "OH",
+      "country": "US",
+      "latitude": "39.758950",
+      "longitude": "-84.191610"
+    },
+    "TripPurposes": {
+      "purpose_type_code": "L",
+      "is_auto_generated": "false"
+    },
+    "last_modified": "1574752207",
+    "is_trip_owner_inner_circle_sharer": "false"
+  },
+  "WeatherObject": [
     {
-      "TripInvitees": {
-        "Invitee": {
-          "@attributes": {
-            "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
-          },
-          "is_read_only": "false",
-          "is_traveler": "true",
-          "is_owner": "true"
-        }
-      },
-      "id": "123456789",
-      "relative_url": "/trip/show/id/123456789",
-      "start_date": "2019-12-15",
-      "end_date": "2019-12-19",
-      "display_name": "Personal: Some Trip",
-      "image_url": "https://www.tripit.com/images/places/generic.jpg",
-      "is_private": "false",
-      "primary_location": "Dayton, OH",
-      "PrimaryLocationAddress": {
-        "address": "Dayton, OH",
-        "city": "Dayton",
-        "state": "OH",
-        "country": "US",
-        "latitude": "39.758950",
-        "longitude": "-84.191610"
-      },
-      "TripPurposes": {
-        "purpose_type_code": "L",
-        "is_auto_generated": "false"
-      },
+      "trip_id": "123456789",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
       "last_modified": "1574752207",
-      "is_trip_owner_inner_circle_sharer": "false"
+      "date": "2019-12-19",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "4.94",
+      "avg_low_temp_c": "-3.22",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0867"
     },
     {
-      "TripInvitees": {
-        "Invitee": {
-          "@attributes": {
-            "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
-          },
-          "is_read_only": "false",
-          "is_traveler": "true",
-          "is_owner": "true"
-        }
-      },
-      "id": "293554303",
-      "relative_url": "/trip/show/id/293554303",
-      "start_date": "2019-12-15",
-      "end_date": "2019-12-19",
-      "display_name": "Work: Test Client - Week 3",
-      "image_url": "https://www.tripit.com/images/places/generic.jpg",
-      "is_private": "false",
-      "primary_location": "Dayton, OH",
-      "PrimaryLocationAddress": {
-        "address": "Dayton, OH",
-        "city": "Dayton",
-        "state": "OH",
-        "country": "US",
-        "latitude": "39.758950",
-        "longitude": "-84.191610"
-      },
-      "TripPurposes": {
-        "purpose_type_code": "L",
-        "is_auto_generated": "false"
-      },
+      "trip_id": "123456789",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
       "last_modified": "1574752207",
-      "is_trip_owner_inner_circle_sharer": "false"
+      "date": "2019-12-18",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.08",
+      "avg_low_temp_c": "-3.07",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0885"
     },
     {
-      "TripInvitees": {
-        "Invitee": {
-          "@attributes": {
-            "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
-          },
-          "is_read_only": "false",
-          "is_traveler": "true",
-          "is_owner": "true"
-        }
-      },
-      "id": "293554133",
-      "relative_url": "/trip/show/id/293554133",
-      "start_date": "2019-12-01",
-      "end_date": "2019-12-05",
-      "display_name": "Work: Test Client - Week 2",
-      "image_url": "https://www.tripit.com/images/places/omaha.jpg",
-      "is_private": "false",
-      "primary_location": "Omaha, NE",
-      "PrimaryLocationAddress": {
-        "address": "Omaha, NE",
-        "city": "Omaha",
-        "state": "NE",
-        "country": "US",
-        "latitude": "41.256260",
-        "longitude": "-95.940430"
-      },
-      "TripPurposes": {
-        "purpose_type_code": "L",
-        "is_auto_generated": "false"
-      },
-      "last_modified": "1574751745",
-      "is_trip_owner_inner_circle_sharer": "false"
+      "trip_id": "123456789",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-16",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.39",
+      "avg_low_temp_c": "-2.76",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0922"
+    },
+    {
+      "trip_id": "123456789",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-15",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.54",
+      "avg_low_temp_c": "-2.61",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.094"
+    },
+    {
+      "trip_id": "123456789",
+      "is_client_traveler": "true",
+      "display_name": "Weather - Dayton, OH",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574752207",
+      "date": "2019-12-17",
+      "location": "Dayton, OH",
+      "avg_high_temp_c": "5.23",
+      "avg_low_temp_c": "-2.92",
+      "avg_wind_speed_kn": "4",
+      "avg_precipitation_cm": "0.0903"
     }
   ],
   "Profile": {

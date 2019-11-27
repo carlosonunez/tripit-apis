@@ -26,7 +26,6 @@ module TripIt
           end
           suffix =
             "#{endpoint.gsub(/^\//,'')}/#{params_string}/format/json".gsub(/\/{1,}/,'/')
-          puts "Suffix: #{suffix}"
           uri = "#{base_uri}/#{suffix}"
           auth_header = TripIt::Core::OAuth::Authenticated.generate_headers(
             uri: uri,
