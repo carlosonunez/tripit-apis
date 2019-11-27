@@ -66,8 +66,8 @@ functions:
       - http:
           path: callback
           method: get
-  getToken:
-    handler: bin/tripit.get_token
+  token:
+    handler: bin/tripit.token
     description: Retrieves tokens for authenticated users.
     timeout: 30
     environment:
@@ -79,7 +79,7 @@ functions:
       ENVIRONMENT: ${env:ENVIRONMENT}
     events:
       - http:
-          path: getToken
+          path: token
           method: get
           private: true
   trips:
@@ -99,7 +99,7 @@ functions:
           method: get
           private: true
   current_trip:
-    handler: bin/tripit.trips
+    handler: bin/tripit.current_trip
     description: Retrieves all trips associated with a TripIt account.
     timeout: 30
     environment:
@@ -111,8 +111,8 @@ functions:
       ENVIRONMENT: ${env:ENVIRONMENT}
     events:
       - http:
-          path: trips
-          method: get_current_trip
+          path: current_trip
+          method: get
           private: true
   ping:
     handler: bin/tripit.ping

@@ -8,7 +8,7 @@ require 'tripit'
 require 'json'
 
 # Retrieve tokens for autheticated users.
-def get_token(event: {}, context: {})
+def token(event: {}, context: {})
   TripIt::Auth.get_tripit_token(event: event)
 end
 

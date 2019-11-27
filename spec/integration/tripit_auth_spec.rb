@@ -55,7 +55,7 @@ oauth_callback=#{$api_gateway_url}/callback}
 
   context "Step 3" do
     it "Should provide me with a token", :integration do
-      response = HTTParty.get("#{$api_gateway_url}/getToken", {
+      response = HTTParty.get("#{$api_gateway_url}/token", {
         headers: { 'x-api-key': $test_api_key }
       })
       expect(response.code.to_i).to eq 200
