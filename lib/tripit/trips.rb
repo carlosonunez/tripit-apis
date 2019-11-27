@@ -56,7 +56,7 @@ module TripIt
       response = TripIt::Core::API::V1.get_from(
         endpoint: "get/trip/id/#{trip_id}",
         params: {
-          includeObjects: true
+          include_objects: true
         },
         token: token,
         token_secret: token_secret
