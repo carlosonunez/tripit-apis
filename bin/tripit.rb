@@ -31,3 +31,8 @@ end
 def trips(event: {}, context: {})
   TripIt::Trips.get_all(event)
 end
+
+# Get current trip
+def current_trip(event: {}, context: {})
+  TripIts::Trips.get_current_trip(event)
+end
