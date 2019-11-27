@@ -30,9 +30,9 @@ describe "Fetching trips" do
       }
       expected_responses_from_tripit = {
         '/list/trip': 'sample_trips.json',
-        "/get/trip/id/123456789/includeObjects/true": 'sample_personal_trip.json',
-        "/get/trip/id/293554303/includeObjects/true": 'sample_trip_without_flights.json',
-        "/get/trip/id/293554133/includeObjects/true": 'sample_trip_with_flights.json'
+        "/get/trip/id/123456789/include_objects/true": 'sample_personal_trip.json',
+        "/get/trip/id/293554303/include_objects/true": 'sample_trip_without_flights.json',
+        "/get/trip/id/293554133/include_objects/true": 'sample_trip_with_flights.json'
       }
       expected_responses_from_tripit.each do |endpoint, fixture|
         uri = "https://api.tripit.com/v1#{endpoint}/format/json"
