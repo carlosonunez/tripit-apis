@@ -12,7 +12,9 @@ module TripIt
                                                           token: token,
                                                           token_secret: token_secret)
       if all_trips_response.code != 200
-        return TripIt::AWSHelpers::APIGateway.error(message: "Unable to find trips.")
+        return TripIt::AWSHelpers::APIGateway.error(
+          message: "Unable to find trips: #{all_trips_response.body}"
+        )
       end
       all_trips = JSON.parse(all_trips_response.body,
                             symbolize_names: true)
@@ -52,7 +54,7 @@ module TripIt
 
     def self.get_flight_data(trip_id, token, token_secret)
       response = TripIt::Core::API::V1.get_from(
-        endpoint: "get/trip/#{trip_id}",
+        endpoint: "get/trip/id/#{trip_id}",
         params: {
           includeObjects: true
         },
@@ -60,7 +62,7 @@ module TripIt
         token_secret: token_secret
       )
       if response.code != 200
-        TripIt::Logger.warn("Unable to get data for ID #{trip_id}: #{response.body}")
+        puts "WARN: Unable to get data for ID #{trip_id}: #{response.body}"
       end
       trip_data = JSON.parse(response.body, symbolize_names: true)
       if !trip_data.key?(:AirObject)

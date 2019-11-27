@@ -26,3 +26,8 @@ end
 def ping(event: {}, context: {})
   TripIt::Health.ping
 end
+
+# Get trips
+def trips(event: {}, context: {})
+  TripIt::Trips.get_all(event)
+end
