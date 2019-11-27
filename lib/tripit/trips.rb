@@ -51,11 +51,24 @@ module TripIt
                              symbolize_names: true)
       summarized_current_trip = {}
       current_time = Time.now.to_i
-      current_trip = all_trips.select {|trip| trip[:starts_on] <= current_time}
+      current_trip =
+        all_trips.select {|trip|
+          current_time >= trip[:starts_on] && current_time < trip[:ends_on]
+        }
         .sort {|trip| trip[:starts_on]}
-        .last
+        .first
       summarized_current_trip[:trip_name] = current_trip[:name]
-      summarized_current_trip[:active_flights] = []
+      summarized_current_trip[:todays_flight] = {}
+      current_date = Time.now.strftime("%Y-%m-%d")
+      if !current_trip[:flights].empty?
+        current_flight = current_trip[:flights]
+          .select{|flight|
+            departure_date = Time.at(flight[:depart_time]).strftime("%Y-%m-%d")
+            current_date == departure_date
+          }
+          .first || {}
+        summarized_current_trip[:todays_flight] = current_flight
+      end
       summarized_current_trip
     end
 

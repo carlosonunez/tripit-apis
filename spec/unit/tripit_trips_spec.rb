@@ -75,20 +75,60 @@ describe "Fetching trips" do
           Host: 'example.fake'
         }
       }.to_json)
+      sample_trips = YAML.load(File.read('spec/fixtures/expected_trip_info.yml'),
+                               symbolize_names: true)
+      sample_trips_without_matching_flight =
+        sample_trips.each{|trip|
+          trip[:flights] = trip[:flights].reject{|flight|
+            flight[:flight_number] == 'AA356'
+          }}
       expect(TripIt::Trips).to receive(:get_all)
         .with(fake_event)
         .and_return({
         statusCode: 200,
-        body: YAML.load(File.read('spec/fixtures/expected_trip_info.yml')).to_json
+        body: sample_trips_without_matching_flight.to_json
       })
       expected_trip = {
         trip_name: 'Work: Test Client - Week 2',
-        active_flights: []
+        todays_flight: {}
       }
       mocked_time = Time.parse('2019-12-01')
-      expect(Time).to receive(:now).and_return(mocked_time)
+      expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
       active_trip = TripIt::Trips.get_current_trip(fake_event)
       expect(active_trip).to eq expected_trip
+    end
+    it "Should return the trip and any active flights associated with it that day", :unit do
+        fake_event = JSON.parse({
+          requestContext: {
+            path: '/develop/auth',
+            identity: {
+              apiKey: 'fake-key'
+            }
+          },
+          headers: {
+            Host: 'example.fake'
+          }
+        }.to_json)
+        expect(TripIt::Trips).to receive(:get_all)
+          .with(fake_event)
+          .and_return({
+          statusCode: 200,
+          body: YAML.load(File.read('spec/fixtures/expected_trip_info.yml')).to_json
+        })
+        expected_trip = {
+          trip_name: 'Work: Test Client - Week 2',
+          todays_flight: {
+            flight_number: "AA356",
+            origin: "DFW",
+            destination: "OMA",
+            depart_time: 1575241860,
+            arrive_time: 1575248160
+          }
+        }
+        mocked_time = Time.parse('2019-12-01')
+        expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
+        active_trip = TripIt::Trips.get_current_trip(fake_event)
+        expect(active_trip).to eq expected_trip
     end
   end
 end
