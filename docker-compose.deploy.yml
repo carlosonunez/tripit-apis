@@ -39,7 +39,6 @@ services:
     extends: serverless
     environment:
       ENVIRONMENT: "production"
-      SLS_DEBUG: "true" # this command is janky af
     command:
       - create_domain
       - --stage
