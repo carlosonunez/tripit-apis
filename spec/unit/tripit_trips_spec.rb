@@ -86,11 +86,20 @@ describe "Fetching trips" do
         .with(fake_event)
         .and_return({
         statusCode: 200,
-        body: sample_trips_without_matching_flight.to_json
+        body: {
+          status: 'ok',
+          trips: sample_trips_without_matching_flight
+        }.to_json
       })
       expected_trip = {
-        trip_name: 'Work: Test Client - Week 2',
-        todays_flight: {}
+        statusCode: 200,
+        body: {
+          status: 'ok',
+          trip: {
+            trip_name: 'Work: Test Client - Week 2',
+            todays_flight: {}
+          }
+        }.to_json
       }
       mocked_time = Time.parse('2019-12-01')
       expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
@@ -113,17 +122,26 @@ describe "Fetching trips" do
           .with(fake_event)
           .and_return({
           statusCode: 200,
-          body: YAML.load(File.read('spec/fixtures/expected_trip_info.yml')).to_json
+          body: {
+            status: 'ok',
+            trips: YAML.load(File.read('spec/fixtures/expected_trip_info.yml'))
+          }.to_json
         })
         expected_trip = {
-          trip_name: 'Work: Test Client - Week 2',
-          todays_flight: {
-            flight_number: "AA356",
-            origin: "DFW",
-            destination: "OMA",
-            depart_time: 1575241860,
-            arrive_time: 1575248160
-          }
+          statusCode: 200,
+          body: {
+            status: 'ok',
+            trip: {
+              trip_name: 'Work: Test Client - Week 2',
+              todays_flight: {
+                flight_number: "AA356",
+                origin: "DFW",
+                destination: "OMA",
+                depart_time: 1575241860,
+                arrive_time: 1575248160
+              }
+            }
+          }.to_json
         }
         mocked_time = Time.parse('2019-12-01')
         expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
