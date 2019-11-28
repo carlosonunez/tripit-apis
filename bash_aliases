@@ -10,3 +10,4 @@ alias remove_functions="docker-compose run --rm serverless remove --stage develo
 alias remove_infra="docker-compose -f docker-compose.deploy.yml run --rm terraform destroy"
 alias deploy="scripts/deploy"
 alias logs="docker-compose run --rm serverless logs --stage develop"
+alias logs_prod="docker-compose run --rm serverless logs --stage v1"
