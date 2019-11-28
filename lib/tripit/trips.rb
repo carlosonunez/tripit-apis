@@ -48,7 +48,7 @@ module TripIt
         )
       end
       all_trips = JSON.parse(all_trips_response[:body],
-                             symbolize_names: true)
+                             symbolize_names: true)[:trips]
       summarized_current_trip = {}
       current_time = Time.now.to_i
       current_trip =
@@ -69,7 +69,9 @@ module TripIt
           .first || {}
         summarized_current_trip[:todays_flight] = current_flight
       end
-      summarized_current_trip
+      TripIt::AWSHelpers::APIGateway.ok(additional_json: {
+        trip: summarized_current_trip
+      })
     end
 
     private
