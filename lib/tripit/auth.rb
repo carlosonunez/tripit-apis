@@ -9,7 +9,7 @@ module TripIt
   module Auth
     class TripItToken
       Dynamoid.configure do |config|
-        config.namespace = "tripit_auth_#{ENV['ENVIRONMENT'].downcase}"
+        config.namespace = "tripit_auth_state_#{ENV['ENVIRONMENT'].downcase}"
         config.logger.level = Logger::FATAL
       end
 
@@ -92,7 +92,7 @@ copy/paste this URL to get started: #{tripit_authorization_uri}"
           return TripIt::AWSHelpers::APIGateway.error(
             message: "No access key exists for this TripIt token: #{token}")
         end
-        if self.has_token?(event: event)
+        if self.has_token?(event: event, access_key: access_key_from_state)
           token_changed = true
           self.delete_existing_tripit_tokens!(access_key: access_key_from_state)
         end
@@ -172,13 +172,16 @@ existing tokens and provide a refresh mechanism in a future commit."
     def self.delete_existing_tripit_tokens!(access_key:)
       begin
         TripItToken.where(access_key: access_key).delete_all
-      rescue
+      rescue => e
+        puts "ERROR: Unable to delete tokens: #{e}"
       end
     end
 
-    def self.has_token?(event:)
+    def self.has_token?(event:, access_key: nil)
       begin
-        access_key = TripIt::AWSHelpers::APIGateway::Events.get_access_key(event)
+        if access_key.nil?
+          access_key = TripIt::AWSHelpers::APIGateway::Events.get_access_key(event)
+        end
         results = TripItToken.where(access_key: access_key)
         return nil if results.nil? or results.count == 0
         !results.first.tripit_token.nil?
