@@ -34,5 +34,5 @@ end
 
 # Get current trip
 def current_trip(event: {}, context: {})
-  TripIts::Trips.get_current_trip(event)
+  TripIt::Trips.get_current_trip(event)
 end
