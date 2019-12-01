@@ -59,11 +59,17 @@ module TripIt
         .first
       summarized_current_trip[:trip_name] = current_trip[:name]
       summarized_current_trip[:todays_flight] = {}
-      current_date = Time.now.strftime("%Y-%m-%d")
       if !current_trip[:flights].empty?
         current_flight = current_trip[:flights]
           .select{|flight|
-            departure_date = Time.at(flight[:depart_time]).strftime("%Y-%m-%d")
+            origin_egress_seconds =
+              (ENV['TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS'].to_i*3600) || 5400
+            destination_ingress_seconds =
+              (ENV['TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS'].to_i*3600) || 5400
+            departure_time = flight[:depart_time]
+            arrive_time = flight[:arrive_time]
+            current_time >= (departure_time-origin_egress_seconds) &&
+              current_time < (arrive_time+destination_ingress_seconds)
             current_date == departure_date
           }
           .first || {}
