@@ -70,7 +70,6 @@ module TripIt
             arrive_time = flight[:arrive_time]
             current_time >= (departure_time-origin_egress_seconds) &&
               current_time < (arrive_time+destination_ingress_seconds)
-            current_date == departure_date
           }
           .first || {}
         summarized_current_trip[:todays_flight] = current_flight
