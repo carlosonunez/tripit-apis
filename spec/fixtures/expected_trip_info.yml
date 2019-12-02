@@ -19,6 +19,19 @@
   starts_on: 1576368000
   flights: []
 
+- id: 234567890
+  name: "Work: Test Client - Week 3"
+  city: "Omaha, NE"
+  ends_on: 1575504000
+  link: "https://www.tripit.com/trip/show/id/234567890"
+  starts_on: 1575158400
+  flights:
+  - flight_number: "AA1"
+    origin: "JFK"
+    destination: "LAX"
+    depart_time: 1574871540
+    arrive_time: 1574888460
+
 - id: 293554133
   name: "Work: Test Client - Week 2"
   city: "Omaha, NE"

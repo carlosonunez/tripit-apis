@@ -109,7 +109,13 @@ module TripIt
       else
         flight_data = trip_data[:AirObject]
         summarized_flight_data = []
-        Array(flight_data[:Segment]).each do |flight_leg|
+        # This data doesn't always return an Array. I'm not sure if
+        # this is an issue with the JSON library or with TripIt's schema.
+        flight_segments = flight_data[:Segment]
+        if flight_segments.is_a? Hash
+          flight_segments = [flight_segments]
+        end
+        flight_segments.each do |flight_leg|
           summarized_flight = {}
           summarized_flight[:flight_number] = [
             flight_leg[:marketing_airline_code],

@@ -103,6 +103,40 @@
       },
       "last_modified": "1574751745",
       "is_trip_owner_inner_circle_sharer": "false"
+    },
+    {
+      "TripInvitees": {
+        "Invitee": {
+          "@attributes": {
+            "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
+          },
+          "is_read_only": "false",
+          "is_traveler": "true",
+          "is_owner": "true"
+        }
+      },
+      "id": "234567890",
+      "relative_url": "/trip/show/id/234567890",
+      "start_date": "2019-12-01",
+      "end_date": "2019-12-05",
+      "display_name": "Work: Test Client - Week 3",
+      "image_url": "https://www.tripit.com/images/places/omaha.jpg",
+      "is_private": "false",
+      "primary_location": "Omaha, NE",
+      "PrimaryLocationAddress": {
+        "address": "Omaha, NE",
+        "city": "Omaha",
+        "state": "NE",
+        "country": "US",
+        "latitude": "41.256260",
+        "longitude": "-95.940430"
+      },
+      "TripPurposes": {
+        "purpose_type_code": "L",
+        "is_auto_generated": "false"
+      },
+      "last_modified": "1574751745",
+      "is_trip_owner_inner_circle_sharer": "false"
     }
   ],
   "Profile": {
