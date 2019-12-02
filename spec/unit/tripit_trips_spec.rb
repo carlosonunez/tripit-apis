@@ -143,7 +143,7 @@ describe "Fetching trips" do
             }
           }.to_json
         }
-        mocked_time = Time.parse('2019-12-01')
+        mocked_time = Time.at(1575243000)
         expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
         active_trip = TripIt::Trips.get_current_trip(fake_event)
         expect(active_trip).to eq expected_trip
