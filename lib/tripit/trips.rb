@@ -110,7 +110,7 @@ module TripIt
       else
         flight_data = trip_data[:AirObject]
         summarized_flight_data = []
-        flight_data[:Segment].each do |flight_leg|
+        Array(flight_data[:Segment]).each do |flight_leg|
           summarized_flight = {}
           summarized_flight[:flight_number] = [
             flight_leg[:marketing_airline_code],
