@@ -111,29 +111,31 @@ module TripIt
         summarized_flight_data = []
         # This data doesn't always return an Array. I'm not sure if
         # this is an issue with the JSON library or with TripIt's schema.
-        flight_segments = flight_data[:Segment]
-        if flight_segments.is_a? Hash
-          flight_segments = [flight_segments]
+        if flight_data.is_a? Hash
+          flight_data = [flight_data]
         end
-        flight_segments.each do |flight_leg|
-          summarized_flight = {}
-          summarized_flight[:flight_number] = [
-            flight_leg[:marketing_airline_code],
-            flight_leg[:marketing_flight_number]
-          ].join
-          summarized_flight[:origin] = flight_leg[:start_airport_code]
-          summarized_flight[:destination] = flight_leg[:end_airport_code]
-          summarized_flight[:depart_time] = Time.parse([
-            flight_leg[:StartDateTime][:date],
-            flight_leg[:StartDateTime][:time],
-            flight_leg[:StartDateTime][:utc_offset]
-          ].join(' ')).to_i
-          summarized_flight[:arrive_time] = Time.parse([
-            flight_leg[:EndDateTime][:date],
-            flight_leg[:EndDateTime][:time],
-            flight_leg[:EndDateTime][:utc_offset]
-          ].join(' ')).to_i
-          summarized_flight_data << summarized_flight
+        flight_data.each do |flight_data_object|
+          flight_legs = [flight_data_object[:Segment]].flatten
+          flight_legs.each do |flight_leg|
+            summarized_flight = {}
+            summarized_flight[:flight_number] = [
+              flight_leg[:marketing_airline_code],
+              flight_leg[:marketing_flight_number]
+            ].join
+            summarized_flight[:origin] = flight_leg[:start_airport_code]
+            summarized_flight[:destination] = flight_leg[:end_airport_code]
+            summarized_flight[:depart_time] = Time.parse([
+              flight_leg[:StartDateTime][:date],
+              flight_leg[:StartDateTime][:time],
+              flight_leg[:StartDateTime][:utc_offset]
+            ].join(' ')).to_i
+            summarized_flight[:arrive_time] = Time.parse([
+              flight_leg[:EndDateTime][:date],
+              flight_leg[:EndDateTime][:time],
+              flight_leg[:EndDateTime][:utc_offset]
+            ].join(' ')).to_i
+            summarized_flight_data << summarized_flight
+          end
         end
         summarized_flight_data
       end
