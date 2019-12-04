@@ -101,6 +101,7 @@ describe "Fetching trips" do
           status: 'ok',
           trip: {
             trip_name: 'Work: Test Client - Week 2',
+            current_city: 'Omaha, NE',
             todays_flight: {}
           }
         }.to_json
@@ -137,6 +138,7 @@ describe "Fetching trips" do
             status: 'ok',
             trip: {
               trip_name: 'Work: Test Client - Week 2',
+              current_city: 'Omaha, NE',
               todays_flight: {
                 flight_number: "AA356",
                 origin: "DFW",

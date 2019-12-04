@@ -58,6 +58,7 @@ module TripIt
         .sort {|trip| trip[:starts_on]}
         .first
       summarized_current_trip[:trip_name] = current_trip[:name]
+      summarized_current_trip[:current_city] = current_trip[:city] || 'No city'
       summarized_current_trip[:todays_flight] = {}
       if !current_trip[:flights].empty?
         current_flight = current_trip[:flights]
