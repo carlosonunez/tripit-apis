@@ -154,5 +154,38 @@ describe "Fetching trips" do
         active_trip = TripIt::Trips.get_current_trip(fake_event)
         expect(active_trip).to eq expected_trip
     end
+    it "Should return no trips if no active trips are found", :unit do
+        fake_event = JSON.parse({
+          requestContext: {
+            path: '/develop/auth',
+            identity: {
+              apiKey: 'fake-key'
+            }
+          },
+          headers: {
+            Host: 'example.fake'
+          }
+        }.to_json)
+        expect(TripIt::Trips).to receive(:get_all)
+          .with(fake_event)
+          .and_return({
+          statusCode: 200,
+          body: {
+            status: 'ok',
+            trips: YAML.load(File.read('spec/fixtures/expected_trip_info.yml'))
+          }.to_json
+        })
+        expected_trip = {
+          statusCode: 200,
+          body: {
+            status: 'ok',
+            trip: {}
+          }.to_json
+        }
+        mocked_time = Time.at(2000000000)
+        expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
+        active_trip = TripIt::Trips.get_current_trip(fake_event)
+        expect(active_trip).to eq expected_trip
+    end
   end
 end
