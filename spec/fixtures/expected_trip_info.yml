@@ -31,6 +31,7 @@
     destination: "LAX"
     depart_time: 1574871540
     arrive_time: 1574888460
+    offset: "-05:00"
 
 - id: 293554133
   name: "Work: Test Client - Week 2"
@@ -44,9 +45,11 @@
       destination: "OMA"
       depart_time: 1575241860
       arrive_time: 1575248160
+      offset: "-06:00"
     - flight_number: "AA2360"
       origin: "OMA"
       destination: "DFW"
       depart_time: 1575583320
       arrive_time: 1575590280
+      offset: "-06:00"
 

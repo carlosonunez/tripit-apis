@@ -49,11 +49,18 @@ module TripIt
       end
       all_trips = JSON.parse(all_trips_response[:body],
                              symbolize_names: true)[:trips]
-      summarized_current_trip = {}
       current_time = Time.now.to_i
+
+      # TripIt uses +%F format for their start and end dates. This causes
+      # us to not find any trips when our current date matches the end date
+      # at the top of the hour.
+      #
+      # Fix this by adding a 23h59m offset.
+      offset_to_end_of_day_seconds = 86340
       current_trip =
         all_trips.select {|trip|
-          current_time >= trip[:starts_on] && current_time < trip[:ends_on]
+          current_time >= trip[:starts_on] &&
+            current_time < (trip[:ends_on] + offset_to_end_of_day_seconds)
         }
         .sort {|trip| trip[:starts_on]}
         .first
@@ -67,14 +74,17 @@ module TripIt
       if !current_trip[:flights].empty?
         current_flight = current_trip[:flights]
           .select{|flight|
+            true_offset = flight[:offset].to_i + Time.now.strftime("%:z").to_i
+            adjusted_current_time =
+              Time.at(current_time).getlocal(flight[:offset].to_i + true_offset).to_i
             origin_egress_seconds =
               (ENV['TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS'].to_i*3600) || 5400
             destination_ingress_seconds =
               (ENV['TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS'].to_i*3600) || 5400
             departure_time = flight[:depart_time]
             arrive_time = flight[:arrive_time]
-            current_time >= (departure_time-origin_egress_seconds) &&
-              current_time < (arrive_time+destination_ingress_seconds)
+            adjusted_current_time >= (departure_time-origin_egress_seconds) &&
+              adjusted_current_time < (arrive_time+destination_ingress_seconds)
           }
           .first || {}
         summarized_current_trip[:todays_flight] = current_flight
@@ -129,6 +139,7 @@ module TripIt
             ].join
             summarized_flight[:origin] = flight_leg[:start_airport_code]
             summarized_flight[:destination] = flight_leg[:end_airport_code]
+            summarized_flight[:offset] = flight_leg[:StartDateTime][:utc_offset]
             summarized_flight[:depart_time] = Time.parse([
               flight_leg[:StartDateTime][:date],
               flight_leg[:StartDateTime][:time],

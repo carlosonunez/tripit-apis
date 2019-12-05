@@ -144,7 +144,8 @@ describe "Fetching trips" do
                 origin: "DFW",
                 destination: "OMA",
                 depart_time: 1575241860,
-                arrive_time: 1575248160
+                arrive_time: 1575248160,
+                offset: "-06:00"
               }
             }
           }.to_json
