@@ -1,0 +1,55 @@
+---
+# all start and end times assume GMT
+# if tests are failing, ensure that the time zone on the machine that you
+# are running on is set to use GMT. (The Docker containers I was using for
+# these tests and the images in this codebase are configured this way.)
+- id: 123456789 
+  name: "Personal: Some Trip"
+  city: "Dayton, OH"
+  ends_on: "Thu Dec 19 00:00:00 2019 UTC"
+  link: "https://www.tripit.com/trip/show/id/123456789"
+  starts_on: "Sun Dec 15 00:00:00 2019 UTC"
+  flights: []
+
+- id: 293554303 
+  name: "Work: Test Client - Week 3"
+  city: "Dayton, OH"
+  ends_on: "Thu Dec 19 00:00:00 2019 UTC"
+  link: "https://www.tripit.com/trip/show/id/293554303"
+  starts_on: "Sun Dec 15 00:00:00 2019 UTC"
+  flights: []
+
+- id: 234567890
+  name: "Work: Test Client - Week 3"
+  city: "Omaha, NE"
+  ends_on: "Thu Dec  5 00:00:00 2019 UTC"
+  link: "https://www.tripit.com/trip/show/id/234567890"
+  starts_on: "Sun Dec  1 00:00:00 2019 UTC"
+  flights:
+  - flight_number: "AA1"
+    origin: "JFK"
+    destination: "LAX"
+    depart_time: "Wed Nov 27 16:19:00 2019 UTC"
+    arrive_time: "Wed Nov 27 21:01:00 2019 UTC"
+    offset: "-05:00"
+
+- id: 293554133
+  name: "Work: Test Client - Week 2"
+  city: "Omaha, NE"
+  ends_on: "Thu Dec  5 00:00:00 2019 UTC"
+  link: "https://www.tripit.com/trip/show/id/293554133"
+  starts_on: "Sun Dec  1 00:00:00 2019 UTC"
+  flights:
+    - flight_number: "AA356"
+      origin: "DFW"
+      destination: "OMA"
+      depart_time: "Sun Dec  1 23:11:00 2019 UTC"
+      arrive_time: "Mon Dec  2 00:56:00 2019 UTC"
+      offset: "-06:00"
+    - flight_number: "AA2360"
+      origin: "OMA"
+      destination: "DFW"
+      depart_time: "Thu Dec  5 22:02:00 2019 UTC"
+      arrive_time: "Thu Dec  5 23:58:00 2019 UTC"
+      offset: "-06:00"
+

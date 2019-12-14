@@ -6,6 +6,8 @@ module TripIt
     def self.get_all(event)
       token_data = JSON.parse(TripIt::Auth.get_tripit_token(event: event)[:body],
                               symbolize_names: true)
+      friendly_times = event.dig('queryStringParameters',
+                                 'human_times') == 'true'
       token = token_data[:token]
       token_secret = token_data[:token_secret]
       all_trips_response = TripIt::Core::API::V1.get_from(endpoint: '/list/trip',
@@ -24,12 +26,16 @@ module TripIt
         parameters = {trip: trip, token: token, token_secret: token_secret}
         trip_threads << Thread.new(parameters) do |parameters_in_thread|
           trip_id = parameters_in_thread[:trip][:id].to_i
-          summarized_trip = self.summarize_trip_data(parameters_in_thread[:trip],
-                                                     parameters_in_thread[:token],
-                                                     parameters_in_thread[:token_secret])
-          summarized_trip[:flights] = self.get_flight_data(trip_id,
-                                                          token,
-                                                          token_secret)
+          summarized_trip =
+            self.summarize_trip_data(parameters_in_thread[:trip],
+                                     parameters_in_thread[:token],
+                                     parameters_in_thread[:token_secret],
+                                     human_times: friendly_times)
+          summarized_trip[:flights] =
+            self.get_flight_data(trip_id,
+                                 token,
+                                 token_secret,
+                                 human_times: friendly_times)
           summarized_trips << summarized_trip
         end
       end
@@ -95,7 +101,7 @@ module TripIt
     end
 
     private
-    def self.summarize_trip_data(trip, token, token_secret)
+    def self.summarize_trip_data(trip, token, token_secret, human_times: false)
       this_trip = {}
       this_trip[:id] = trip[:id].to_i
       this_trip[:name] = trip[:display_name]
@@ -103,10 +109,16 @@ module TripIt
       this_trip[:ends_on] = Time.parse(trip[:end_date]).to_i
       this_trip[:link] = "https://www.tripit.com#{trip[:relative_url]}"
       this_trip[:starts_on] = Time.parse(trip[:start_date]).to_i
+
+      if human_times
+        %i[ends_on starts_on].each do |key|
+          this_trip[key] = Time.at(this_trip[key].to_i).strftime("%c %Z")
+        end
+      end
       this_trip
     end
 
-    def self.get_flight_data(trip_id, token, token_secret)
+    def self.get_flight_data(trip_id, token, token_secret, human_times: false)
       response = TripIt::Core::API::V1.get_from(
         endpoint: "get/trip/id/#{trip_id}",
         params: {
@@ -141,8 +153,7 @@ module TripIt
             summarized_flight[:destination] = flight_leg[:end_airport_code]
             summarized_flight[:offset] = flight_leg[:StartDateTime][:utc_offset]
             summarized_flight[:depart_time] = Time.parse([
-              flight_leg[:StartDateTime][:date],
-              flight_leg[:StartDateTime][:time],
+              flight_leg[:StartDateTime][:date], flight_leg[:StartDateTime][:time],
               flight_leg[:StartDateTime][:utc_offset]
             ].join(' ')).to_i
             summarized_flight[:arrive_time] = Time.parse([
@@ -150,6 +161,13 @@ module TripIt
               flight_leg[:EndDateTime][:time],
               flight_leg[:EndDateTime][:utc_offset]
             ].join(' ')).to_i
+
+            if human_times
+              %i[depart_time arrive_time].each do |key|
+                summarized_flight[key] =
+                  Time.at(summarized_flight[key].to_i).strftime("%c %Z")
+              end
+            end
             summarized_flight_data << summarized_flight
           end
         end
