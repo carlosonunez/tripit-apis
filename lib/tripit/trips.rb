@@ -64,12 +64,12 @@ module TripIt
       # Fix this by adding a 23h59m offset.
       offset_to_end_of_day_seconds = 86340
       current_trip =
-        all_trips.select {|trip|
+        all_trips.select do |trip|
           current_time >= trip[:starts_on] &&
             current_time < (trip[:ends_on] + offset_to_end_of_day_seconds)
-        }
-        .sort {|trip| trip[:id]}
-        .first
+        end
+          .sort{|first, second| first[:id] <=> second[:id]}
+          .last
       if current_trip.nil?
         return TripIt::AWSHelpers::APIGateway.ok(additional_json: { trip: {} })
       end
