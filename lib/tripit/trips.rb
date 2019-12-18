@@ -68,7 +68,7 @@ module TripIt
           current_time >= trip[:starts_on] &&
             current_time < (trip[:ends_on] + offset_to_end_of_day_seconds)
         }
-        .sort {|trip| trip[:starts_on]}
+        .sort {|trip| trip[:id]}
         .first
       if current_trip.nil?
         return TripIt::AWSHelpers::APIGateway.ok(additional_json: { trip: {} })
