@@ -31,11 +31,11 @@ module TripIt
                                      parameters_in_thread[:token],
                                      parameters_in_thread[:token_secret],
                                      human_times: friendly_times)
+          trip_data = TripIt::Core::Trip.new(trip_id, token, token_secret)
           summarized_trip[:flights] =
-            self.get_flight_data(trip_id,
-                                 token,
-                                 token_secret,
-                                 human_times: friendly_times)
+            self.get_flight_data(trip_data, human_times: friendly_times)
+          summarized_trip[:ended] =
+            self.trip_ended?(trip_data)
           summarized_trips << summarized_trip
         end
       end
@@ -65,7 +65,8 @@ module TripIt
       offset_to_end_of_day_seconds = 86340
       current_trip =
         all_trips.select do |trip|
-          current_time >= trip[:starts_on] &&
+          trip[:ended] == false &&
+            current_time >= trip[:starts_on] &&
             current_time < (trip[:ends_on] + offset_to_end_of_day_seconds)
         end
           .sort{|first, second| first[:id] <=> second[:id]}
@@ -118,23 +119,21 @@ module TripIt
       this_trip
     end
 
-    def self.get_flight_data(trip_id, token, token_secret, human_times: false)
-      response = TripIt::Core::API::V1.get_from(
-        endpoint: "get/trip/id/#{trip_id}",
-        params: {
-          include_objects: true
-        },
-        token: token,
-        token_secret: token_secret
-      )
-      if response.code != 200
-        puts "WARN: Unable to get data for ID #{trip_id}: #{response.body}"
+    def self.trip_ended?(trip)
+      if !trip.data.key?(:NoteObject)
+        false
+      else
+        trip.data[:NoteObject].select do |note|
+          note[:display_name].downcase.match?(/trip_ended/)
+        end.empty?
       end
-      trip_data = JSON.parse(response.body, symbolize_names: true)
-      if !trip_data.key?(:AirObject)
+    end
+
+    def self.get_flight_data(trip, human_times: false)
+      if !trip.data.key?(:AirObject)
         []
       else
-        flight_data = trip_data[:AirObject]
+        flight_data = trip.data[:AirObject]
         summarized_flight_data = []
         # This data doesn't always return an Array. I'm not sure if
         # this is an issue with the JSON library or with TripIt's schema.

@@ -3,20 +3,22 @@
 # if tests are failing, ensure that the time zone on the machine that you
 # are running on is set to use GMT. (The Docker containers I was using for
 # these tests and the images in this codebase are configured this way.)
-- id: 123456789 
+- id: 123456789
   name: "Personal: Some Trip"
   city: "Dayton, OH"
   ends_on: 1576713600
   link: "https://www.tripit.com/trip/show/id/123456789"
   starts_on: 1576368000
+  ended: false
   flights: []
 
-- id: 293554303 
+- id: 293554303
   name: "Work: Test Client - Week 3"
   city: "Dayton, OH"
   ends_on: 1576713600
   link: "https://www.tripit.com/trip/show/id/293554303"
   starts_on: 1576368000
+  ended: false
   flights: []
 
 - id: 234567890
@@ -25,6 +27,7 @@
   ends_on: 1575504000
   link: "https://www.tripit.com/trip/show/id/234567890"
   starts_on: 1575158400
+  ended: false
   flights:
   - flight_number: "AA1"
     origin: "JFK"
@@ -33,12 +36,28 @@
     arrive_time: 1574888460
     offset: "-05:00"
 
-- id: 293554133
+- id: 345678901
+  name: "Work: Test Client - Week 3"
+  city: "Omaha, NE"
+  ends_on: 1575504000
+  link: "https://www.tripit.com/trip/show/id/234567890"
+  starts_on: 1575158400
+  ended: true
+  flights:
+  - flight_number: "AA1"
+    origin: "JFK"
+    destination: "LAX"
+    depart_time: 1574871540
+    arrive_time: 1574888460
+    offset: "-05:00"
+
+- id: 293554134
   name: "Work: Test Client - Week 2"
   city: "Omaha, NE"
   ends_on: 1575504000
-  link: "https://www.tripit.com/trip/show/id/293554133"
+  link: "https://www.tripit.com/trip/show/id/293554134"
   starts_on: 1575158400
+  ended: false
   flights:
     - flight_number: "AA356"
       origin: "DFW"

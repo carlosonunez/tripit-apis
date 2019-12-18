@@ -23,15 +23,16 @@ describe "Fetching trips" do
       ids = {
         personal: 123456789,
         no_flights: 293554303,
-        has_flights: 293554133,
+        has_flights: 293554134,
         single_segment: 234567890,
       }
       expected_responses_from_tripit = {
         '/list/trip': 'sample_trips.json',
         "/get/trip/id/123456789/include_objects/true": 'sample_personal_trip.json',
         "/get/trip/id/293554303/include_objects/true": 'sample_trip_without_flights.json',
-        "/get/trip/id/293554133/include_objects/true": 'sample_trip_with_flights.json',
-        "/get/trip/id/234567890/include_objects/true": 'sample_trip_single_segment.json'
+        "/get/trip/id/293554134/include_objects/true": 'sample_trip_with_flights.json',
+        "/get/trip/id/234567890/include_objects/true": 'sample_trip_single_segment.json',
+        "/get/trip/id/345678901/include_objects/true": 'sample_trip_that_ended.json'
       }
       mocked_time = Time.parse("1969-12-31 18:02:03 -0600") # 123
       expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
@@ -88,15 +89,16 @@ describe "Fetching trips" do
       ids = {
         personal: 123456789,
         no_flights: 293554303,
-        has_flights: 293554133,
+        has_flights: 293554134,
         single_segment: 234567890,
       }
       expected_responses_from_tripit = {
         '/list/trip': 'sample_trips.json',
         "/get/trip/id/123456789/include_objects/true": 'sample_personal_trip.json',
         "/get/trip/id/293554303/include_objects/true": 'sample_trip_without_flights.json',
-        "/get/trip/id/293554133/include_objects/true": 'sample_trip_with_flights.json',
-        "/get/trip/id/234567890/include_objects/true": 'sample_trip_single_segment.json'
+        "/get/trip/id/293554134/include_objects/true": 'sample_trip_with_flights.json',
+        "/get/trip/id/234567890/include_objects/true": 'sample_trip_single_segment.json',
+        "/get/trip/id/345678901/include_objects/true": 'sample_trip_single_segment.json'
       }
       mocked_time = Time.parse("1969-12-31 18:02:03 -0600") # 123
       expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
@@ -166,7 +168,7 @@ describe "Fetching trips" do
         body: {
           status: 'ok',
           trip: {
-            trip_name: 'Work: Test Client - Week 2',
+            trip_name: 'Work: Test Client - Week 3',
             current_city: 'Omaha, NE',
             todays_flight: {}
           }

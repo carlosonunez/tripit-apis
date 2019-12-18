@@ -3,6 +3,7 @@ require 'tripit/health'
 require 'tripit/auth'
 require 'tripit/trips'
 require 'tripit/core/oauth'
+require 'tripit/core/trip'
 
 module TripIt
   @logger = Logger.new(STDOUT)
