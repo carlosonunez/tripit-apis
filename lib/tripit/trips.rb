@@ -22,7 +22,7 @@ module TripIt
                             symbolize_names: true)
       trip_threads = []
       summarized_trips = []
-      all_trips[:Trip].each do |trip|
+      [all_trips[:Trip]].flatten.each do |trip|
         parameters = {trip: trip, token: token, token_secret: token_secret}
         trip_threads << Thread.new(parameters) do |parameters_in_thread|
           trip_id = parameters_in_thread[:trip][:id].to_i
@@ -124,7 +124,6 @@ module TripIt
         false
       else
         [trip.data[:NoteObject]].flatten.select do |note|
-          puts "This note: #{note}"
           note[:display_name].downcase.match?(/trip_ended/)
         end.empty?
       end
