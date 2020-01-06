@@ -123,7 +123,8 @@ module TripIt
       if !trip.data.key?(:NoteObject)
         false
       else
-        trip.data[:NoteObject].select do |note|
+        [trip.data[:NoteObject]].flatten.select do |note|
+          puts "This note: #{note}"
           note[:display_name].downcase.match?(/trip_ended/)
         end.empty?
       end
