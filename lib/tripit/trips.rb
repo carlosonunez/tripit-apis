@@ -50,7 +50,7 @@ module TripIt
       all_trips_response = self.get_all(event)
       if all_trips_response[:statusCode] != 200
         return TripIt::AWSHelpers::APIGateway.error(
-          message: "Unable to fetch trips: #{all_trips[:body]}"
+          message: "Unable to fetch trips: #{all_trips_response[:body]}"
         )
       end
       all_trips = JSON.parse(all_trips_response[:body],
