@@ -168,7 +168,7 @@ describe "Fetching trips" do
         body: {
           status: 'ok',
           trip: {
-            trip_name: 'Work: Test Client - Week 3',
+            trip_name: 'Work: Test Client - Week 2',
             current_city: 'Omaha, NE',
             todays_flight: {}
           }
