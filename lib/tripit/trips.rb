@@ -119,11 +119,12 @@ module TripIt
       this_trip
     end
 
+    # TODO: Add tests for this!
     def self.trip_ended?(trip)
       if !trip.data.key?(:NoteObject)
         false
       else
-        [trip.data[:NoteObject]].flatten.select do |note|
+        not [trip.data[:NoteObject]].flatten.select do |note|
           note[:display_name].downcase.match?(/trip_ended/)
         end.empty?
       end
