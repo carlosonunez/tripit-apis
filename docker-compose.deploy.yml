@@ -1,5 +1,12 @@
 version: '2.2'
 services:
+  gcloud:
+    image: google/cloud-sdk:285.0.1-alpine
+    env_file: .env
+    volumes:
+      - $PWD:/app:ro,cached
+    working_dir: /app
+    entrypoint: sh scripts/gcloud
   serverless:
     build:
       dockerfile: serverless.Dockerfile

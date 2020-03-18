@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+GOOGLE_CREDENTIALS="${GOOGLE_CREDENTIALS?Please specify Google credentials.}"
+
+echo "$GOOGLE_CREDENTIALS" > /tmp/creds.json
+export GOOGLE_APPLICATION_CREDENTIALS=/tmp/creds.json
+exec $*
