@@ -22,7 +22,6 @@ module TripIt
                             symbolize_names: true)
       summarized_trips = []
       unless all_trips[:Trip].nil? or all_trips[:Trip].empty?
-        puts "Trips: #{all_trips[:Trip]}" # in case tripit is doing some tom-fuckery here
         trip_threads = []
         [all_trips[:Trip]].flatten.each do |trip|
           parameters = {trip: trip, token: token, token_secret: token_secret}
