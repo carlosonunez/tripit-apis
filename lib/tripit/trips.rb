@@ -20,26 +20,29 @@ module TripIt
       end
       all_trips = JSON.parse(all_trips_response.body,
                             symbolize_names: true)
-      trip_threads = []
       summarized_trips = []
-      [all_trips[:Trip]].flatten.each do |trip|
-        parameters = {trip: trip, token: token, token_secret: token_secret}
-        trip_threads << Thread.new(parameters) do |parameters_in_thread|
-          trip_id = parameters_in_thread[:trip][:id].to_i
-          summarized_trip =
-            self.summarize_trip_data(parameters_in_thread[:trip],
-                                     parameters_in_thread[:token],
-                                     parameters_in_thread[:token_secret],
-                                     human_times: friendly_times)
-          trip_data = TripIt::Core::Trip.new(trip_id, token, token_secret)
-          summarized_trip[:flights] =
-            self.get_flight_data(trip_data, human_times: friendly_times)
-          summarized_trip[:ended] =
-            self.trip_ended?(trip_data)
-          summarized_trips << summarized_trip
+      unless all_trips[:Trip].nil? or all_trips[:Trip].empty?
+        puts "Trips: #{all_trips[:Trip]}" # in case tripit is doing some tom-fuckery here
+        trip_threads = []
+        [all_trips[:Trip]].flatten.each do |trip|
+          parameters = {trip: trip, token: token, token_secret: token_secret}
+          trip_threads << Thread.new(parameters) do |parameters_in_thread|
+            trip_id = parameters_in_thread[:trip][:id].to_i
+            summarized_trip =
+              self.summarize_trip_data(parameters_in_thread[:trip],
+                                       parameters_in_thread[:token],
+                                       parameters_in_thread[:token_secret],
+                                       human_times: friendly_times)
+            trip_data = TripIt::Core::Trip.new(trip_id, token, token_secret)
+            summarized_trip[:flights] =
+              self.get_flight_data(trip_data, human_times: friendly_times)
+            summarized_trip[:ended] =
+              self.trip_ended?(trip_data)
+            summarized_trips << summarized_trip
+          end
+        trip_threads.each(&:join)
         end
       end
-      trip_threads.each(&:join)
 
       TripIt::AWSHelpers::APIGateway.ok(additional_json:{
         trips: summarized_trips

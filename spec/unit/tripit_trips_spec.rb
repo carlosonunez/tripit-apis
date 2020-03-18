@@ -2,6 +2,47 @@ require 'spec_helper'
 require 'yaml'
 
 describe "Fetching trips" do
+  context "When no trips are present" do
+    it "Should return no trips", :unit do
+      ENV['TRIPIT_APP_CLIENT_ID'] = 'fake-client-id'
+      ENV['TRIPIT_APP_CLIENT_SECRET'] = 'fake-client-secret'
+      expect(TripIt::Auth).to receive(:get_tripit_token).and_return({
+        body: { token: 'fake-token', token_secret: 'fake-token-secret' }.to_json
+      })
+      fake_event = JSON.parse({
+        requestContext: {
+          path: '/develop/auth',
+          identity: {
+            apiKey: 'fake-key'
+          }
+        },
+        headers: {
+          Host: 'example.fake'
+        }
+      }.to_json)
+      mocked_time = Time.parse("1969-12-31 18:02:03 -0600") # 123
+      expect(Time).to receive(:now).at_least(1).times.and_return(mocked_time)
+      expect(SecureRandom).to receive(:hex)
+        .exactly(1).times
+        .and_return 'fake-nonce'
+      uri = "https://api.tripit.com/v1/list/trip/format/json"
+      # funny; num_bytes doesn't seem to abide the user's format preference
+      # and always returns the num_bytes of the XML response.
+      mocked_response = double(HTTParty::Response, {
+        code: 200,
+        body: { timestamp: mocked_time.to_i, num_bytes: 73 }.to_json
+      })
+      auth_header = Helpers::TripIt::OAuth::Authenticated.generate_test_headers(uri)
+      expect(HTTParty).to receive(:get).with(uri, headers: {
+        'Authorization': auth_header
+      }).and_return(mocked_response)
+      response = TripIt::Trips.get_all(fake_event)
+      expect(response[:statusCode]).to eq 200
+      response_body = JSON.parse(response[:body], symbolize_names: true)
+      expect(response_body[:status]).to eq 'ok'
+      expect(response_body[:trips]).to eq []
+    end
+  end
   context "When querying for trips" do
     it "Should return all trips with summarized information within them", :unit do
       ENV['TRIPIT_APP_CLIENT_ID'] = 'fake-client-id'
