@@ -1,12 +1,14 @@
 #!/usr/bin/env sh
 source $(dirname "$0")/helpers/shared_secrets.sh
-GOOGLE_CREDENTIALS="${GOOGLE_CREDENTIALS?Please provide your Google Cloud credentials in JSON format.}"
+GOOGLE_TERRAFORM_SVC_ACCOUNT_CREDS="${GOOGLE_TERRAFORM_SVC_ACCOUNT_CREDS?Please provide your Google Cloud credentials in JSON format.}"
 TERRAFORM_STATE_GCS_BUCKET="${TERRAFORM_STATE_GCS_BUCKET?Please provide a GCS bucket to store state in.}"
 ENVIRONMENT="${ENVIRONMENT:-test}"
 
 set -e
 action=$1
 shift
+
+export GOOGLE_CREDENTIALS="${GOOGLE_TERRAFORM_SVC_ACCOUNT_CREDS}"
 
 terraform init --backend-config="bucket=${TERRAFORM_STATE_GCS_BUCKET}" \
   --backend-config="prefix=terraform-state/${ENVIRONMENT}" \

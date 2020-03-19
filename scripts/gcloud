@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
-GOOGLE_CREDENTIALS="${GOOGLE_CREDENTIALS?Please specify Google credentials.}"
+GOOGLE_TERRAFORM_SVC_ACCOUNT_CREDS="${GOOGLE_TERRAFORM_SVC_ACCOUNT_CREDS?\
+Please specify Google credentials.}"
 
-echo "$GOOGLE_CREDENTIALS" > /tmp/creds.json
-export GOOGLE_APPLICATION_CREDENTIALS=/tmp/creds.json
+echo "$GOOGLE_TERRAFORM_SVC_ACCOUNT_CREDS" > /tmp/creds.json
+gcloud auth activate-service-account --key-file /tmp/creds.json
 exec $*
