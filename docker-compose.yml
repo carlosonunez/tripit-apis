@@ -30,7 +30,7 @@ services:
     environment:
       PIP_NO_CACHE_DIR: "off"
     volumes:
-      - $PWD:/app:ro,delegated # fix rspec slowness due to size of vendor dir
+      - $PWD:/app:ro,delegated
     working_dir: /app
     entrypoint: sh
     command:
