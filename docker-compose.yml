@@ -49,6 +49,20 @@ services:
       - /requirements.txt
       - -d
       - /vendor
+  lint:
+    extends: python
+    entrypoint: pylint
+    volumes:
+      - "$PWD:/app:cached"
+    command:
+      - -E
+  unit:
+    extends: python
+    entrypoint: pytest
+    volumes:
+      - "$PWD:/app:cached"
+    command:
+      - /app/tests
 #  unit:
 #    extends: ruby
 #    entrypoint: rspec
