@@ -35,14 +35,16 @@ services:
       - "-c"
       - "not meant to be run with the stack"
   vendor:
-    extends: ruby
+    extends: python
+    entrypoint: pip
     volumes:
       - "$PWD:/app:cached"
       - "$PWD/vendor:/vendor:cached"
-      - "$PWD/Gemfile:/Gemfile"
+      - "$PWD/requirements.txt:/requirements.txt"
     command:
-      - -c
-      - "echo 'INFO: Vendoring dependencies...' && bundle install --without test --path /vendor/bundle"
+      - download
+      - -r
+      - /requirements.txt
   unit:
     extends: ruby
     entrypoint: rspec
