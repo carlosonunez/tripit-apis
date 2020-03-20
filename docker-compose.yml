@@ -23,12 +23,9 @@ services:
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
-  ruby:
+  python:
     build:
       context: .
-      dockerfile: ruby.Dockerfile
-      args:
-        ENVIRONMENT: test
     env_file: .env
     volumes:
       - $PWD:/app:ro,delegated # fix rspec slowness due to size of vendor dir
