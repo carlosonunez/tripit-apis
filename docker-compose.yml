@@ -62,6 +62,8 @@ services:
     volumes:
       - "$PWD:/app:cached"
     command:
+      - -m
+      - unit
       - /app/tests
 #  unit:
 #    extends: ruby
