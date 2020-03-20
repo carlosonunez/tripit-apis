@@ -4,3 +4,4 @@
 secrets
 vendor
 Gemfile.lock
+__pycache__
