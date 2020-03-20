@@ -35,7 +35,7 @@ services:
     entrypoint: sh
     command:
       - "-c"
-      - "not meant to be run with the stack"
+      - "echo not meant to be run with the stack"
   vendor:
     extends: python
     entrypoint: pip
