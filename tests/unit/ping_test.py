@@ -13,7 +13,7 @@ def test_ping():
     with our API.
     """
     response = {
-        "body": json.loads({"message": "sup dawg"}),
+        "body": json.dumps({"message": "sup dawg"}),
         "statusCode": 200
     }
     assert ping() == response
