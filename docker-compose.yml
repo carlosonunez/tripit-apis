@@ -27,6 +27,8 @@ services:
     build:
       context: .
     env_file: .env
+    environment:
+      PIP_NO_CACHE_DIR: "off"
     volumes:
       - $PWD:/app:ro,delegated # fix rspec slowness due to size of vendor dir
     working_dir: /app
