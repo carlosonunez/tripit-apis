@@ -5,5 +5,4 @@ secrets
 vendor
 Gemfile.lock
 __pycache__
-*.pyc
 **/*.pyc
