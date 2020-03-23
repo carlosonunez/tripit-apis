@@ -19,6 +19,14 @@ def return_ok(message=None, additional_json=None):
                                     **additional_json})
 
 
+def return_error(message=None):
+    """
+    Returns HTTP 400 Bad Request if something went wrong.
+    I would normally throw HTTP 500 here but API gateway eats these.
+    """
+    return return_400(message)
+
+
 def return_200(body=None, json_payload=None):
     """
     Returns 200
@@ -28,6 +36,14 @@ def return_200(body=None, json_payload=None):
     if json_payload is None:
         return make_api_gateway_response(code=200, payload=body)
     return make_api_gateway_response(code=200, payload=json_payload)
+
+
+def return_400(message=None):
+    """
+    Returns 400
+    """
+    payload = {"status": "error", "message": message}
+    return make_api_gateway_response(code=400, payload=payload)
 
 
 def make_api_gateway_response(code, payload):
