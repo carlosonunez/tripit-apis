@@ -4,7 +4,8 @@ from AWS API gatweay.
 """
 import json
 import pytest
-from aws_helpers.api_gateway import return_ok, return_error, return_unauthenticated
+from aws_helpers.api_gateway import return_ok, return_error, \
+    return_unauthenticated, return_not_found
 
 
 @pytest.mark.unit
@@ -54,3 +55,13 @@ def test_unauthenticated_with_message():
         {"statusCode": 403,
          "body": json.dumps({"status": "error",
                              "message": "Nope"})}
+
+
+@pytest.mark.unit
+def test_not_found():
+    """
+    Tests response when something wasn't found
+    """
+    assert return_not_found("Not found") == {"statusCode": 404,
+                                             "body": json.dumps({"status": "error",
+                                                                 "message": "Not found"})}

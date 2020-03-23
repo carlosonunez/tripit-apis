@@ -34,6 +34,13 @@ def return_unauthenticated(message="Access denied."):
     return return_error(message=message, code=403)
 
 
+def return_not_found(message):
+    """
+    Returns HTTP 404 with a custom message.
+    """
+    return return_error(message=message, code=404)
+
+
 def return_200(body=None, json_payload=None):
     """
     Returns 200
@@ -59,6 +66,14 @@ def return_403(message=None):
     """
     payload = {"status": "error", "message": message}
     return make_api_gateway_response(code=403, payload=payload)
+
+
+def return_404(message=None):
+    """
+    Returns 404
+    """
+    payload = {"status": "error", "message": message}
+    return make_api_gateway_response(code=404, payload=payload)
 
 
 def make_api_gateway_response(code, payload):
