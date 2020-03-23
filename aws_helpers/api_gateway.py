@@ -31,7 +31,7 @@ def return_unauthenticated(message="Access denied."):
     """
     Returns HTTP 403 if denied access to something.
     """
-    return return_403(message)
+    return return_error(message=message, code=403)
 
 
 def return_200(body=None, json_payload=None):

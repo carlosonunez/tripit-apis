@@ -4,7 +4,7 @@ from AWS API gatweay.
 """
 import json
 import pytest
-from aws_helpers.api_gateway import return_ok, return_error
+from aws_helpers.api_gateway import return_ok, return_error, return_unauthenticated
 
 
 @pytest.mark.unit
@@ -33,3 +33,24 @@ def test_error():
     assert return_error(message="Howdy") == {"statusCode": 400,
                                              "body": json.dumps({"status": "error",
                                                                  "message": "Howdy"})}
+
+
+@pytest.mark.unit
+def test_unauthenticated_without_message():
+    """
+    Tests generic unauthenticated responses
+    """
+    assert return_unauthenticated() == {"statusCode": 403,
+                                        "body": json.dumps({"status": "error",
+                                                            "message": "Access denied."})}
+
+
+@pytest.mark.unit
+def test_unauthenticated_with_message():
+    """
+    Tests non-generic unauthenticated responses
+    """
+    assert return_unauthenticated("Nope") == \
+        {"statusCode": 403,
+         "body": json.dumps({"status": "error",
+                             "message": "Nope"})}
