@@ -19,12 +19,19 @@ def return_ok(message=None, additional_json=None):
                                     **additional_json})
 
 
-def return_error(message=None):
+def return_error(message=None, code=400):
     """
     Returns HTTP 400 Bad Request if something went wrong.
     I would normally throw HTTP 500 here but API gateway eats these.
     """
-    return return_400(message)
+    return globals()[f"return_{code}"](message)
+
+
+def return_unauthenticated(message="Access denied."):
+    """
+    Returns HTTP 403 if denied access to something.
+    """
+    return return_403(message)
 
 
 def return_200(body=None, json_payload=None):
@@ -44,6 +51,14 @@ def return_400(message=None):
     """
     payload = {"status": "error", "message": message}
     return make_api_gateway_response(code=400, payload=payload)
+
+
+def return_403(message=None):
+    """
+    Returns 403
+    """
+    payload = {"status": "error", "message": message}
+    return make_api_gateway_response(code=403, payload=payload)
 
 
 def make_api_gateway_response(code, payload):
