@@ -59,6 +59,9 @@ services:
   unit:
     extends: python
     entrypoint: pytest
+    environment:
+      TRIPIT_APP_CLIENT_ID: fake-client-id
+      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
     volumes:
       - "$PWD:/app:cached"
     command:

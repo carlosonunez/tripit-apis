@@ -10,6 +10,7 @@ import logging
 import secrets
 import requests
 from tripit.environment import EnvironmentCheck
+from tripit.helpers import sort_dict
 
 
 def request_token():
@@ -36,7 +37,7 @@ def request_token():
                                             **common_arguments)
     response = requests.get(request_uri, headers={'Authorization': auth_header})
     if response.status_code != 200:
-        logging.error(f"Failed to get an OAuth authentication header: {response.text})")
+        logging.error("Failed to get an OAuth authentication header: %s)", response.text)
         return None
     token_data = {}
     for token_part in response.text.split("&"):
@@ -45,6 +46,7 @@ def request_token():
     return token_data
 
 
+# pylint: disable=too-many-arguments
 def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token=None):
     """
     Generates an OAuth v1 authencation header for HTTP requests to endpoints
@@ -59,18 +61,23 @@ def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, to
     }
     if token is not None:
         headers['oauth_token'] = token
-    sorted_headers = {k: v for k, v in sorted(headers.items())}
     escaped_sig = html.escape(signature)
     auth_header_parts = [f'OAuth realm="{uri}"',
-                         ",".join([f"{k}={v}" for k, v in sorted_headers]),
+                         ",".join([f"{k}={v}" for k, v in sort_dict(headers)]),
                          f'oauth_signature="{escaped_sig}"']
     return ','.join(auth_header_parts)
 
 
+# pylint: disable=too-many-arguments
 def generate_signature(method, uri, consumer_key, consumer_secret,
                        nonce, timestamp, token=None, token_secret=None):
     """
     Generates an OAuth v1 signature. These are used to form authentication headers.
+
+    Unfortunately, because we really require these many arguments while working
+    with OAuth v1, we need to tell pylint to disable the, usually correct,
+    "too-many-arguments" error. Otherwise, we'll need to resort to using
+    **kwargs, which is too unsafe for my liking.
     """
     params = {
         "oauth_consumer_key": consumer_key,
@@ -82,10 +89,11 @@ def generate_signature(method, uri, consumer_key, consumer_secret,
     }
     encrypt_key = "&".join([consumer_secret,
                             (token_secret if token_secret is not None else '')])
-    sorted_params = {key: params[key] for key in sorted(params.keys())}
-    serialized_params = "&".join([f"{key}={value}" for key, value in sorted_params])
+    serialized_param_parts = []
+    for item in sort_dict(params).items():
+        serialized_param_parts.append(f"{item}={params[item]}")
     base_string_for_signature = "&".join([method,
                                           html.escape(uri),
-                                          html.escape(serialized_params)])
+                                          html.escape("&".join(serialized_param_parts))])
     signature = hmac.new(encrypt_key, base_string_for_signature, sha1)
     return signature.digest().encode("base64").rstrip("\n")
