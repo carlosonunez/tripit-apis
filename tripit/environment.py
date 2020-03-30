@@ -22,6 +22,6 @@ class EnvironmentCheck:  # pylint: disable=too-few-public-methods
         Verifies that all env vars are defined
         """
         self.missing_vars = [var for var in vars_to_check if os.environ.get(var) is None]
-        self.ready = self.missing_vars is None
+        self.ready = self.missing_vars == []
 
     __check_environment = check_environment
