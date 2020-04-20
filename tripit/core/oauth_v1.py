@@ -122,16 +122,14 @@ def generate_signature(method, uri, consumer_key, consumer_secret,
     if token:
         params["oauth_token"] = token
 
-    print(f"Params: {params}")
     encrypt_key = "&".join([consumer_secret,
                             (token_secret if token_secret is not None else '')])
     param_parts = \
         "&".join([f"{key}={params[key]}" for key, value in sort_dict(params).items()])
-    print(f"Param parts: {param_parts}")
     base_string_for_signature = "&".join([method,
                                           urllib.parse.quote_plus(uri),
                                           urllib.parse.quote_plus(param_parts)])
-    print(f"Base string: {base_string_for_signature}")
+    print(f"Encrypt key: {encrypt_key}")
     signature = hmac.new(bytes(encrypt_key, 'utf8'),
                          bytes(base_string_for_signature, 'utf8'),
                          sha1)

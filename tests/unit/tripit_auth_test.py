@@ -42,6 +42,27 @@ def test_generating_request_token_oauth_signature(monkeypatch):
 
 @pytest.mark.unit
 @freeze_time("Jan 1, 1970 00:02:03")
+def test_generating_access_token_oauth_signature(monkeypatch):
+    """ Ensures that we generate the correct signature as per
+    the awesome test server at http://lti.tools/oauth/ """
+    fake_nonce = 'fake-nonce'
+    fake_token = 'fake-token'
+    fake_token_secret = 'fake-token-secret'
+    monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
+    signature = generate_signature('GET',
+                                   'https://api.tripit.com/oauth/request_token',
+                                   os.getenv('TRIPIT_APP_CLIENT_ID'),
+                                   os.getenv('TRIPIT_APP_CLIENT_SECRET'),
+                                   fake_nonce,
+                                   datetime.datetime.now().timestamp(),
+                                   fake_token,
+                                   fake_token_secret)
+    expected_sig = str(b't3KGdhG2f3H9Vc9Xb1q9i3JvdkA=')
+    assert signature == expected_sig
+
+
+@pytest.mark.unit
+@freeze_time("Jan 1, 1970 00:02:03")
 def test_getting_oauth_request_tokens(monkeypatch):
     """
     Ensure that we can get request tokens and secrets from OAuth v1.
