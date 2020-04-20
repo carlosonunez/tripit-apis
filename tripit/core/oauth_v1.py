@@ -14,14 +14,21 @@ from tripit.environment import EnvironmentCheck
 from tripit.helpers import sort_dict
 
 
+def get_missing_client_id_and_secret_env_vars():
+    """ tfw the function name is the documentation """
+    env_check = EnvironmentCheck(['TRIPIT_APP_CLIENT_SECRET',
+                                  'TRIPIT_APP_CLIENT_ID'])
+    return env_check.missing_vars
+
+
 def fetch_token(token=None, token_secret=None):
     """
     Get a new request token from the TripIt API.
     """
-    env_check = EnvironmentCheck(['TRIPIT_APP_CLIENT_SECRET',
-                                  'TRIPIT_APP_CLIENT_ID'])
-    if not env_check.ready:
-        raise RuntimeError(f"Please define these environment variables: {env_check.missing_vars}")
+    env_vars = get_missing_client_id_and_secret_env_vars()
+    if env_vars:
+        raise RuntimeError(f"Please define these environment variables: {env_vars}")
+
     client_id = os.environ.get("TRIPIT_APP_CLIENT_ID")
     client_secret = os.environ.get("TRIPIT_APP_CLIENT_SECRET")
     """ If we are trying to request tokens and already have a token
