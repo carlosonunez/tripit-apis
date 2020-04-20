@@ -1,11 +1,15 @@
 """
 Tests for TripIt OAuth v1.
 """
+import datetime
+import os
 import secrets
 import pytest
 import requests
 from freezegun import freeze_time
-from tripit.core.oauth_v1 import request_request_token, request_access_token
+from tripit.core.oauth_v1 import (request_request_token,
+                                  request_access_token,
+                                  generate_signature)
 
 
 # pylint: disable=too-few-public-methods
@@ -17,6 +21,23 @@ class FakeResponse:
     def __init__(self, text):
         self.status_code = 200
         self.text = text
+
+
+@pytest.mark.unit
+@freeze_time("Jan 1, 1970 00:02:03")
+def test_generating_request_token_oauth_signature(monkeypatch):
+    """ Ensures that we generate the correct signature as per
+    the awesome test server at http://lti.tools/oauth/ """
+    fake_nonce = 'fake-nonce'
+    monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
+    signature = generate_signature('GET',
+                                   'https://api.tripit.com/oauth/request_token',
+                                   os.getenv('TRIPIT_APP_CLIENT_ID'),
+                                   os.getenv('TRIPIT_APP_CLIENT_SECRET'),
+                                   fake_nonce,
+                                   datetime.datetime.now().timestamp())
+    expected_sig = str(b'h6Azudvr61sWzIoqJbU8TVS1Lhw=')
+    assert signature == expected_sig
 
 
 @pytest.mark.unit
