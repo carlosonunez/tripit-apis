@@ -5,7 +5,7 @@ import secrets
 import pytest
 import requests
 from freezegun import freeze_time
-from tripit.core.oauth_v1 import request_token, request_access_token
+from tripit.core.oauth_v1 import request_request_token, request_access_token
 
 
 # pylint: disable=too-few-public-methods
@@ -31,8 +31,8 @@ def test_getting_oauth_request_tokens(monkeypatch):
     fake_response = "oauth_token=fake-token&oauth_token_secret=fake-secret"
     monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
     monkeypatch.setattr(requests, "get", lambda *args, **kwargs: FakeResponse(fake_response))
-    assert request_token() == {"token": fake_token,
-                               "token_secret": fake_token_secret}
+    assert request_request_token() == {"token": fake_token,
+                                       "token_secret": fake_token_secret}
 
 
 @pytest.mark.unit

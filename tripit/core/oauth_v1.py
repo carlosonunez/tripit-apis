@@ -14,7 +14,7 @@ from tripit.environment import EnvironmentCheck
 from tripit.helpers import sort_dict
 
 
-def request_token(token=None, token_secret=None):
+def fetch_token(token=None, token_secret=None):
     """
     Get a new request token from the TripIt API.
     """
@@ -61,12 +61,12 @@ def request_token(token=None, token_secret=None):
 def request_request_token():
     """ Request a request token.
     This is here temporarily while I refactor request_token(). """
-    return request_token()
+    return fetch_token()
 
 
 def request_access_token(req_token, request_token_secret):
     """ Fetch an access token after fetching a request token. """
-    return request_token(req_token, request_token_secret)
+    return fetch_token(req_token, request_token_secret)
 
 # pylint: disable=too-many-arguments
 
