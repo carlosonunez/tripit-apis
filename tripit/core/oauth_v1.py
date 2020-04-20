@@ -14,7 +14,7 @@ from tripit.environment import EnvironmentCheck
 from tripit.helpers import sort_dict
 
 
-def request_token():
+def request_token(token=None, token_secret=None):
     """
     Get a new request token from the TripIt API.
     """
@@ -24,16 +24,27 @@ def request_token():
         raise RuntimeError(f"Please define these environment variables: {env_check.missing_vars}")
     client_id = os.environ.get("TRIPIT_APP_CLIENT_ID")
     client_secret = os.environ.get("TRIPIT_APP_CLIENT_SECRET")
-    request_uri = "https://api.tripit.com/oauth/request_token"
-    nonce = secrets.token_hex()
-    timestamp = datetime.now().timestamp()
+    """ If we are trying to request tokens and already have a token
+        secret, then that means we already went through the first step
+        of the OAuth process and are now trying to get access tokens. """
+    if token_secret is not None:
+        request_uri = "https://api.tripit.com/oauth/access_token"
+    else:
+        request_uri = "https://api.tripit.com/oauth/request_token"
+
     common_arguments = {"uri": request_uri,
                         "consumer_key": client_id,
-                        "nonce": nonce,
-                        "timestamp": timestamp}
+                        "nonce": secrets.token_hex(),
+                        "timestamp": datetime.now().timestamp()}
+    access_token_arguments = {}
+    if token_secret is not None:
+        access_token_arguments["token"] = token
+        access_token_arguments["token_secret"] = token_secret
+
     oauth_sig = generate_signature(method="GET",
                                    consumer_secret=client_secret,
-                                   **common_arguments)
+                                   **common_arguments,
+                                   **access_token_arguments)
     auth_header = generate_sha1_auth_header(signature=oauth_sig,
                                             **common_arguments)
     response = requests.get(request_uri, headers={'Authorization': auth_header})
@@ -47,7 +58,19 @@ def request_token():
     return token_data
 
 
+def request_request_token():
+    """ Request a request token.
+    This is here temporarily while I refactor request_token(). """
+    return request_token()
+
+
+def request_access_token(req_token, request_token_secret):
+    """ Fetch an access token after fetching a request token. """
+    return request_token(req_token, request_token_secret)
+
 # pylint: disable=too-many-arguments
+
+
 def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token=None):
     """
     Generates an OAuth v1 authencation header for HTTP requests to endpoints
