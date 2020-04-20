@@ -9,7 +9,8 @@ import requests
 from freezegun import freeze_time
 from tripit.core.oauth_v1 import (request_request_token,
                                   request_access_token,
-                                  generate_signature)
+                                  generate_signature,
+                                  generate_sha1_auth_header)
 
 
 # pylint: disable=too-few-public-methods
@@ -36,7 +37,7 @@ def test_generating_request_token_oauth_signature(monkeypatch):
                                    os.getenv('TRIPIT_APP_CLIENT_SECRET'),
                                    fake_nonce,
                                    datetime.datetime.now().timestamp())
-    expected_sig = str(b'h6Azudvr61sWzIoqJbU8TVS1Lhw=')
+    expected_sig = b'h6Azudvr61sWzIoqJbU8TVS1Lhw='
     assert signature == expected_sig
 
 
@@ -50,15 +51,79 @@ def test_generating_access_token_oauth_signature(monkeypatch):
     fake_token_secret = 'fake-token-secret'
     monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
     signature = generate_signature('GET',
-                                   'https://api.tripit.com/oauth/request_token',
+                                   'https://api.tripit.com/oauth/access_token',
                                    os.getenv('TRIPIT_APP_CLIENT_ID'),
                                    os.getenv('TRIPIT_APP_CLIENT_SECRET'),
                                    fake_nonce,
                                    datetime.datetime.now().timestamp(),
                                    fake_token,
                                    fake_token_secret)
-    expected_sig = str(b't3KGdhG2f3H9Vc9Xb1q9i3JvdkA=')
+    expected_sig = b'Gfs0FXIZZm07QMYjPr61yKFgGLk='
     assert signature == expected_sig
+
+
+@pytest.mark.unit
+@freeze_time("Jan 1, 1970 00:02:03")
+def test_generating_request_token_headers(monkeypatch):
+    """ Ensure that we can generate the correct headers for request tokens. """
+    fake_nonce = 'fake-nonce'
+    monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
+    uri = 'https://api.tripit.com/oauth/request_token'
+    signature = generate_signature('GET',
+                                   uri,
+                                   os.getenv('TRIPIT_APP_CLIENT_ID'),
+                                   os.getenv('TRIPIT_APP_CLIENT_SECRET'),
+                                   fake_nonce,
+                                   datetime.datetime.now().timestamp())
+    header = generate_sha1_auth_header(uri,
+                                       signature,
+                                       os.getenv('TRIPIT_APP_CLIENT_ID'),
+                                       fake_nonce,
+                                       datetime.datetime.now().timestamp())
+    expected_header = ",".join([
+        'OAuth realm="https://api.tripit.com/oauth/request_token"',
+        'oauth_consumer_key="fake-client-id"',
+        'oauth_nonce="fake-nonce"',
+        'oauth_signature_method="HMAC-SHA1"',
+        'oauth_timestamp="123"',
+        'oauth_version="1.0"',
+        'oauth_signature="h6Azudvr61sWzIoqJbU8TVS1Lhw%3D"'])
+    assert header == expected_header
+
+
+@pytest.mark.unit
+@freeze_time("Jan 1, 1970 00:02:03")
+def test_generating_access_token_headers(monkeypatch):
+    """ Ensure that we can generate the correct headers for request tokens. """
+    fake_nonce = 'fake-nonce'
+    fake_token = 'fake-token'
+    fake_token_secret = 'fake-token-secret'
+    uri = 'https://api.tripit.com/oauth/access_token'
+    monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
+    signature = generate_signature('GET',
+                                   'https://api.tripit.com/oauth/access_token',
+                                   os.getenv('TRIPIT_APP_CLIENT_ID'),
+                                   os.getenv('TRIPIT_APP_CLIENT_SECRET'),
+                                   fake_nonce,
+                                   datetime.datetime.now().timestamp(),
+                                   fake_token,
+                                   fake_token_secret)
+    header = generate_sha1_auth_header(uri,
+                                       signature,
+                                       os.getenv('TRIPIT_APP_CLIENT_ID'),
+                                       fake_nonce,
+                                       datetime.datetime.now().timestamp(),
+                                       fake_token)
+    expected_header = ",".join([
+        'OAuth realm="https://api.tripit.com/oauth/access_token"',
+        'oauth_consumer_key="fake-client-id"',
+        'oauth_nonce="fake-nonce"',
+        'oauth_signature_method="HMAC-SHA1"',
+        'oauth_timestamp="123"',
+        'oauth_token="fake-token"',
+        'oauth_version="1.0"',
+        'oauth_signature="Gfs0FXIZZm07QMYjPr61yKFgGLk%3D"'])
+    assert header == expected_header
 
 
 @pytest.mark.unit

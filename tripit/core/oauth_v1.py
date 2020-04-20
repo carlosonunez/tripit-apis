@@ -3,7 +3,6 @@ Functions for authenticating calls to TripIt via OAuth v1.
 """
 from datetime import datetime
 import urllib.parse
-import html
 from hashlib import sha1
 import base64
 import os
@@ -93,10 +92,10 @@ def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, to
     }
     if token is not None:
         headers['oauth_token'] = token
-    escaped_sig = html.escape(signature)
+    encoded_sig = urllib.parse.quote_plus(signature)
     auth_header_parts = [f'OAuth realm="{uri}"',
-                         ",".join([f"{k}={v}" for k, v in sort_dict(headers).items()]),
-                         f'oauth_signature="{escaped_sig}"']
+                         ",".join([f"{k}=\"{v}\"" for k, v in sort_dict(headers).items()]),
+                         f'oauth_signature="{encoded_sig}"']
     print(f"Header parts: {auth_header_parts}")
     return ','.join(auth_header_parts)
 
@@ -129,8 +128,7 @@ def generate_signature(method, uri, consumer_key, consumer_secret,
     base_string_for_signature = "&".join([method,
                                           urllib.parse.quote_plus(uri),
                                           urllib.parse.quote_plus(param_parts)])
-    print(f"Encrypt key: {encrypt_key}")
     signature = hmac.new(bytes(encrypt_key, 'utf8'),
                          bytes(base_string_for_signature, 'utf8'),
                          sha1)
-    return str(base64.b64encode(signature.digest()))
+    return base64.b64encode(signature.digest())
