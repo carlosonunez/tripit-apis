@@ -2,3 +2,7 @@ flask
 pytest
 pylint
 requests
+freezegun
+setuptools
+setuptools_scm
+wheel
