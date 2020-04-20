@@ -4,6 +4,7 @@ Functions for authenticating calls to TripIt via OAuth v1.
 from datetime import datetime
 import html
 from hashlib import sha1
+import base64
 import os
 import hmac
 import logging
@@ -56,15 +57,16 @@ def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, to
         "oauth_consumer_key": consumer_key,
         "oauth_nonce": nonce,
         "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp": timestamp,
+        "oauth_timestamp": int(timestamp),
         "oauth_version": "1.0"
     }
     if token is not None:
         headers['oauth_token'] = token
     escaped_sig = html.escape(signature)
     auth_header_parts = [f'OAuth realm="{uri}"',
-                         ",".join([f"{k}={v}" for k, v in sort_dict(headers)]),
+                         ",".join([f"{k}={v}" for k, v in sort_dict(headers).items()]),
                          f'oauth_signature="{escaped_sig}"']
+    print(f"Header parts: {auth_header_parts}")
     return ','.join(auth_header_parts)
 
 
@@ -83,17 +85,19 @@ def generate_signature(method, uri, consumer_key, consumer_secret,
         "oauth_consumer_key": consumer_key,
         "oauth_nonce": nonce,
         "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp": timestamp,
-        "oauth_token": (token if token is not None else ''),
+        "oauth_timestamp": int(timestamp),
         "oauth_version": "1.0"
     }
+    if token:
+        params["oauth_token"] = token
+
     encrypt_key = "&".join([consumer_secret,
                             (token_secret if token_secret is not None else '')])
-    serialized_param_parts = []
-    for item in sort_dict(params).items():
-        serialized_param_parts.append(f"{item}={params[item]}")
+    serialized_param_parts = [f"{key}={params[key]}" for key, value in sort_dict(params).items()]
     base_string_for_signature = "&".join([method,
                                           html.escape(uri),
                                           html.escape("&".join(serialized_param_parts))])
-    signature = hmac.new(encrypt_key, base_string_for_signature, sha1)
-    return signature.digest().encode("base64").rstrip("\n")
+    signature = hmac.new(bytes(encrypt_key, 'utf8'),
+                         bytes(base_string_for_signature, 'utf8'),
+                         sha1)
+    return str(base64.b64encode(signature.digest()))
