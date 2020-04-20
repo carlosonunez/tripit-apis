@@ -6,3 +6,6 @@ vendor
 Gemfile.lock
 __pycache__
 **/*.pyc
+
+# Don't commit our virtualenv
+env/
