@@ -76,8 +76,14 @@ def request_access_token(req_token, request_token_secret):
     return fetch_token(req_token, request_token_secret)
 
 # pylint: disable=too-many-arguments
+def generate_authenticated_headers_for_request(method, uri, consumer_key, consumer_secret,
+                                               nonce, token, token_secret, timestamp):
+    """ Generates heades for authenticated API calls. """
+    signature = generate_signature(method, uri, consumer_key, consumer_secret, nonce, timestamp,
+                                   token, token_secret)
+    return generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token)
 
-
+# pylint: disable=too-many-arguments
 def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token=None):
     """
     Generates an OAuth v1 authencation header for HTTP requests to endpoints
