@@ -77,8 +77,10 @@ def request_access_token(req_token, request_token_secret):
 
 # pylint: disable=too-many-arguments
 def generate_authenticated_headers_for_request(method, uri, consumer_key, consumer_secret,
-                                               nonce, token, token_secret, timestamp):
+                                               token, token_secret):
     """ Generates heades for authenticated API calls. """
+    nonce = secrets.token_hex()
+    timestamp = datetime.now().timestamp()
     signature = generate_signature(method, uri, consumer_key, consumer_secret, nonce, timestamp,
                                    token, token_secret)
     return generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token)

@@ -171,15 +171,14 @@ def test_generating_headers_for_authenticated_calls(monkeypatch):
     fake_request_token = 'fake-token'
     fake_request_token_secret = 'fake-token-secret'
     fake_token_data = {'token': fake_request_token, 'token_secret': fake_request_token_secret}
+    monkeypatch.setattr(secrets, "token_hex", lambda *args, **kwargs: fake_nonce)
     monkeypatch.setattr('tripit.core.v1.oauth.request_access_token', fake_token_data)
     headers = generate_authenticated_headers_for_request(method,
                                                          uri,
                                                          os.getenv('TRIPIT_APP_CLIENT_ID'),
                                                          os.getenv('TRIPIT_APP_CLIENT_SECRET'),
-                                                         fake_nonce,
                                                          fake_request_token,
-                                                         fake_request_token_secret,
-                                                         123)
+                                                         fake_request_token_secret)
     expected_header = ",".join([
         'OAuth realm="https://api.tripit.com/v1/ping"',
         'oauth_consumer_key="fake-client-id"',
