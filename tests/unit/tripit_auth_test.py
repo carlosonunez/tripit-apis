@@ -7,7 +7,7 @@ import secrets
 import pytest
 import requests
 from freezegun import freeze_time
-from tripit.core.oauth_v1 import (request_request_token,
+from tripit.core.v1.oauth import (request_request_token,
                                   request_access_token,
                                   generate_signature,
                                   generate_sha1_auth_header)
