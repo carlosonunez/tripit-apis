@@ -37,7 +37,11 @@ services:
       - "-c"
       - "echo not meant to be run with the stack"
   vendor:
-    extends: python
+    build:
+      context: .
+      args:
+        IS_FOR_VENDORING_SERVICE: "true"
+    env_file: .env
     entrypoint: pip
     volumes:
       - "$PWD:/app:cached"
