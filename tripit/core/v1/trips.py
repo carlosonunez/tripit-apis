@@ -1,6 +1,7 @@
 """
 TripIt operations.
 """
+from tripit.core.v1.api import get_from_tripit_v1
 
 def get_all_trips():
     """
@@ -9,4 +10,4 @@ def get_all_trips():
 
     We only care about flights and notes. Every other TripIt object is stripped out.
     """
-    pass
+    
