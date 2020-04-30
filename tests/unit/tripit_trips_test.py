@@ -16,6 +16,7 @@ from tripit.core.v1.trips import (get_all_trips)
 # pylint: disable=too-few-public-methods
 class FakeResponse:
     """Used to stub calls to TripIt's API."""
+
     def __init__(self, url, status_code, text=None, json_object=None):
         self.url = url
         self.status_code = status_code
@@ -88,4 +89,33 @@ def test_fetching_trips_without_flights(monkeypatch):
         'ended': False,
         'flights': []
     }]
+    assert get_all_trips(token='token', token_secret='token_secret') == expected_trips
+
+
+@pytest.mark.unit
+def test_that_we_can_get_multiple_trips(monkeypatch):
+    """
+    Ensure that our threads can actually yield multiple trips.
+    """
+
+    # Duplicate the object, since I only care about getting multiple trips back.
+    fake_trip = FakeTrip("Personal: Some Trip")
+    fake_trip.trip_data['Trip'] = fake_trip.trip_data['Trip'] + fake_trip.trip_data['Trip']
+
+    monkeypatch.setattr(
+        'tripit.core.v1.trips.get_from_tripit_v1',
+        lambda *args, **kwargs: FakeResponse(url="https://api.tripit.com/v1/list/trip/format/json",
+                                             status_code=200,
+                                             json_object=fake_trip.trip_data))
+    expected_trip = {
+        'id': 123456789,
+        'name': 'Personal: Some Trip',
+        'city': 'Dayton, OH',
+        'ends_on': 1576713600,
+        'link': "https://www.tripit.com/trip/show/id/123456789",
+        'starts_on': 1576368000,
+        'ended': False,
+        'flights': []
+    }
+    expected_trips = [expected_trip, expected_trip]
     assert get_all_trips(token='token', token_secret='token_secret') == expected_trips
