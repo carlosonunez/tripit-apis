@@ -8,6 +8,7 @@ to assist with other, downstream automations like setting Slack statuses
 It is meant to be read-only.
 """
 import json
+from pathlib import Path
 import pytest
 from tripit.core.v1.trips import (get_all_trips)
 
@@ -24,6 +25,23 @@ class FakeResponse:
         elif json_object:
             self.json = json_object
             self.text = json.dumps(json_object)
+
+
+# pylint: disable=too-few-public-methods
+class FakeTrip:
+    """ Convenience method for picking and contorting fake TripIt trips. """
+    fake_trip_data = json.loads(Path('./tests/fixtures/trips.json').read_text())
+
+    def __init__(self, trip_name):
+        self.trip_data = self.filter_trips(trip_name)
+
+    @classmethod
+    def filter_trips(cls, trip_name):
+        """ Reads the test trips fixture and filters the trip list based
+        on the name provided. """
+        trips = FakeTrip.fake_trip_data
+        trips['Trip'] = [trip for trip in trips['Trip'] if trip['display_name'] == trip_name]
+        return trips
 
 
 @pytest.mark.unit
@@ -48,3 +66,26 @@ def test_fetching_trips_when_none_are_present(monkeypatch):
                                                  'num_bytes': 78
                                              }))
     assert get_all_trips(token='token', token_secret='token_secret') == []
+
+
+@pytest.mark.unit
+def test_fetching_trips_without_flights(monkeypatch):
+    """
+    We should get back a valid trip for personal trips.
+    """
+    monkeypatch.setattr(
+        'tripit.core.v1.trips.get_from_tripit_v1',
+        lambda *args, **kwargs: FakeResponse(url="https://api.tripit.com/v1/list/trip/format/json",
+                                             status_code=200,
+                                             json_object=FakeTrip("Personal: Some Trip").trip_data))
+    expected_trips = [{
+        'id': 123456789,
+        'name': 'Personal: Some Trip',
+        'city': 'Dayton, OH',
+        'ends_on': 1576713600,
+        'link': "https://www.tripit.com/trip/show/id/123456789",
+        'starts_on': 1576368000,
+        'ended': False,
+        'flights': []
+    }]
+    assert get_all_trips(token='token', token_secret='token_secret') == expected_trips
