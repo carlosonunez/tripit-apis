@@ -13,21 +13,20 @@ import requests
 from freezegun import freeze_time
 from tripit.core.v1.trips import (get_all_trips)
 
+
 # pylint: disable=too-few-public-methods
 class FakeResponse:
     """Used to stub calls to TripIt's API."""
-    def __init__(self, status_code, text):
+    def __init__(self, url, status_code, text=None, json_object=None):
+        self.url = url
         self.status_code = status_code
-        self.text = text
-        self.json = json.loads(text)
+        if text:
+            self.text = text
+            self.json = json.loads(text)
+        elif json_object:
+            self.json = json_object
+            self.text = json.dumps(json_object)
 
-#pylint: disable=unused-argument
-def mock_responses(url, *args, **kwargs):
-    """ There doesn't seem to be a good way of monkeypatching things
-    conditionally, which is annoying. So we need to implement a router."""
-    if url == "":
-        return FakeResponse(200, {'timestamp': '123', 'num_bytes': 73})
-    return None
 
 @freeze_time("Jan 1, 1970 00:02:03")
 @pytest.mark.unit
@@ -35,8 +34,9 @@ def test_fetching_trips_when_none_are_present(monkeypatch):
     """
     We shouldn't get anything back when no trips are present.
     """
-    fake_token = {'token': 'foo', 'token_secret': 'bar'}
-    list_trips_url = "https://api.tripit.com/v1/list/trip/format/json"
-    monkeypatch.setattr(requests, "get", mock_responses(list_trips_url))
-    monkeypatch.setattr("tripit.core.v1.oauth.request_access_token", fake_token)
-    assert get_all_trips() == []
+    mock_response_body = {'timestamp': 123, 'num_bytes': 78}
+    mock_response = FakeResponse(url="https://api.tripit.com/v1/list/trip/format/json",
+                                 status_code=200,
+                                 json_object=mock_response_body)
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: mock_response)
+    assert get_all_trips(token='token', token_secret='token_secret') == []
