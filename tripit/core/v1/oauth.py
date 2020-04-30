@@ -16,8 +16,7 @@ from tripit.helpers import sort_dict
 
 def get_missing_client_id_and_secret_env_vars():
     """ tfw the function name is the documentation """
-    env_check = EnvironmentCheck(['TRIPIT_APP_CLIENT_SECRET',
-                                  'TRIPIT_APP_CLIENT_ID'])
+    env_check = EnvironmentCheck(['TRIPIT_APP_CLIENT_SECRET', 'TRIPIT_APP_CLIENT_ID'])
     return env_check.missing_vars
 
 
@@ -39,10 +38,12 @@ def fetch_token(token=None, token_secret=None):
     else:
         request_uri = "https://api.tripit.com/oauth/request_token"
 
-    common_arguments = {"uri": request_uri,
-                        "consumer_key": client_id,
-                        "nonce": secrets.token_hex(),
-                        "timestamp": datetime.now().timestamp()}
+    common_arguments = {
+        "uri": request_uri,
+        "consumer_key": client_id,
+        "nonce": secrets.token_hex(),
+        "timestamp": datetime.now().timestamp()
+    }
     access_token_arguments = {}
     if token_secret is not None:
         access_token_arguments["token"] = token
@@ -52,8 +53,7 @@ def fetch_token(token=None, token_secret=None):
                                    consumer_secret=client_secret,
                                    **common_arguments,
                                    **access_token_arguments)
-    auth_header = generate_sha1_auth_header(signature=oauth_sig,
-                                            **common_arguments)
+    auth_header = generate_sha1_auth_header(signature=oauth_sig, **common_arguments)
     response = requests.get(request_uri, headers={'Authorization': auth_header})
     if response.status_code != 200:
         logging.error("Failed to get an OAuth authentication header: %s)", response.text)
@@ -75,15 +75,17 @@ def request_access_token(req_token, request_token_secret):
     """ Fetch an access token after fetching a request token. """
     return fetch_token(req_token, request_token_secret)
 
+
 # pylint: disable=too-many-arguments
-def generate_authenticated_headers_for_request(method, uri, consumer_key, consumer_secret,
-                                               token, token_secret):
+def generate_authenticated_headers_for_request(method, uri, consumer_key, consumer_secret, token,
+                                               token_secret):
     """ Generates heades for authenticated API calls. """
     nonce = secrets.token_hex()
     timestamp = datetime.now().timestamp()
     signature = generate_signature(method, uri, consumer_key, consumer_secret, nonce, timestamp,
                                    token, token_secret)
     return generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token)
+
 
 # pylint: disable=too-many-arguments
 def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token=None):
@@ -101,16 +103,22 @@ def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, to
     if token is not None:
         headers['oauth_token'] = token
     encoded_sig = urllib.parse.quote_plus(signature)
-    auth_header_parts = [f'OAuth realm="{uri}"',
-                         ",".join([f"{k}=\"{v}\"" for k, v in sort_dict(headers).items()]),
-                         f'oauth_signature="{encoded_sig}"']
-    print(f"Header parts: {auth_header_parts}")
+    auth_header_parts = [
+        f'OAuth realm="{uri}"', ",".join([f"{k}=\"{v}\"" for k, v in sort_dict(headers).items()]),
+        f'oauth_signature="{encoded_sig}"'
+    ]
     return ','.join(auth_header_parts)
 
 
 # pylint: disable=too-many-arguments
-def generate_signature(method, uri, consumer_key, consumer_secret,
-                       nonce, timestamp, token=None, token_secret=None):
+def generate_signature(method,
+                       uri,
+                       consumer_key,
+                       consumer_secret,
+                       nonce,
+                       timestamp,
+                       token=None,
+                       token_secret=None):
     """
     Generates an OAuth v1 signature. These are used to form authentication headers.
 
@@ -129,14 +137,11 @@ def generate_signature(method, uri, consumer_key, consumer_secret,
     if token:
         params["oauth_token"] = token
 
-    encrypt_key = "&".join([consumer_secret,
-                            (token_secret if token_secret is not None else '')])
+    encrypt_key = "&".join([consumer_secret, (token_secret if token_secret is not None else '')])
     param_parts = \
         "&".join([f"{key}={params[key]}" for key, value in sort_dict(params).items()])
-    base_string_for_signature = "&".join([method,
-                                          urllib.parse.quote_plus(uri),
-                                          urllib.parse.quote_plus(param_parts)])
-    signature = hmac.new(bytes(encrypt_key, 'utf8'),
-                         bytes(base_string_for_signature, 'utf8'),
-                         sha1)
+    base_string_for_signature = "&".join(
+        [method, urllib.parse.quote_plus(uri),
+         urllib.parse.quote_plus(param_parts)])
+    signature = hmac.new(bytes(encrypt_key, 'utf8'), bytes(base_string_for_signature, 'utf8'), sha1)
     return base64.b64encode(signature.digest())
