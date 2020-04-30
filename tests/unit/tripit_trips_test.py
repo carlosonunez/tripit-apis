@@ -9,7 +9,6 @@ It is meant to be read-only.
 """
 import json
 import pytest
-import requests
 from tripit.core.v1.trips import (get_all_trips)
 
 
@@ -31,10 +30,21 @@ class FakeResponse:
 def test_fetching_trips_when_none_are_present(monkeypatch):
     """
     We shouldn't get anything back when no trips are present.
+
+    NOTE:
+    You might be wondering "`get_from_tripit_v1` belongs in `tripit.core.v1.api`,
+    but we're patching it from `tripit.core.v1.trips`. What gives?"
+
+    This is due to a limitation of how modules work in Python.
+
+    See here: https://alexmarandon.com/articles/python_mock_gotchas/
     """
-    mock_response_body = {'timestamp': 123, 'num_bytes': 78}
-    mock_response = FakeResponse(url="https://api.tripit.com/v1/list/trip/format/json",
-                                 status_code=200,
-                                 json_object=mock_response_body)
-    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: mock_response)
+    monkeypatch.setattr(
+        'tripit.core.v1.trips.get_from_tripit_v1',
+        lambda *args, **kwargs: FakeResponse(url="https://api.tripit.com/v1/list/trip/format/json",
+                                             status_code=200,
+                                             json_object={
+                                                 'timestamp': 123,
+                                                 'num_bytes': 78
+                                             }))
     assert get_all_trips(token='token', token_secret='token_secret') == []
