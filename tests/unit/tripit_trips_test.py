@@ -10,7 +10,6 @@ It is meant to be read-only.
 import json
 import pytest
 import requests
-from freezegun import freeze_time
 from tripit.core.v1.trips import (get_all_trips)
 
 
@@ -28,7 +27,6 @@ class FakeResponse:
             self.text = json.dumps(json_object)
 
 
-@freeze_time("Jan 1, 1970 00:02:03")
 @pytest.mark.unit
 def test_fetching_trips_when_none_are_present(monkeypatch):
     """
