@@ -72,6 +72,19 @@ services:
       - -m
       - unit
       - /app/tests
+  unit-verbose:
+    extends: python
+    entrypoint: pytest
+    environment:
+      TRIPIT_APP_CLIENT_ID: fake-client-id
+      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
+    volumes:
+      - "$PWD:/app:cached"
+    command:
+      - -m
+      - unit
+      - /app/tests
+      - -vv
 #  unit:
 #    extends: ruby
 #    entrypoint: rspec
