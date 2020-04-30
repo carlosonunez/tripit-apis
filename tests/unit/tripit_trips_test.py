@@ -119,3 +119,51 @@ def test_that_we_can_get_multiple_trips(monkeypatch):
     }
     expected_trips = [expected_trip, expected_trip]
     assert get_all_trips(token='token', token_secret='token_secret') == expected_trips
+
+
+@pytest.mark.unit
+def test_fetching_trips_with_flights(monkeypatch):
+    """
+    We should get back a valid trip with flight dat for trips with flights
+    in them.
+
+    Additionally, the start and end time of the trip should now match the
+    departure time and arrival time of the first and last flight segment,
+    respectively, with some additional padding for trip ingress (getting to the
+    airport and waiting for the flight to depart) to the start time.
+    """
+    monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", 90)
+    fake_trip = FakeTrip("Work: Test Client - Week 2").trip_data
+    monkeypatch.setattr(
+        'tripit.core.v1.trips.get_from_tripit_v1',
+        lambda *args, **kwargs: FakeResponse(url="https://api.tripit.com/v1/list/trip/format/json",
+                                             status_code=200,
+                                             json_object=fake_trip))
+    expected_trips = [{
+        "id": 293554134,
+        "name": "Work: Test Client - Week 2",
+        "city": "Omaha, NE",
+        "ends_on": 1575590280,
+        "link": "https://www.tripit.com/trip/show/id/293554134",
+        "starts_on": 1575236460,
+        "ended": False,
+        "flights": [
+            {
+                "flight_number": "AA356",
+                "origin": "DFW",
+                "destination": "OMA",
+                "depart_time": 1575241860,
+                "arrive_time": 1575248160,
+                "offset": "-06:00"
+            },
+            {
+                "flight_number": "AA2360",
+                "origin": "OMA",
+                "destination": "DFW",
+                "depart_time": 1575583320,
+                "arrive_time": 1575590280,
+                "offset": "-06:00"
+            }
+        ]
+    }]
+    assert get_all_trips(token='token', token_secret='token_secret') == expected_trips

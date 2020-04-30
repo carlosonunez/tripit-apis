@@ -54,8 +54,20 @@ def summarize_trip(trip_object):
         'ended': determine_if_trip_ended(trip_object),
         'link': "https://www.tripit.com" + trip_object['relative_url'],
         'starts_on': resolve_start_time(trip_object),
-        'flights': []
+        'flights': resolve_flights(trip_object)
     }
+
+
+def resolve_flights(trip_object):
+    """
+    Fetches flights for a given trip object, if any `AirObject`'s exist.
+    This involves a nested API call to the resource of the `Trip` and
+    might be time-expensive!
+    """
+    if not trip_object['AirObject']:
+        logger.info("No air objects found for trip %s", trip_object['id'])
+        return []
+    return [True]
 
 
 def retrieve_trip_time_as_unix(time_to_retrieve):
