@@ -78,6 +78,7 @@ services:
     environment:
       TRIPIT_APP_CLIENT_ID: fake-client-id
       TRIPIT_APP_CLIENT_SECRET: fake-client-secret
+      LOG_LEVEL: debug
     volumes:
       - "$PWD:/app:cached"
     command:
