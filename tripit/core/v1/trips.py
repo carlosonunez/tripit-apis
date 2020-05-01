@@ -2,6 +2,7 @@
 TripIt operations.
 """
 import concurrent.futures
+import os
 import time
 from tripit.core.v1.api import get_from_tripit_v1
 from tripit.logging import logger
@@ -23,48 +24,54 @@ def get_all_trips(token, token_secret):
     if "Trip" not in trips_json:
         logger.info("No trips found.")
         return []
-    return join_trips(trips_json['Trip'], token, token_secret)
+    return join_trips(trips_json["Trip"], token, token_secret)
 
 
-def join_trips(trips, token, token_secret):
+def join_trips(trip_refs, token, token_secret):
     """
     Since we need to make API calls to resolve flights in each trip,
     this function delegates these jobs into threads and joins them.
     """
     parsed_trip_futures = []
-    for trip in trips:
+    for trip_ref in trip_refs:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            parsed_trip_futures.append(executor.submit(summarize_trip, trip, token, token_secret))
+            parsed_trip_futures.append(executor.submit(resolve_trip, trip_ref, token, token_secret))
 
     parsed_trips = [future.result() for future in parsed_trip_futures]
     return parsed_trips
 
 
-def summarize_trip(trip_reference, token, token_secret):
+def resolve_trip(trip_reference, token, token_secret):
     """
     Generates a summarized version of a trip with expanded flight
     information.
 
     This involves a nested API call and might be time-expensive!
     """
-    logger.debug("Fetching trip %s", trip_reference['id'])
-    trip_info = get_from_tripit_v1(endpoint=''.join(['/get/trip/id/', trip_reference['id']]),
-                                   token=token,
-                                   token_secret=token_secret)
+    logger.debug("Fetching trip %s", trip_reference["id"])
+    trip_info = get_from_tripit_v1(
+        endpoint="".join(["/get/trip/id/", trip_reference["id"]]),
+        token=token,
+        token_secret=token_secret,
+    )
     if trip_info.status_code != 200:
-        logger.error("Unable to fetch trip %s, error %d", trip_reference['id'],
-                     trip_info.status_code)
-    trip_object = trip_info.json
+        logger.error(
+            "Unable to fetch trip %s, error %d", trip_reference["id"], trip_info.status_code
+        )
+    trip_object = trip_info.json["Trip"]
+
+    flight_objects = trip_info.json.get("AirObject") or []
+    flights = resolve_flights(flight_objects)
 
     summarized_trip = {
-        'id': int(trip_object['id']),
-        'name': trip_object['display_name'],
-        'city': trip_object['primary_location'],
-        'ends_on': resolve_end_time(trip_object),
-        'ended': determine_if_trip_ended(trip_object),
-        'link': "https://www.tripit.com" + trip_object['relative_url'],
-        'starts_on': resolve_start_time(trip_object),
-        'flights': resolve_flights(trip_object)
+        "id": int(trip_object["id"]),
+        "name": trip_object["display_name"],
+        "city": trip_object["primary_location"],
+        "ends_on": resolve_end_time(trip_object, flights),
+        "ended": determine_if_trip_ended(trip_object),
+        "link": "https://www.tripit.com" + trip_object["relative_url"],
+        "starts_on": resolve_start_time(trip_object, flights),
+        "flights": flights,
     }
     return summarized_trip
 
@@ -79,36 +86,72 @@ def resolve_flights(trip_object):
 
     Note that a flight is a collection of segments, or "flight legs."
     """
-    if not trip_object['AirObject']:
-        logger.info("No air objects found for trip %s", trip_object['id'])
+    if not trip_object:
         return []
 
     # Fix bug from Ruby version wherein `AirObject`s aren't always
     # arrays.
-    flights = normalize_air_objects_within_trip(trip_object)
-    flight_segments = normalize_flight_segments_from_flights(flights)
+    air_objects = normalize_air_objects_within_trip(trip_object)
+    flights = normalize_flights_from_air_objects(air_objects)
     summarized_segments = []
-    for segment in flight_segments:
-        flight_number = ''.join(
-            [segment['marketing_airline_code'], segment['marketing_flight_number']])
-        summarized_segment = {
-            'flight_number': flight_number,
-            'origin': segment['start_airport_code'],
-            'destination': segment['end_airport_code'],
-            'offset': segment['StartDateTime']['utc_offset'],
-            'depart_time': normalize_flight_time_to_tz(segment['StartDateTime']),
-            'arrive_time': normalize_flight_time_to_tz(segment['EndDateTime'])
-        }
-        summarized_segments.append(summarized_segment)
-    return sorted(summarized_segments, key=lambda segment: segment['depart_time'])
+    for flight in flights:
+        segments = flight["Segment"]
+        for segment in segments:
+            flight_number = "".join(
+                [segment["marketing_airline_code"], segment["marketing_flight_number"]]
+            )
+            summarized_segment = {
+                "flight_number": flight_number,
+                "origin": segment["start_airport_code"],
+                "destination": segment["end_airport_code"],
+                "offset": segment["StartDateTime"]["utc_offset"],
+                "depart_time": normalize_flight_time_to_tz(segment["StartDateTime"]),
+                "arrive_time": normalize_flight_time_to_tz(segment["EndDateTime"]),
+            }
+            summarized_segments.append(summarized_segment)
+    return sorted(summarized_segments, key=lambda segment: segment["depart_time"])
+
+
+def resolve_start_time(trip, flights):
+    """
+    Resolves the correct start time for a trip based on its flights.
+
+    Note that this assumes that our trips start with flights. That isn't always the case.
+    This will need to be refactored once we start taking other trip objects into account.
+    """
+    if not flights:
+        return retrieve_trip_time_as_unix(trip["start_date"])
+
+    first_flight_segment_start_time = flights[0]["depart_time"]
+    if os.getenv("TRIPIT_INGRESS_TIME_MINUTES"):
+        trip_ingress_seconds = int(os.getenv("TRIPIT_INGRESS_TIME_MINUTES")) * 60
+    else:
+        trip_ingress_seconds = 0
+
+    return first_flight_segment_start_time + trip_ingress_seconds
+
+
+def resolve_end_time(trip, flights):
+    """
+    Resolves the correct start time for a trip based on its flights
+    or manual intervention from a note.
+
+    Note that this assumes that our trips end with flights. That isn't always the case.
+    This will need to be refactored once we start taking other trip objects into account.
+    """
+    if not flights:
+        return retrieve_trip_time_as_unix(trip["end_date"])
+
+    last_flight_segment_end_time = flights[-1]["arrive_time"]
+    return last_flight_segment_end_time
 
 
 def normalize_flight_time_to_tz(time_object):
     """
     Returns the time of a flight with its offset accounted for.
     """
-    datetime_str = ' '.join([time_object['date'], time_object['time']])
-    offset_seconds = int(time_object['offset'].split(':')[0]) * 60
+    datetime_str = " ".join([time_object["date"], time_object["time"]])
+    offset_seconds = int(time_object["utc_offset"].split(":")[0]) * 60 * 60
     datetime_unix = int(time.mktime(time.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")))
     return datetime_unix + offset_seconds
 
@@ -118,46 +161,28 @@ def normalize_air_objects_within_trip(trip):
     This ensures that all `AirObjects` are in an array regardless of the amount
     found.
     """
-    if not isinstance(trip['AirObject']):
-        return [trip['AirObject']]
-    return trip['AirObject']
+    if not isinstance(trip, list):
+        return [trip]
+    return trip
 
 
-def normalize_flight_segments_from_flights(flights):
+def normalize_flights_from_air_objects(flights):
     """
     Returns a list of segments for a given flight.
     This is in its own method because segments aren't always arrays, which means
     they need to be normalized first. I didn't want to muddy `resolve_flights`
     with this logic.
     """
-    if not isinstance(segments, list):
-        segments = [flights['Segment']]
-    return flights['Segment']
+    if not isinstance(flights, list):
+        return [flights]
+    return flights
 
 
 def retrieve_trip_time_as_unix(time_to_retrieve):
     """
     Returns a trip's time in UNIX time format.
     """
-    return int(time.mktime(time.strptime(time_to_retrieve, '%Y-%m-%d')))
-
-
-def resolve_start_time(trip):
-    """
-    Resolves the correct start time for a trip based on its flights
-    """
-
-    # TODO: Actually implement this.
-    return retrieve_trip_time_as_unix(trip['start_date'])
-
-
-def resolve_end_time(trip):
-    """
-    Resolves the correct start time for a trip based on its flights
-    or manual intervention from a note.
-    """
-    # TODO: Actually implement this.
-    return retrieve_trip_time_as_unix(trip['end_date'])
+    return int(time.mktime(time.strptime(time_to_retrieve, "%Y-%m-%d")))
 
 
 # TODO: Remove this flake.
