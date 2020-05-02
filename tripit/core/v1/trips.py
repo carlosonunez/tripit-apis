@@ -2,6 +2,7 @@
 TripIt operations.
 """
 import concurrent.futures
+import datetime
 import os
 import time
 from tripit.core.v1.api import get_from_tripit_v1
@@ -95,7 +96,7 @@ def resolve_flights(trip_object):
     flights = normalize_flights_from_air_objects(air_objects)
     summarized_segments = []
     for flight in flights:
-        segments = flight["Segment"]
+        segments = normalize_segments_from_flight(flight)
         for segment in segments:
             flight_number = "".join(
                 [segment["marketing_airline_code"], segment["marketing_flight_number"]]
@@ -110,6 +111,16 @@ def resolve_flights(trip_object):
             }
             summarized_segments.append(summarized_segment)
     return sorted(summarized_segments, key=lambda segment: segment["depart_time"])
+
+
+def normalize_segments_from_flight(flight):
+    """
+    Same as the other normalization methods, but for segments.
+    """
+    segment = flight["Segment"]
+    if isinstance(segment, list):
+        return segment
+    return [segment]
 
 
 def resolve_start_time(trip, flights):
@@ -150,10 +161,11 @@ def normalize_flight_time_to_tz(time_object):
     """
     Returns the time of a flight with its offset accounted for.
     """
-    datetime_str = " ".join([time_object["date"], time_object["time"]])
-    offset_seconds = int(time_object["utc_offset"].split(":")[0]) * 60 * 60
-    datetime_unix = int(time.mktime(time.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")))
-    return datetime_unix + offset_seconds
+    datetime_str = " ".join(
+        [time_object["date"], time_object["time"], time_object["utc_offset"].replace(":", "")]
+    )
+    datetime_unix = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S %z").timestamp()
+    return int(datetime_unix)
 
 
 def normalize_air_objects_within_trip(trip):

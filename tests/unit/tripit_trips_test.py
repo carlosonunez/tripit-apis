@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 import re
 import pytest
-from tripit.core.v1.trips import get_all_trips
+from tripit.core.v1.trips import get_all_trips, normalize_flight_time_to_tz
 
 
 # pylint: disable=too-few-public-methods
@@ -193,7 +193,23 @@ def test_fetching_trips_with_flights(monkeypatch):
     airport and waiting for the flight to depart) to the start time.
     """
     test_outbound_ingress_seconds = 90 * 60
-    monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", 90)
+    outbound_date = "2019-12-01"
+    outbound_tz = "-06:00"
+    inbound_date = "2019-12-05"
+    inbound_tz = "-06:00"
+    outbound_start_time = normalize_flight_time_to_tz(
+        {"date": outbound_date, "time": "17:11:00", "utc_offset": outbound_tz}
+    )
+    outbound_end_time = normalize_flight_time_to_tz(
+        {"date": outbound_date, "time": "18:56:00", "utc_offset": outbound_tz}
+    )
+    inbound_start_time = normalize_flight_time_to_tz(
+        {"date": inbound_date, "time": "16:02:00", "utc_offset": inbound_tz}
+    )
+    inbound_end_time = normalize_flight_time_to_tz(
+        {"date": inbound_date, "time": "17:58:00", "utc_offset": inbound_tz}
+    )
+    monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
     monkeypatch.setattr(
         "tripit.core.v1.trips.get_from_tripit_v1",
         lambda *args, **kwargs: FakeTrip.fake_response_from_route(
@@ -208,29 +224,82 @@ def test_fetching_trips_with_flights(monkeypatch):
             "id": 293554134,
             "name": "Work: Test Client - Week 2",
             "city": "Omaha, NE",
-            "ends_on": 1575547080,  # Should match AA2360 arrive_time + offset
+            "ends_on": inbound_end_time,  # Should match AA2360 arrive_time
             "link": "https://www.tripit.com/trip/show/id/293554134",
             "starts_on": (
-                1575198660 + test_outbound_ingress_seconds
-            ),  # Should match AA356 depart_time + `offset` + ingress
+                outbound_start_time + test_outbound_ingress_seconds
+            ),  # Should match AA356 depart_time + ingress
             "ended": False,
             "flights": [
                 {
                     "flight_number": "AA356",
                     "origin": "DFW",
                     "destination": "OMA",
-                    "depart_time": 1575198660,  # offset should be accounted for
-                    "arrive_time": 1575204960,  # offset should be accounted for
+                    "depart_time": outbound_start_time,
+                    "arrive_time": outbound_end_time,  # offset should be accounted for
                     "offset": "-06:00",
                 },
                 {
                     "flight_number": "AA2360",
                     "origin": "OMA",
                     "destination": "DFW",
-                    "depart_time": 1575540120,  # offset should be accounted for
-                    "arrive_time": 1575547080,  # offset should be accounted for
+                    "depart_time": inbound_start_time,  # offset should be accounted for
+                    "arrive_time": inbound_end_time,  # offset should be accounted for
                     "offset": "-06:00",
                 },
+            ],
+        }
+    ]
+    assert get_all_trips(token="token", token_secret="token_secret") == expected_trips
+
+
+@pytest.mark.unit
+def test_fetching_trips_with_single_segment_flights(monkeypatch):
+    """
+    Same as test_fetching_trips_with_flights except for situations where
+    we only have one segment in the flight.
+    """
+    test_outbound_ingress_seconds = 90 * 60
+    outbound_date = "2019-11-27"
+    outbound_tz = "-05:00"
+    inbound_date = "2019-11-27"
+    inbound_tz = "-08:00"
+    outbound_start_time = normalize_flight_time_to_tz(
+        {"date": outbound_date, "time": "11:19:00", "utc_offset": outbound_tz}
+    )
+    inbound_end_time = normalize_flight_time_to_tz(
+        {"date": inbound_date, "time": "13:01:00", "utc_offset": inbound_tz}
+    )
+    monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
+    monkeypatch.setattr(
+        "tripit.core.v1.trips.get_from_tripit_v1",
+        lambda *args, **kwargs: FakeTrip.fake_response_from_route(
+            fake_trip_name="Work: Test Client - Week 3",
+            fake_flights_scenario="trip_with_single_segment",
+            *args,
+            **kwargs,
+        ),
+    )
+    expected_trips = [
+        {
+            "id": 234567890,
+            "name": "Work: Test Client - Week 3",
+            "city": "Los Angeles, CA",
+            "ends_on": inbound_end_time,
+            "link": "https://www.tripit.com/trip/show/id/234567890",
+            "starts_on": (outbound_start_time + test_outbound_ingress_seconds),
+            "ended": False,
+            "flights": [
+                {
+                    # Since this is a one-way single-segment flight,
+                    # its end time == inbound end time.
+                    "flight_number": "AA1",
+                    "origin": "JFK",
+                    "destination": "LAX",
+                    "depart_time": outbound_start_time,
+                    "arrive_time": inbound_end_time,
+                    "offset": "-05:00",
+                }
             ],
         }
     ]
