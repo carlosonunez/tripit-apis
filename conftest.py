@@ -30,7 +30,7 @@ class FakeTrip:
     """
 
     def __init__(self, trip_name):
-        self.fake_trip_data = json.loads(Path("./tests/fixtures/trips.json").read_text())
+        self.fake_trip_data = json.loads(Path("./tests/mocks/trips.json").read_text())
         self.trip_data = self.filter_trips(trip_name)
 
     def filter_trips(self, trip_name):
@@ -78,7 +78,7 @@ def fake_response_from_route():
         endpoint = kwargs.get("endpoint")
         if fake_flights_to_load:
             fake_flights = json.loads(
-                Path(f"./tests/fixtures/{fake_flights_to_load}.json").read_text()
+                Path(f"./tests/mocks/{fake_flights_to_load}.json").read_text()
             )
             if filter_notes:
                 del fake_flights["NoteObject"]
