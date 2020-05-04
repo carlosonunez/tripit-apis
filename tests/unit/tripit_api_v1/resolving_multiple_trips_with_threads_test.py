@@ -10,28 +10,23 @@ from tripit.core.v1.trips import get_all_trips
 
 @pytest.mark.unit
 @freeze_time("Jan 1 1970 00:01:02")
-def test_that_we_can_get_multiple_trips(monkeypatch, fake_response_from_route, fake_trip):
+def test_that_we_can_get_multiple_trips(monkeypatch, fake_response_from_route):
     """
     Ensure that our threads can actually yield multiple trips.
     """
 
-    # Duplicate the object, since I only care about getting multiple trips back.
-    trip = fake_trip("Personal: Some Trip")
-    trip.trip_data["Trip"] = trip.trip_data["Trip"] + trip.trip_data["Trip"]
-
     monkeypatch.setattr(
         "tripit.core.v1.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
-            fake_trip_name="Personal: Some Trip",
-            fake_flights_scenario="personal_trip_without_flights",
-            fake_trip_data=trip.trip_data,
+            fake_trip_name="Personal: Multiple Trip",
+            fake_flights_scenario="personal_multi_trip_without_flights",
             *args,
             **kwargs,
         ),
     )
     expected_trip = {
         "id": 123456789,
-        "name": "Personal: Some Trip",
+        "name": "Personal: Multiple Trip",
         "city": "Dayton, OH",
         "ends_on": 1576713600,
         "link": "https://www.tripit.com/trip/show/id/123456789",
