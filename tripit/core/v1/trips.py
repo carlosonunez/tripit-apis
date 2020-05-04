@@ -9,7 +9,7 @@ from tripit.core.v1.api import get_from_tripit_v1
 from tripit.logging import logger
 
 
-def get_all_trips(token, token_secret):
+def get_all_trips(token, token_secret, human_times=False):
     """
     Retrieves all trips from TripIt and parses it in a way that's friendly to
     this API.
@@ -25,10 +25,10 @@ def get_all_trips(token, token_secret):
     if "Trip" not in trips_json:
         logger.info("No trips found.")
         return []
-    return join_trips(trips_json["Trip"], token, token_secret)
+    return join_trips(trips_json["Trip"], token, token_secret, human_times)
 
 
-def join_trips(trip_refs, token, token_secret):
+def join_trips(trip_refs, token, token_secret, human_times):
     """
     Since we need to make API calls to resolve flights in each trip,
     this function delegates these jobs into threads and joins them.
@@ -36,13 +36,15 @@ def join_trips(trip_refs, token, token_secret):
     parsed_trip_futures = []
     for trip_ref in trip_refs:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            parsed_trip_futures.append(executor.submit(resolve_trip, trip_ref, token, token_secret))
+            parsed_trip_futures.append(
+                executor.submit(resolve_trip, trip_ref, token, token_secret, human_times)
+            )
 
     parsed_trips = [future.result() for future in parsed_trip_futures]
     return parsed_trips
 
 
-def resolve_trip(trip_reference, token, token_secret):
+def resolve_trip(trip_reference, token, token_secret, human_times):
     """
     Generates a summarized version of a trip with expanded flight
     information.
@@ -63,9 +65,9 @@ def resolve_trip(trip_reference, token, token_secret):
 
     flight_objects = trip_info.json.get("AirObject") or []
     note_objects = trip_info.json.get("NoteObject") or []
-    flights = resolve_flights(flight_objects)
-    trip_start_time = resolve_start_time(trip_object, flights)
-    trip_end_time = resolve_end_time(trip_object, flights)
+    flights = resolve_flights(flight_objects, human_times)
+    trip_start_time = resolve_start_time(trip_object, flights, human_times)
+    trip_end_time = resolve_end_time(trip_object, flights, human_times)
 
     summarized_trip = {
         "id": int(trip_object["id"]),
@@ -77,10 +79,13 @@ def resolve_trip(trip_reference, token, token_secret):
         "starts_on": trip_start_time,
         "flights": flights,
     }
+    if human_times:
+        for key in ["starts_on", "ends_on"]:
+            summarized_trip[key] = convert_to_human_dt(summarized_trip[key])
     return summarized_trip
 
 
-def resolve_flights(trip_object):
+def resolve_flights(trip_object, human_times):
     """
     Fetches flights for a given trip object, if any `AirObject`'s exist,
     sorted by their departure date and time.
@@ -112,8 +117,26 @@ def resolve_flights(trip_object):
                 "depart_time": normalize_flight_time_to_tz(segment["StartDateTime"]),
                 "arrive_time": normalize_flight_time_to_tz(segment["EndDateTime"]),
             }
+            if human_times:
+                for key in ["depart_time", "arrive_time"]:
+                    summarized_segment[key] = convert_to_human_dt(summarized_segment[key])
+
             summarized_segments.append(summarized_segment)
     return sorted(summarized_segments, key=lambda segment: segment["depart_time"])
+
+
+def convert_to_human_dt(timestamp):
+    """
+    Converts a timestamp to human time.
+    """
+    return datetime.datetime.utcfromtimestamp(timestamp).strftime("%a %b %d %H:%M:%S %Y %z UTC")
+
+
+def convert_human_dt_to_ts(date_str):
+    """
+    Converts a human time to a timestamp.
+    """
+    return int(datetime.datetime.strptime(date_str, "%a %b %d %H:%M:%S %Y UTC").timestamp())
 
 
 def normalize_segments_from_flight(flight):
@@ -126,7 +149,7 @@ def normalize_segments_from_flight(flight):
     return [segment]
 
 
-def resolve_start_time(trip, flights):
+def resolve_start_time(trip, flights, human_times):
     """
     Resolves the correct start time for a trip based on its flights.
 
@@ -137,6 +160,9 @@ def resolve_start_time(trip, flights):
         return retrieve_trip_time_as_unix(trip["start_date"])
 
     first_flight_segment_start_time = flights[0]["depart_time"]
+    if human_times:
+        first_flight_segment_start_time = convert_human_dt_to_ts(first_flight_segment_start_time)
+
     if os.getenv("TRIPIT_INGRESS_TIME_MINUTES"):
         trip_ingress_seconds = int(os.getenv("TRIPIT_INGRESS_TIME_MINUTES")) * 60
     else:
@@ -145,7 +171,7 @@ def resolve_start_time(trip, flights):
     return first_flight_segment_start_time + trip_ingress_seconds
 
 
-def resolve_end_time(trip, flights):
+def resolve_end_time(trip, flights, human_times):
     """
     Resolves the correct start time for a trip based on its flights
     or manual intervention from a note.
@@ -157,6 +183,9 @@ def resolve_end_time(trip, flights):
         return retrieve_trip_time_as_unix(trip["end_date"])
 
     last_flight_segment_end_time = flights[-1]["arrive_time"]
+    if human_times:
+        last_flight_segment_end_time = convert_human_dt_to_ts(last_flight_segment_end_time)
+
     return last_flight_segment_end_time
 
 
