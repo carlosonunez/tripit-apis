@@ -69,6 +69,7 @@ services:
     volumes:
       - "$PWD:/app:cached"
     command:
+      - --maxfail=1
       - -m
       - unit
       - /app/tests
