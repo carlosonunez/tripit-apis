@@ -4,6 +4,7 @@ TripIt operations.
 import concurrent.futures
 import datetime
 import os
+import json
 import time
 from tripit.core.v1.api import get_from_tripit_v1
 from tripit.logging import logger
@@ -17,15 +18,25 @@ def get_current_trip(token, token_secret):
     only return the first trip found.
     """
     trips = get_all_trips(token, token_secret)
-    now = datetime.datetime.now().timestamp()
+    now = int(datetime.datetime.now().timestamp())
+    logger.info("Looking for trip around time %d; trips: %s", now, json.dumps(trips))
     current_trip = [trip for trip in trips if trip["starts_on"] <= now <= trip["ends_on"]]
     if not current_trip:
         return {}
     first_current_trip = current_trip[0]
+    current_flights = [
+        flight
+        for flight in first_current_trip["flights"]
+        if flight["depart_time"] <= now <= flight["arrive_time"]
+    ]
+    if not current_flights:
+        current_flight = {}
+    else:
+        current_flight = current_flights[0]
     return {
         "trip_name": first_current_trip["name"],
         "current_city": first_current_trip["city"],
-        "todays_flight": {},
+        "todays_flight": current_flight,
     }
 
 
