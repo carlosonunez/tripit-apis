@@ -24,3 +24,28 @@ def test_getting_current_trip_when_no_trips_active(monkeypatch, fake_response_fr
     )
     expected_trip = {}
     assert get_current_trip(token="token", token_secret="token_secret") == expected_trip
+
+
+@pytest.mark.unit
+@freeze_time("2019-12-15 09:00")  # set to time during trip
+def test_getting_active_trip_without_flights(monkeypatch, fake_response_from_route):
+    """
+    If we're currently on a trip but are not flying yet, then we should
+    get a trip back but with no flights in it.
+    """
+    monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
+    monkeypatch.setattr(
+        "tripit.core.v1.trips.get_from_tripit_v1",
+        lambda *args, **kwargs: fake_response_from_route(
+            fake_trip_name="Personal: Some Trip",
+            fake_flights_scenario="personal_trip_without_flights",
+            *args,
+            **kwargs,
+        ),
+    )
+    expected_trip = {
+        "trip_name": "Personal: Some Trip",
+        "current_city": "Dayton, OH",
+        "todays_flight": {},
+    }
+    assert get_current_trip(token="token", token_secret="token_secret") == expected_trip

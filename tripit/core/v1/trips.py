@@ -21,7 +21,12 @@ def get_current_trip(token, token_secret):
     current_trip = [trip for trip in trips if trip["starts_on"] <= now <= trip["ends_on"]]
     if not current_trip:
         return {}
-    return current_trip[0]
+    first_current_trip = current_trip[0]
+    return {
+        "trip_name": first_current_trip["name"],
+        "current_city": first_current_trip["city"],
+        "todays_flight": {},
+    }
 
 
 def get_all_trips(token, token_secret, human_times=False):
