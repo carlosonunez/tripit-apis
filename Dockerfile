@@ -15,4 +15,8 @@ ENV PYTHONPATH="${PYTHONPATH};/vendor"
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
+
+# I don't know where this came from but it's namespace prevents my fixtures
+# from loading.
+RUN rm -r /usr/local/lib/python3.8/site-packages/tests
 USER nobody
