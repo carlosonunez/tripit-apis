@@ -16,6 +16,13 @@ def get_current_trip(token, token_secret):
 
     Note that we only currently support being on one trip at a time and will
     only return the first trip found.
+
+    There might be trips with multiple flights happening at the same time.
+    This can happen if we're tracking someone else's flight on the same trip
+    as the requestor's flight. Since it seems that names are not attached
+    to AirObjects, we will need to use notes to manually exclude these flights.
+
+    This fix may get added in a future release.
     """
     trips = get_all_trips(token, token_secret)
     now = int(datetime.datetime.now().timestamp())
