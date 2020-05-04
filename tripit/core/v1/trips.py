@@ -62,6 +62,7 @@ def resolve_trip(trip_reference, token, token_secret):
     trip_object = trip_info.json["Trip"]
 
     flight_objects = trip_info.json.get("AirObject") or []
+    note_objects = trip_info.json.get("NoteObject") or []
     flights = resolve_flights(flight_objects)
     trip_start_time = resolve_start_time(trip_object, flights)
     trip_end_time = resolve_end_time(trip_object, flights)
@@ -71,7 +72,7 @@ def resolve_trip(trip_reference, token, token_secret):
         "name": trip_object["display_name"],
         "city": trip_object["primary_location"],
         "ends_on": trip_end_time,
-        "ended": determine_if_trip_ended(trip_end_time),
+        "ended": determine_if_trip_ended(trip_end_time, note_objects),
         "link": "https://www.tripit.com" + trip_object["relative_url"],
         "starts_on": trip_start_time,
         "flights": flights,
@@ -199,7 +200,7 @@ def retrieve_trip_time_as_unix(time_to_retrieve):
     return int(time.mktime(time.strptime(time_to_retrieve, "%Y-%m-%d")))
 
 
-def determine_if_trip_ended(trip_end_time):
+def determine_if_trip_ended(trip_end_time, note_objects):
     """
     Uses flight data in the trip or manual notes to determine if a trip
     has actually ended.
@@ -208,5 +209,8 @@ def determine_if_trip_ended(trip_end_time):
     data, and there are situations in which a trip can end past its original
     end date (i.e. redeye flights).
     """
+    trip_ended_notes = [note for note in note_objects if note["display_name"] == "TRIP_ENDED"]
+    if trip_ended_notes:
+        return True
     current_time = int(datetime.datetime.now().timestamp())
     return current_time > trip_end_time
