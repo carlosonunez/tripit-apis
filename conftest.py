@@ -11,6 +11,7 @@ import pytest
 # pylint: disable=too-few-public-methods
 class FakeResponse:
     """Used to stub calls to TripIt's API."""
+
     def __init__(self, url, status_code, text=None, json_object=None):
         self.url = url
         self.status_code = status_code
@@ -27,6 +28,7 @@ class FakeTrip:
     """
     Convenience class for creating mocked trips.
     """
+
     def __init__(self, trip_name):
         self.fake_trip_data = json.loads(Path("./tests/fixtures/trips.json").read_text())
         self.trip_data = self.filter_trips(trip_name)
@@ -44,6 +46,7 @@ def fake_trip():
     """
     Creates a fake trip from a given trip name.
     """
+
     def _create(trip_name):
         """
         more fucking pytest hacks.
@@ -64,7 +67,8 @@ def fake_response_from_route():
     fills in this gap by returning the right response from mock TripIt
     based on the path requested.
     """
-    def _run(*args, **kwargs):
+
+    def _run(*args, filter_notes=False, **kwargs):
         """
         more fucking pytest hacks.
         https://stackoverflow.com/a/44701916/314212
@@ -74,7 +78,10 @@ def fake_response_from_route():
         endpoint = kwargs.get("endpoint")
         if fake_flights_to_load:
             fake_flights = json.loads(
-                Path(f"./tests/fixtures/{fake_flights_to_load}.json").read_text())
+                Path(f"./tests/fixtures/{fake_flights_to_load}.json").read_text()
+            )
+            if filter_notes:
+                del fake_flights["NoteObject"]
         else:
             fake_flights = None
 
@@ -84,10 +91,7 @@ def fake_response_from_route():
             fake_response = FakeResponse(
                 url="https://api.tripit.com/v1/list/trip/format/json",
                 status_code=200,
-                json_object={
-                    "timestamp": 123,
-                    "num_bytes": 78
-                },
+                json_object={"timestamp": 123, "num_bytes": 78},
             )
 
         if endpoint == "/trips":
