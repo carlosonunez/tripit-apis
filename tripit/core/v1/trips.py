@@ -9,6 +9,21 @@ from tripit.core.v1.api import get_from_tripit_v1
 from tripit.logging import logger
 
 
+def get_current_trip(token, token_secret):
+    """
+    Retrieves the trip that we're currently on, with flights, if any.
+
+    Note that we only currently support being on one trip at a time and will
+    only return the first trip found.
+    """
+    trips = get_all_trips(token, token_secret)
+    now = datetime.datetime.now().timestamp()
+    current_trip = [trip for trip in trips if trip["starts_on"] <= now <= trip["ends_on"]]
+    if not current_trip:
+        return {}
+    return current_trip[0]
+
+
 def get_all_trips(token, token_secret, human_times=False):
     """
     Retrieves all trips from TripIt and parses it in a way that's friendly to
