@@ -26,7 +26,6 @@ def get_current_trip(token, token_secret):
     """
     trips = get_all_trips(token, token_secret)
     now = int(datetime.datetime.now().timestamp())
-    logger.info("Looking for trip around time %d; trips: %s", now, json.dumps(trips))
     current_trip = [trip for trip in trips if trip["starts_on"] <= now <= trip["ends_on"]]
     if not current_trip:
         return {}

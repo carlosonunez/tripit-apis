@@ -52,7 +52,7 @@ def test_generating_auth_url_with_tokens(monkeypatch):
     During step 1, if our access key already has a token associated with it,
     then it should not continue with the authorization process.
     """
-    monkeypatch.setattr("tripit.auth.auth_flow.access_key_has_token", lambda *args, **kwargs: True)
+    monkeypatch.setattr("tripit.auth.step_1.access_key_has_token", lambda *args, **kwargs: True)
     assert get_authn_url(access_key="fake-key", api_gateway_endpoint="foo") is None
 
 
@@ -63,7 +63,7 @@ def test_asking_for_reauthorization(monkeypatch, query_request_token_table):
     to reauthorize, we should delete what's in the tokens table and begin reauthenticating.
     """
     request_tokens = lambda: {"token": "fake-request-token", "token_secret": "fake-secret"}
-    monkeypatch.setattr("tripit.auth.auth_flow.access_key_has_token", lambda *args, **kwargs: True)
+    monkeypatch.setattr("tripit.auth.step_1.access_key_has_token", lambda *args, **kwargs: True)
     monkeypatch.setattr("tripit.core.v1.oauth.fetch_token", request_tokens)
     expected_callback_url = urllib.parse.urlunparse(("https", "foo", "/callback", "", "", ""))
     expected_url = urllib.parse.urlunparse(

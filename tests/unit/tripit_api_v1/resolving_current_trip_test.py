@@ -41,7 +41,6 @@ def test_getting_active_trip_without_flights(monkeypatch, fake_response_from_rou
             **kwargs,
         ),
     )
-    logger.info("Trip: Personal")
     expected_trip = {
         "trip_name": "Personal: Some Trip",
         "current_city": "Dayton, OH",
@@ -67,7 +66,6 @@ def test_getting_active_trip_with_flight(monkeypatch, fake_response_from_route):
             **kwargs,
         ),
     )
-    logger.info("Trip: Work")
     outbound_date = "2019-12-01"
     outbound_tz = "-06:00"
     outbound_start_time = normalize_flight_time_to_tz(
