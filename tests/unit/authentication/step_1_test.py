@@ -14,7 +14,7 @@ These tests cover these scenarios.
 
 import urllib
 import pytest
-from tripit.auth.auth_flow import get_authn_url
+from tripit.auth.step_1 import get_authn_url
 
 
 @pytest.mark.unit
