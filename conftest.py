@@ -7,5 +7,4 @@ Fixtures and stuff.
 pytest_plugins = [
     "tests.fixtures.fake_response",
     "tests.fixtures.token_state_table",
-    "tests.fixtures.aws",
 ]

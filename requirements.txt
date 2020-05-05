@@ -1,8 +1,10 @@
 flask
 pytest
 pylint
+pynamodb
 requests
 freezegun
 setuptools
 setuptools_scm
+timeout-decorator
 wheel
