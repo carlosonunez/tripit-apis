@@ -38,9 +38,9 @@ def test_generating_auth_url_without_tokens(monkeypatch, query_request_token_tab
     )
     url = get_authn_url(access_key="fake-key", api_gateway_endpoint="foo")
     assert url == expected_url
-    request_token_mapping = query_request_token_table("fake_key")
+    request_token_mapping = query_request_token_table("fake-key")
     assert request_token_mapping == {
-        "access_key": "fake_key",
+        "access_key": "fake-key",
         "token": "fake-request-token",
         "token_secret": "fake-secret",
     }

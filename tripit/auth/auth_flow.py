@@ -47,7 +47,5 @@ def associate_access_key_with_request_token(access_key, token, token_secret):
     new_request_token_mapping = TripitRequestToken(
         access_key, token=token, token_secret=token_secret
     )
-    import pdb
-
-    pdb.set_trace()  # vim breakpoint
     new_request_token_mapping.save()
+    new_request_token_mapping.refresh()

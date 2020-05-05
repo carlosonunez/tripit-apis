@@ -46,7 +46,12 @@ def query_request_token_table():
 
     def _run(access_key):
         try:
-            return TripitRequestToken.get(access_key)
+            item = TripitRequestToken.get(access_key)
+            return {
+                "access_key": item.access_key,
+                "token": item.token,
+                "token_secret": item.token_secret,
+            }
         except TripitRequestToken.DoesNotExist:
             logger.error("Key not found during test: %s", access_key)
 
