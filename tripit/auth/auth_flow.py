@@ -4,6 +4,7 @@ Functions for handling OAuth auth flow.
 Core functions can be found in tripit/core/v1.
 """
 import urllib
+from pynamodb.exceptions import TableDoesNotExist
 from tripit.core.v1.oauth import request_request_token
 from tripit.auth.models import TripitRequestToken
 from tripit.logging import logger
@@ -14,6 +15,9 @@ def get_authn_url(api_gateway_endpoint, access_key):
     Generates an authentication URL for an access key if no request or access
     tokens exist for it.
     """
+    if access_key_has_token(access_key):
+        return None
+
     token_data = request_request_token()
     if token_data is None:
         logger.error("Unable to get token; see previous logs for why.")
@@ -33,6 +37,19 @@ def get_authn_url(api_gateway_endpoint, access_key):
         access_key, token_data["token"], token_data["token_secret"]
     )
     return auth_url
+
+
+def access_key_has_token(access_key):
+    """
+    Checks if an access key has a token associated with it.
+    """
+    try:
+        TripitRequestToken.get(access_key)
+        return True
+    except TableDoesNotExist:
+        return False
+    except TripitRequestToken.DoesNotExist:
+        return False
 
 
 def associate_access_key_with_request_token(access_key, token, token_secret):

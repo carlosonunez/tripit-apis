@@ -44,3 +44,13 @@ def test_generating_auth_url_without_tokens(monkeypatch, query_request_token_tab
         "token": "fake-request-token",
         "token_secret": "fake-secret",
     }
+
+
+@pytest.mark.unit
+def test_generating_auth_url_with_tokens(monkeypatch):
+    """
+    During step 1, if our access key already has a token associated with it,
+    then it should not continue with the authorization process.
+    """
+    monkeypatch.setattr("tripit.auth.auth_flow.access_key_has_token", lambda *args, **kwargs: True)
+    assert get_authn_url(access_key="fake-key", api_gateway_endpoint="foo") is None
