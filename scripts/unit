@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
 docker-compose up -d dynamodb && \
 docker-compose run --rm unit
-docker-compose down
+if [ "${KEEP_ENV_UP:-false}" != "true" ]
+then
+   >&2 echo "INFO: Unit test services are still running. Run 'docker-compose down' to stop them."
+    docker-compose down
+fi
