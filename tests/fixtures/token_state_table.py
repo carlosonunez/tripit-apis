@@ -11,6 +11,7 @@ import socket
 import time
 import urllib.parse
 import pytest
+from pynamodb.exceptions import TransactWriteError
 import timeout_decorator
 from tripit.auth.models import TripitRequestToken
 from tripit.logging import logger
@@ -54,5 +55,22 @@ def query_request_token_table():
             }
         except TripitRequestToken.DoesNotExist:
             logger.error("Key not found during test: %s", access_key)
+
+    return _run
+
+
+@pytest.fixture
+def set_request_token_table():
+    """
+    Allows you to create a mock access key to request token/secret pair mapping.
+    """
+
+    def _run(access_key, token, secret):
+        try:
+            new_mapping = TripitRequestToken(access_key, token, secret)
+            new_mapping.save()
+            new_mapping.refresh()
+        except TransactWriteError:
+            logger.error("Failed to mock a request token mapping for %s", access_key)
 
     return _run
