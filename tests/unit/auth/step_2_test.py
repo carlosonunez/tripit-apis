@@ -41,7 +41,7 @@ def test_callbacks_when_access_key_has_token(
             "token_secret": access_token_secret,
         },
     )
-    assert handle_callback(access_key, callback_token_from_tripit, request_token_secret) is True
+    assert handle_callback(access_key, callback_token_from_tripit) is True
     try:
         assert query_access_token_table(access_key="fake-key") == {
             "access_key": access_key,
@@ -60,5 +60,5 @@ def test_callbacks_when_access_key_does_not_have_token(caplog):
     """
     We should fail if the access key using the callback doesn't have a token yet.
     """
-    assert handle_callback("access-key", "callback-token", "token-secret") is False
+    assert handle_callback("access-key", "callback-token") is False
     assert "This access key hasn't authorized yet: access-key" in caplog.text

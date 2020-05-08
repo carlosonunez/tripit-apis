@@ -9,7 +9,7 @@ from tripit.core.v1.oauth import request_access_token
 from tripit.logging import logger
 
 
-def handle_callback(access_key, callback_token, request_token_secret):
+def handle_callback(access_key, callback_token):
     """
     Handles TripIt callbacks and persists access tokens with access keys for
     future use.
