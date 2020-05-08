@@ -78,11 +78,14 @@ services:
       - unit
       - /app/tests
   unit-verbose:
+    depends_on:
+      - dynamodb
     extends: python
     entrypoint: pytest
     environment:
       TRIPIT_APP_CLIENT_ID: fake-client-id
       TRIPIT_APP_CLIENT_SECRET: fake-client-secret
+      AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
       LOG_LEVEL: debug
     volumes:
       - "$PWD:/app:cached"
