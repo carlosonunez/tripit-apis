@@ -6,7 +6,7 @@ different kinds of tokens.
 import os
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute
-from pynamodb.exceptions import TableDoesNotExist
+from pynamodb.exceptions import TableDoesNotExist, TransactWriteError
 from tripit.logging import logger
 
 
@@ -31,12 +31,13 @@ class TripitRequestToken(Model):
     token = UnicodeAttribute()
     token_secret = UnicodeAttribute()
 
-    def as_dict(self, access_key, **attributes):
+    @staticmethod
+    def as_dict(access_key, **attributes):
         """
         Returns the token data mapped to this access key as a hash.
         """
         try:
-            data = self.get(access_key, **attributes)
+            data = TripitRequestToken.get(access_key, **attributes)
             return {
                 "access_key": access_key,
                 "token": data.token,
@@ -45,6 +46,20 @@ class TripitRequestToken(Model):
         except TableDoesNotExist:
             logger.warning("Request token not created yet for key %s", access_key)
             return None
+
+    @staticmethod
+    def insert(access_key, token, token_secret):
+        """
+        Inserts a new access token.
+        """
+        try:
+            if not TripitRequestToken.exists():
+                TripitRequestToken.create_table()
+            new_mapping = TripitRequestToken(access_key, token=token, token_secret=token_secret)
+            new_mapping.save()
+            new_mapping.refresh()
+        except TransactWriteError as failed_write_error:
+            logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
 
 
 # pylint: disable=too-few-public-methods
@@ -68,12 +83,13 @@ class TripitAccessToken(Model):
     token = UnicodeAttribute()
     token_secret = UnicodeAttribute()
 
-    def as_dict(self, access_key, **attributes):
+    @staticmethod
+    def as_dict(access_key, **attributes):
         """
         Returns the token data mapped to this access key as a hash.
         """
         try:
-            data = self.get(access_key, **attributes)
+            data = TripitAccessToken.get(access_key, **attributes)
             return {
                 "access_key": access_key,
                 "token": data.token,
@@ -82,3 +98,17 @@ class TripitAccessToken(Model):
         except TableDoesNotExist:
             logger.warning("Request token not created yet for key %s", access_key)
             return None
+
+    @staticmethod
+    def insert(access_key, token, token_secret):
+        """
+        Inserts a new access token.
+        """
+        try:
+            if not TripitAccessToken.exists():
+                TripitAccessToken.create_table()
+            new_mapping = TripitAccessToken(access_key, token=token, token_secret=token_secret)
+            new_mapping.save()
+            new_mapping.refresh()
+        except TransactWriteError as failed_write_error:
+            logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
