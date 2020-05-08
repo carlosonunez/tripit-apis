@@ -44,6 +44,17 @@ def get_access_key(event):
         return None
 
 
+def get_query_parameter(event, parameter):
+    """
+    Finds a query parameter from an event.
+    """
+    try:
+        return event["queryStringParameters"][parameter]
+    except KeyError:
+        logger.error("Couldn't find parameter %s in event %s", parameter, json.dumps(event))
+        return None
+
+
 def return_ok(message=None, additional_json=None):
     """
     Returns HTTP 200 with a custom message and additional JSON, if desired.
