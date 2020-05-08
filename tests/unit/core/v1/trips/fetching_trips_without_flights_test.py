@@ -7,7 +7,7 @@ status on Slack to reflect that.)
 """
 import pytest
 from freezegun import freeze_time
-from tripit.core.v1.trips import get_all_trips
+from tripit.trips import get_all_trips
 
 
 @pytest.mark.unit
@@ -17,7 +17,7 @@ def test_fetching_trips_without_flights(monkeypatch, fake_response_from_route):
     We should get back a valid trip for personal trips.
     """
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name="Personal: Some Trip",
             fake_flights_scenario="personal_trip_without_flights",

@@ -7,7 +7,7 @@ This test covers that.
 from datetime import datetime
 import pytest
 from freezegun import freeze_time
-from tripit.core.v1.trips import get_all_trips, normalize_flight_time_to_tz
+from tripit.trips import get_all_trips, normalize_flight_time_to_tz
 
 
 def show_as_human_readable_date(timestamp):
@@ -58,7 +58,7 @@ def test_fetching_trips_with_flights(monkeypatch, fake_response_from_route):
     )
     monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name="Work: Test Client - Week 2",
             fake_flights_scenario="trip_with_flights",

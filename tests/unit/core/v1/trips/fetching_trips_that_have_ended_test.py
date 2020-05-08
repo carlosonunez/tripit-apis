@@ -3,7 +3,7 @@ This API can also show me when trips have ended. These tests account for that.
 """
 import pytest
 from freezegun import freeze_time
-from tripit.core.v1.trips import get_all_trips, normalize_flight_time_to_tz
+from tripit.trips import get_all_trips, normalize_flight_time_to_tz
 
 
 @pytest.mark.unit
@@ -28,7 +28,7 @@ def test_fetching_trips_that_have_ended_due_to_flight_time(monkeypatch, fake_res
     )
     monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name=fake_trip_name,
             fake_flights_scenario="trip_that_ended",
@@ -90,7 +90,7 @@ def test_fetching_trips_that_have_ended_due_to_note(monkeypatch, fake_response_f
     )
     monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name=fake_trip_name, fake_flights_scenario="trip_that_ended", *args, **kwargs,
         ),

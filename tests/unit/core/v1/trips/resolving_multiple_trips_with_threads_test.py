@@ -5,7 +5,7 @@ Since we're using concurrent.futures for our thread pool, they should be thread 
 
 import pytest
 from freezegun import freeze_time
-from tripit.core.v1.trips import get_all_trips
+from tripit.trips import get_all_trips
 
 
 @pytest.mark.unit
@@ -16,7 +16,7 @@ def test_that_we_can_get_multiple_trips(monkeypatch, fake_response_from_route):
     """
 
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name="Personal: Multiple Trip",
             fake_flights_scenario="personal_multi_trip_without_flights",

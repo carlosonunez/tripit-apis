@@ -3,7 +3,7 @@ These tests cover being able to get the trip that we are currently in.
 """
 import pytest
 from freezegun import freeze_time
-from tripit.core.v1.trips import get_current_trip, normalize_flight_time_to_tz, logger
+from tripit.trips import get_current_trip, normalize_flight_time_to_tz, logger
 
 
 @pytest.mark.unit
@@ -13,7 +13,7 @@ def test_getting_current_trip_when_no_trips_active(monkeypatch, fake_response_fr
     We shouldn't get any current trips if we aren't on a trip right now.
     """
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name="Work: Test Client - Week 2",
             fake_flights_scenario="trip_with_flights",
@@ -33,7 +33,7 @@ def test_getting_active_trip_without_flights(monkeypatch, fake_response_from_rou
     get a trip back but with no flights in it.
     """
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name="Personal: Some Trip",
             fake_flights_scenario="personal_trip_without_flights",
@@ -58,7 +58,7 @@ def test_getting_active_trip_with_flight(monkeypatch, fake_response_from_route):
     """
     monkeypatch.setenv("TRIPIT_INGRESS_TIME_MINUTES", "90")
     monkeypatch.setattr(
-        "tripit.core.v1.trips.get_from_tripit_v1",
+        "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
             fake_trip_name="Work: Test Client - Week 2",
             fake_flights_scenario="trip_with_flights",
