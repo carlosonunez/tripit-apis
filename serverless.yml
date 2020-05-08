@@ -65,7 +65,7 @@ functions:
           path: callback
           method: get
   trips:
-    handler: tripit/api/trips.get_trips
+    handler: tripit/api/aws_api_gateway/trips.get_trips
     description: Retrieves all trips associated with a TripIt account.
     timeout: 30
     environment:
@@ -80,7 +80,7 @@ functions:
           method: get
           private: true
   current_trip:
-    handler: tripit/api/trips.current_trip
+    handler: tripit/api/aws_api_gateway/trips.current_trip
     description: Retrieves all trips associated with a TripIt account.
     timeout: 30
     environment:
@@ -97,7 +97,7 @@ functions:
           method: get
           private: true
   ping:
-    handler: bin/tripit.ping
+    handler: tripit/api/aws_api_gateway/ping.ping
     description: Healthiness endpoint for APIs.
     timeout: 30
     environment:
