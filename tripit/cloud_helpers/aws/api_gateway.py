@@ -6,6 +6,19 @@ import json
 from tripit.logging import logger
 
 
+def get_host(event):
+    """
+    Get the host associated with this API gateway from an event.
+    """
+    try:
+        return event["headers"]["Host"]
+    except KeyError:
+        logger.error(
+            "Failed to get host from headers, %s", json.dumps(event["Headers"]),
+        )
+        return None
+
+
 def get_endpoint(event):
     """
     Get an endpoint path from an event.
@@ -17,6 +30,7 @@ def get_endpoint(event):
             "Failed to get endpoint path from requestContext, %s",
             json.dumps(event["requestContext"]),
         )
+        return None
 
 
 def get_access_key(event):
@@ -27,6 +41,7 @@ def get_access_key(event):
         return event["requestContext"]["identity"]["apiKey"]
     except KeyError:
         logger.error("Failed to get access key from event, %s", json.dumps(event["requestContext"]))
+        return None
 
 
 def return_ok(message=None, additional_json=None):
