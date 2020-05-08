@@ -61,6 +61,24 @@ class TripitRequestToken(Model):
         except TransactWriteError as failed_write_error:
             logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
 
+    @staticmethod
+    def delete_tokens_by_access_key(access_key):
+        """
+        Deletes a token associated with an access key.
+        """
+        try:
+            existing_request_token_mapping = TripitRequestToken.get(access_key)
+            existing_request_token_mapping.delete()
+            existing_request_token_mapping.save()
+            existing_request_token_mapping.refresh()
+            return None
+        except TransactWriteError as failed_write_error:
+            logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
+            return None
+        except TableDoesNotExist:
+            logger.warning("Request token not created yet for key %s", access_key)
+            return None
+
 
 # pylint: disable=too-few-public-methods
 class TripitAccessToken(Model):
@@ -112,3 +130,21 @@ class TripitAccessToken(Model):
             new_mapping.refresh()
         except TransactWriteError as failed_write_error:
             logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
+
+    @staticmethod
+    def delete_tokens_by_access_key(access_key):
+        """
+        Deletes a token associated with an access key.
+        """
+        try:
+            existing_request_token_mapping = TripitAccessToken.get(access_key)
+            existing_request_token_mapping.delete()
+            existing_request_token_mapping.save()
+            existing_request_token_mapping.refresh()
+            return None
+        except TransactWriteError as failed_write_error:
+            logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
+            return None
+        except TableDoesNotExist:
+            logger.warning("Access token not created yet for key %s", access_key)
+            return None
