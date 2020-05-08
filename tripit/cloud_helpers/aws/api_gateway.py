@@ -3,6 +3,19 @@ These are a series of helpers that make creating messages acceptable by
 the AWS API gateway a little easier.
 """
 import json
+from tripit.logging import logger
+
+
+def get_endpoint(event):
+    """
+    Get an endpoint path from an event.
+    """
+    try:
+        return event["requestContext"]["path"]
+    except KeyError:
+        logger.error(
+            "Failed to get access key from requestContext, %s", json.dumps(event["requestContext"])
+        )
 
 
 def return_ok(message=None, additional_json=None):
