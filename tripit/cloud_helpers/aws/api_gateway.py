@@ -14,8 +14,19 @@ def get_endpoint(event):
         return event["requestContext"]["path"]
     except KeyError:
         logger.error(
-            "Failed to get access key from requestContext, %s", json.dumps(event["requestContext"])
+            "Failed to get endpoint path from requestContext, %s",
+            json.dumps(event["requestContext"]),
         )
+
+
+def get_access_key(event):
+    """
+    Gets an access key from an event.
+    """
+    try:
+        return event["requestContext"]["identity"]["apiKey"]
+    except KeyError:
+        logger.error("Failed to get access key from event, %s", json.dumps(event["requestContext"]))
 
 
 def return_ok(message=None, additional_json=None):
