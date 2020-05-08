@@ -80,11 +80,10 @@ functions:
           method: get
           private: true
   current_trip:
-    handler: bin/tripit.current_trip
+    handler: tripit/api/trips.current_trip
     description: Retrieves all trips associated with a TripIt account.
     timeout: 30
     environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
