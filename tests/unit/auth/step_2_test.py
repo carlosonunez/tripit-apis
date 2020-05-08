@@ -51,3 +51,14 @@ def test_callbacks_when_access_key_has_token(
     except TableDoesNotExist:
         pytest.fail("Expected access token table to be presesnt, but it was not.")
     drop_access_token_table()
+
+
+@pytest.mark.unit
+# pylint: disable=bad-continuation
+def test_callbacks_when_access_key_does_not_have_token(caplog):
+    # pylint: enable=bad-continuation
+    """
+    We should fail if the access key using the callback doesn't have a token yet.
+    """
+    assert handle_callback("access-key", "callback-token", "token-secret") is False
+    assert "This access key hasn't authorized yet: access-key" in caplog.text

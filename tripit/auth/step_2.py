@@ -16,7 +16,7 @@ def handle_callback(access_key, callback_token, request_token_secret):
     """
     request_token_secret = get_request_token_secret_from_key(access_key)
     if request_token_secret is None:
-        logger.error("Step 1 has not been completed yet for ak %s", access_key)
+        logger.error("This access key hasn't authorized yet: %s", access_key)
         return False
     access_token_data = request_access_token(callback_token, request_token_secret)
     if access_token_data is None:
@@ -38,4 +38,7 @@ def get_request_token_secret_from_key(access_key):
     """
     Retrieves request token secrets from access keys.
     """
-    return TripitRequestToken.as_dict(access_key)["token_secret"]
+    try:
+        return TripitRequestToken.as_dict(access_key)["token_secret"]
+    except TripitRequestToken.DoesNotExist:
+        return None
