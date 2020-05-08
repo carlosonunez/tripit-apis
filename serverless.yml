@@ -64,22 +64,6 @@ functions:
       - http:
           path: callback
           method: get
-  token:
-    handler: bin/tripit.token
-    description: Retrieves tokens for authenticated users.
-    timeout: 30
-    environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
-      APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
-      APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
-      TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
-      TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
-      ENVIRONMENT: ${env:ENVIRONMENT}
-    events:
-      - http:
-          path: token
-          method: get
-          private: true
   trips:
     handler: bin/tripit.trips
     description: Retrieves all trips associated with a TripIt account.
