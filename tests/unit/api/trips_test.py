@@ -16,6 +16,6 @@ def test_trips_endpoint_unauthenticated():
     }
     expected_response = {
         "statusCode": 403,
-        "body": json.dumps({"status": "error", "message": "Access denied; run /auth first."}),
+        "body": json.dumps({"status": "error", "message": "Access denied; go to /auth first."}),
     }
     assert get_trips(fake_event) == expected_response
