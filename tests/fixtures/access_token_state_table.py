@@ -60,17 +60,32 @@ def query_access_token_table():
 
 
 @pytest.fixture
-def set_request_token_table():
+def set_access_token_table():
     """
     Allows you to create a mock access key to request token/secret pair mapping.
     """
 
     def _run(access_key, token, secret):
         try:
-            new_mapping = TripitAccessToken(access_key, token, secret)
+            if not TripitAccessToken.exists():
+                TripitAccessToken.create_table(wait=True)
+            new_mapping = TripitAccessToken(access_key, token=token, token_secret=secret)
             new_mapping.save()
             new_mapping.refresh()
         except TransactWriteError:
             logger.error("Failed to mock a request token mapping for %s", access_key)
+
+    return _run
+
+
+@pytest.fixture
+def drop_access_token_table():
+    """
+    Deletes a mock access token table to guarantee a clean set of data
+    in follow-on tests.
+    """
+
+    def _run():
+        TripitAccessToken.delete_table()
 
     return _run

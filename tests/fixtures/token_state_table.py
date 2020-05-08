@@ -67,10 +67,25 @@ def set_request_token_table():
 
     def _run(access_key, token, secret):
         try:
-            new_mapping = TripitRequestToken(access_key, token, secret)
+            if not TripitRequestToken.exists():
+                TripitRequestToken.create_table(wait=True)
+            new_mapping = TripitRequestToken(access_key, token=token, token_secret=secret)
             new_mapping.save()
             new_mapping.refresh()
         except TransactWriteError:
             logger.error("Failed to mock a request token mapping for %s", access_key)
+
+    return _run
+
+
+@pytest.fixture
+def drop_request_token_table():
+    """
+    Deletes a mock request token table to guarantee a clean set of data
+    in follow-on tests.
+    """
+
+    def _run():
+        TripitRequestToken.delete_table()
 
     return _run

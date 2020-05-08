@@ -28,3 +28,25 @@ class TripitRequestToken(Model):
     access_key = UnicodeAttribute(hash_key=True)
     token = UnicodeAttribute()
     token_secret = UnicodeAttribute()
+
+
+# pylint: disable=too-few-public-methods
+class TripitAccessToken(Model):
+    """
+    This table is used to map access keys to access tokens.
+    """
+
+    class Meta:
+        """ Table configuration. """
+
+        table_name = "tripit_access_tokens"
+        read_capacity_units = os.environ.get("AWS_DYNAMODB_RCU") or 2
+        write_capacity_units = os.environ.get("AWS_DYNAMODB_WCU") or 2
+        if os.environ.get("AWS_REGION"):
+            region = os.environ.get("AWS_REGION")
+        if os.environ.get("AWS_DYNAMODB_ENDPOINT_URL"):
+            host = os.environ.get("AWS_DYNAMODB_ENDPOINT_URL")
+
+    access_key = UnicodeAttribute(hash_key=True)
+    token = UnicodeAttribute()
+    token_secret = UnicodeAttribute()
