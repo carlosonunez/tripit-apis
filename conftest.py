@@ -9,4 +9,5 @@ pytest_plugins = [
     "tests.fixtures.fake_response",
     "tests.fixtures.token_state_table",
     "tests.fixtures.access_token_state_table",
+    "tests.fixtures.show_as_human_readable_date",
 ]

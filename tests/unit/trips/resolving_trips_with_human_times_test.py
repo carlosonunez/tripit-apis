@@ -4,22 +4,18 @@ we want to see these times as human-readable dates.
 
 This test covers that.
 """
-from datetime import datetime
 import pytest
 from freezegun import freeze_time
 from tripit.trips import get_all_trips, normalize_flight_time_to_tz
 
 
-def show_as_human_readable_date(timestamp):
-    """
-    Converts a Unix time to a human readable datetime string.
-    """
-    return datetime.utcfromtimestamp(timestamp).strftime("%a %b %d %H:%M:%S %Y %z UTC")
-
-
 @pytest.mark.unit
 @freeze_time("Jan 1 1970 00:01:02")
-def test_fetching_trips_with_flights(monkeypatch, fake_response_from_route):
+# pylint: disable=bad-continuation
+def test_fetching_trips_with_flights(
+    monkeypatch, fake_response_from_route, show_as_human_readable_date
+):
+    # pylint: enable=bad-continuation
     """
     We should get back a valid trip with flight data for trips with flights
     in them.
