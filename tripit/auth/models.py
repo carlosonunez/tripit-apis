@@ -6,7 +6,7 @@ different kinds of tokens.
 import os
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute
-from pynamodb.exceptions import TableDoesNotExist, TransactWriteError
+from pynamodb.exceptions import TableDoesNotExist, TransactWriteError, GetError
 from tripit.logging import logger
 
 
@@ -43,7 +43,7 @@ class TripitRequestToken(Model):
                 "token": data.token,
                 "token_secret": data.token_secret,
             }
-        except TableDoesNotExist:
+        except (TableDoesNotExist, GetError):
             logger.warning("Request token not created yet for key %s", access_key)
             return None
 
@@ -113,8 +113,8 @@ class TripitAccessToken(Model):
                 "token": data.token,
                 "token_secret": data.token_secret,
             }
-        except TableDoesNotExist:
-            logger.warning("Request token not created yet for key %s", access_key)
+        except (TableDoesNotExist, GetError):
+            logger.warning("Access token not created yet for key %s", access_key)
             return None
 
     @staticmethod
