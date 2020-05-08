@@ -6,6 +6,8 @@ different kinds of tokens.
 import os
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute
+from pynamodb.exceptions import TableDoesNotExist
+from tripit.logging import logger
 
 
 # pylint: disable=too-few-public-methods
@@ -29,6 +31,21 @@ class TripitRequestToken(Model):
     token = UnicodeAttribute()
     token_secret = UnicodeAttribute()
 
+    def as_dict(self, access_key, **attributes):
+        """
+        Returns the token data mapped to this access key as a hash.
+        """
+        try:
+            data = self.get(access_key, **attributes)
+            return {
+                "access_key": access_key,
+                "token": data.token,
+                "token_secret": data.token_secret,
+            }
+        except TableDoesNotExist:
+            logger.warning("Request token not created yet for key %s", access_key)
+            return None
+
 
 # pylint: disable=too-few-public-methods
 class TripitAccessToken(Model):
@@ -50,3 +67,18 @@ class TripitAccessToken(Model):
     access_key = UnicodeAttribute(hash_key=True)
     token = UnicodeAttribute()
     token_secret = UnicodeAttribute()
+
+    def as_dict(self, access_key, **attributes):
+        """
+        Returns the token data mapped to this access key as a hash.
+        """
+        try:
+            data = self.get(access_key, **attributes)
+            return {
+                "access_key": access_key,
+                "token": data.token,
+                "token_secret": data.token_secret,
+            }
+        except TableDoesNotExist:
+            logger.warning("Request token not created yet for key %s", access_key)
+            return None
