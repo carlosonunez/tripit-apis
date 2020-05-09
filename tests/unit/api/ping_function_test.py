@@ -12,7 +12,7 @@ def test_that_ping_works():
     """
     Ensure that we can ping from API Gateway.
     """
-    assert ping() == {
+    assert ping(None, None) == {
         "body": json.dumps({"status": "ok"}),
         "statusCode": 200,
     }

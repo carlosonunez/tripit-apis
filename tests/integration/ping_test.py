@@ -12,4 +12,4 @@ def test_ping(create_api_gateway_url):
     url = create_api_gateway_url("ping")
     response = requests.get(url)
     assert response.status_code == 200
-    assert response.json == {"status": "ok"}
+    assert response.json() == {"status": "ok"}
