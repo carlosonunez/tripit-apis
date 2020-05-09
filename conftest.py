@@ -11,4 +11,5 @@ pytest_plugins = [
     "tests.fixtures.unit.access_token_state_table",
     "tests.fixtures.unit.show_as_human_readable_date",
     "tests.fixtures.integration.aws_api_gateway",
+    "tests.fixtures.integration.update_callback_url",
 ]
