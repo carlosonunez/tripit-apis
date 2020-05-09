@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
 KEEP_INTEGRATION_ENVIRONMENT_UP="${KEEP_INTEGRATION_ENVIRONMENT_UP:-false}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
+set -e
+
+usage() {
+  cat <<-USAGE
+$(basename $0)
+Stages our integration environment and runs our integration tests.
+
+ARGUMENTS
+
+  -h, --help                              Prints this help screen.
+
+ENVIRONMENT VARIABLES
+
+  ENVIRONMENT=test                        The environment being deployed into.
+
+  DEPLOY_FUNCTIONS_ONLY=false             Disable re-deploying infrastructure and skip
+                                          straight to deploying functions.
+
+  KEEP_INTEGRATION_ENVIRONMENT_UP=false   Will disable tearing down the integration environment.
+                                          Useful if you're running into bugs in integration
+                                          that need debugging.
+
+USAGE
+}
+
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+  usage
+  exit 0
+fi
+
 >&2 echo "INFO: Staging integration environment."
 docker-compose up -d selenium
 
