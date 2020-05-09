@@ -17,9 +17,9 @@ class FakeResponse:
         self.status_code = status_code
         if text:
             self.text = text
-            self.json = json.loads(text)
+            self.json = lambda *args, **kwargs: json.loads(text)
         elif json_object:
-            self.json = json_object
+            self.json = lambda *args, **kwargs: json_object
             self.text = json.dumps(json_object)
 
 

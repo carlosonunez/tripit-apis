@@ -4,7 +4,6 @@ TripIt operations.
 import concurrent.futures
 import datetime
 import os
-import json
 import time
 from tripit.core.v1.api import get_from_tripit_v1
 from tripit.logging import logger
@@ -54,11 +53,11 @@ def get_all_trips(token, token_secret, human_times=False):
     We only care about flights and notes. Every other TripIt object is stripped out.
     """
     trip_data = get_from_tripit_v1(endpoint="/trips", token=token, token_secret=token_secret)
-    logger.debug("Response: %d, Body: %s", trip_data.status_code, trip_data.json)
+    logger.debug("Response: %d, Body: %s", trip_data.status_code, trip_data.json())
     if trip_data.status_code != 200:
         logger.error("Failed to get trips: %s", trip_data.status_code)
         return None
-    trips_json = trip_data.json
+    trips_json = trip_data.json()
     if "Trip" not in trips_json:
         logger.info("No trips found.")
         return []
@@ -98,10 +97,10 @@ def resolve_trip(trip_reference, token, token_secret, human_times):
         logger.error(
             "Unable to fetch trip %s, error %d", trip_reference["id"], trip_info.status_code
         )
-    trip_object = trip_info.json["Trip"]
+    trip_object = trip_info.json()["Trip"]
 
-    flight_objects = trip_info.json.get("AirObject") or []
-    note_objects = trip_info.json.get("NoteObject") or []
+    flight_objects = trip_info.json().get("AirObject") or []
+    note_objects = trip_info.json().get("NoteObject") or []
     flights = resolve_flights(flight_objects, human_times)
     trip_start_time = resolve_start_time(trip_object, flights, human_times)
     trip_end_time = resolve_end_time(trip_object, flights, human_times)
