@@ -106,43 +106,26 @@ services:
       DISABLE_TRIPIT_CALLBACK_UPDATING: "true"
     volumes:
       - "$PWD:/app:cached"
+      - "$PWD/secrets:/secrets:cached"
     command:
       - --maxfail=1
       - -s
       - -m
       - integration
       - /app/tests
-#  integration:
-#    extends: ruby
-#    entrypoint: rspec
-#    env_file: .env
-#    environment:
-#      ENVIRONMENT: test
-#      LOAD_PATH: "/app/spec/unit;/app/spec;/app/lib"
-#      SELENIUM_HOST: selenium
-#      SELENIUM_PORT: 4444
-#      DISABLE_TRIPIT_CALLBACK_UPDATING: 'true'
-#    volumes:
-#      - "$PWD/secrets:/secrets"
-#    command:
-#      - --tag
-#      - integration
-#      - --fail-fast
-#      - --format
-#      - documentation
-#  integration-setup:
-#    extends: serverless
-#    entrypoint: bash
-#    environment:
-#      ENVIRONMENT: test
-#    command:
-#      - -c
-#      - ./scripts/integration_setup.sh
-#  integration-teardown:
-#    extends: serverless
-#    entrypoint: bash
-#    environment:
-#      ENVIRONMENT: test
-#    command:
-#      - -c
-#      - ./scripts/integration_teardown.sh
+  integration-setup:
+   extends: serverless
+   entrypoint: bash
+   environment:
+     ENVIRONMENT: test
+   command:
+     - -c
+     - ./scripts/integration_setup.sh
+  integration-teardown:
+    extends: serverless
+    entrypoint: bash
+    environment:
+      ENVIRONMENT: test
+    command:
+      - -c
+      - ./scripts/integration_teardown.sh
