@@ -6,8 +6,9 @@ Fixtures and stuff.
 # pylint: disable=invalid-name
 pytest_plugins = [
     "tests.fixtures.autoload.wait_for_persistence",
-    "tests.fixtures.fake_response",
-    "tests.fixtures.token_state_table",
-    "tests.fixtures.access_token_state_table",
-    "tests.fixtures.show_as_human_readable_date",
+    "tests.fixtures.unit.fake_response",
+    "tests.fixtures.unit.token_state_table",
+    "tests.fixtures.unit.access_token_state_table",
+    "tests.fixtures.unit.show_as_human_readable_date",
+    "tests.fixtures.integration.aws_api_gateway",
 ]
