@@ -29,6 +29,7 @@ services:
     env_file: .env
     environment:
       PIP_NO_CACHE_DIR: "off"
+      PYTHONDONTWRITEBYTECODE: 1 # disable generating __pycache__ directories.
     volumes:
       - $PWD:/app:ro,delegated
     working_dir: /app
