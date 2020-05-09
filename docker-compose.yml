@@ -94,19 +94,24 @@ services:
       - unit
       - /app/tests
       - -vv
-#  unit:
-#    extends: ruby
-#    entrypoint: rspec
-#    environment:
-#      LOAD_PATH: "/app/spec/unit;/app/spec;/app/lib"
-#      AWS_DYNAMODB_ENDPOINT_URL: "http://dynamodb:8000"
-#      ENVIRONMENT: test
-#    command:
-#      - --tag
-#      - unit
-#      - --fail-fast
-#      - --format
-#      - documentation
+  integration:
+    depends_on:
+      - dynamodb
+    extends: python
+    entrypoint: pytest
+    environment:
+      TRIPIT_APP_CLIENT_ID: fake-client-id
+      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
+      AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
+      DISABLE_TRIPIT_CALLBACK_UPDATING: "true"
+    volumes:
+      - "$PWD:/app:cached"
+    command:
+      - --maxfail=1
+      - -s
+      - -m
+      - integration
+      - /app/tests
 #  integration:
 #    extends: ruby
 #    entrypoint: rspec
