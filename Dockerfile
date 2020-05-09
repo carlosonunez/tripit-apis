@@ -10,7 +10,6 @@ RUN if [ "$IS_FOR_VENDORING_SERVICE" != "true" ]; \
     fi
 
 FROM base as app
-ENV FLASK_APP=tripit-api
 ENV PYTHONPATH="${PYTHONPATH};/vendor"
 RUN mkdir /app
 COPY . /app
@@ -18,5 +17,5 @@ WORKDIR /app
 
 # I don't know where this came from but it's namespace prevents my fixtures
 # from loading.
-RUN rm -r /usr/local/lib/python3.8/site-packages/tests
+RUN rm -r /usr/local/lib/python3.8/site-packages/tests || true
 USER nobody
