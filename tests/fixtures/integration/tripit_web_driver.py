@@ -3,6 +3,9 @@ This provides a Selenium webdriver for interacting with the TripIt website.
 """
 import os
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from tripit.logging import logger
 
 
 class TripitWebDriver:
@@ -29,10 +32,35 @@ class TripitWebDriver:
         """
         Ported from Capybara. Fill in an element.
         """
-        self.driver.find_element_by_id(element_id).send_keys(value)
+        element = self._find_element(element_id)
+        if not element:
+            raise NoSuchElementException(f"Couldn't find this in page: {element_id}")
+        element.send_keys(value)
 
     def click_button(self, element_id):
         """
         Ported from Capybara. Click on a button by its element_id.
         """
-        self.driver.find_element_by_id(element_id).click()
+        element = self._find_element(element_id)
+        if not element:
+            raise NoSuchElementException(f"Couldn't find this in page: {element_id}")
+        element.click()
+
+    def _find_element(self, element_id):
+        """
+        Attempts to find a matching element, first by ID, then by (slower) XPath.
+        """
+        try:
+            return self.driver.find_element_by_id(element_id)
+        except NoSuchElementException:
+            """
+            Note that finding elements by XPath will return the first
+            element that matches the value being sought after.
+
+            This might be the wrong element!
+            """
+            try:
+                return self.driver.find_element(By.XPATH, f"//*[contains(text(), '{element_id}')]")
+            except NoSuchElementException:
+                logger.warning("Element not found: %s", element_id)
+                return None
