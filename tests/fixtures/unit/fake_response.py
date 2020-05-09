@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 import pytest
-from tests.fixtures.fake_trip import FakeTrip
+from tests.fixtures.unit.fake_trip import FakeTrip
 
 # pylint: disable=too-few-public-methods
 class FakeResponse:
