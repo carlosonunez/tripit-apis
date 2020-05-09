@@ -19,6 +19,8 @@ def wait_for_persistence():
     Ensure that the endpoint that we are using for persisting tokens is available before running
     any tests.
     """
+    if not os.environ.get("AWS_DYNAMODB_ENDPOINT_URL"):
+        return True
     db_parts = urllib.parse.urlparse(os.environ.get("AWS_DYNAMODB_ENDPOINT_URL"))
     db_host = db_parts.netloc.split(":")[0]
     db_port = db_parts.netloc.split(":")[1]

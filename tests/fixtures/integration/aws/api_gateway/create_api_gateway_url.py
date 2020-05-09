@@ -2,6 +2,7 @@
 Helpers for working with the API Gateway.
 """
 import pytest
+from tests.fixtures.integration.helpers.secrets import read_secret
 
 
 @pytest.fixture
@@ -12,4 +13,6 @@ def create_api_gateway_url():
     """
 
     def _run(endpoint):
-        return f"https://foo/{endpoint}"
+        return f"{read_secret('endpoint_name')}/{endpoint}"
+
+    return _run
