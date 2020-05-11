@@ -114,7 +114,7 @@ resource "aws_dynamodb_table" "request_tokens_table" {
   read_capacity = 2
   write_capacity = 2
   attribute {
-    name = "access_key"
+    name = "token"
     type = "S"
   }
 }
