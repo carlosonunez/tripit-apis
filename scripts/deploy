@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source $(dirname "$0")/helpers/shared_secrets.sh
+source $(dirname "$0")/helpers/logging.sh
 ENVIRONMENT="${ENVIRONMENT:-test}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
 set -e

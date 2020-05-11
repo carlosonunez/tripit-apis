@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source $(dirname "$0")/helpers/logging.sh
 KEEP_INTEGRATION_ENVIRONMENT_UP="${KEEP_INTEGRATION_ENVIRONMENT_UP:-false}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
 set -e
@@ -35,7 +36,7 @@ fi
 >&2 echo "INFO: Rebuilding integration services."
 docker-compose build integration
 
->&2 echo "INFO: Staging integration environment."
+info "Staging integration environment."
 docker-compose up -d selenium
 
 ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy || exit 1
