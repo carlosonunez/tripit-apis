@@ -1,17 +1,39 @@
 #!/usr/bin/env bash
+source $(dirname "$0")/helpers/logging.sh
 KEEP_ENV_UP="${KEEP_ENV_UP:-false}"
-source_code_changes_detected() {
+PERSISTENCE_SERVICE=dynamodb
+_source_code_changes_detected() {
   git status --porcelain | awk '{print $2}' | grep -q ^tripit
 }
 
-docker-compose up -d dynamodb || exit 1
-if source_code_changes_detected
-then
-  docker-compose build unit || exit 1
-fi
-docker-compose run --rm unit || exit 1
-if [ "${KEEP_ENV_UP:-false}" != "true" ]
-then
-   >&2 echo "INFO: Unit test services are still running. Run 'docker-compose down' to stop them."
-    docker-compose down
-fi
+start_mock_persistence() {
+  info "Starting mock persistence."
+  docker-compose up -d "$PERSISTENCE_SERVICE"
+}
+
+update_app_into_unit_testing_service() {
+  if _source_code_changes_detected
+  then
+    info "App changes detected. Rebuilding unit Docker service."
+    docker-compose build unit || exit 1
+  fi
+}
+
+teardown() {
+  if [ "${KEEP_ENV_UP}" == "true" ]
+  then
+     info "Unit test services are still running. Run 'docker-compose down' to stop them."
+  else
+     docker-compose down
+  fi
+}
+
+run_unit_tests() {
+  docker-compose run --rm unit
+}
+
+
+start_mock_persistence &&
+  update_app_into_unit_testing_service &&
+  run_unit_tests &&
+  teardown

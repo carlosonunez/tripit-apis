@@ -27,13 +27,54 @@ ENVIRONMENT VARIABLES
 USAGE
 }
 
+update_app_in_integration_service() {
+  info "Updating app in integration Docker service."
+  docker-compose build integration
+}
+
+ensure_selenium_is_running() {
+  info "Starting selenium to enable webdriving."
+  docker-compose up -d selenium
+}
+
+deploy_to_integration() {
+  info "Deploying integration environment."
+  ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy
+}
+
+setup() {
+  ./scripts/integration_setup.sh
+}
+
+teardown() {
+  if [ "$KEEP_INTEGRATION_ENVIRONMENT_UP" == "true" ]
+  then
+    info "Integration environment will stay up as requested. \
+Tear it down by running: docker-compose run --rm integration-teardown."
+  else
+    scripts/integration_teardown
+  fi
+}
+
+run_integration_tests() {
+  info "Running integration tests."
+  docker-compose run --rm integration
+}
+
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
   usage
   exit 0
 fi
 
->&2 echo "INFO: Rebuilding integration services."
+update_app_in_integration_service &&
+  ensure_selenium_is_running &&
+  deploy_to_integration &&
+  setup; \
+    run_integration_tests; \
+    teardown
+
+info "Rebuilding integration services."
 docker-compose build integration
 
 info "Staging integration environment."
@@ -43,10 +84,3 @@ ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy |
 ./scripts/integration_setup.sh || exit 1
 docker-compose run --rm integration || exit 1
 
-if [ "$KEEP_INTEGRATION_ENVIRONMENT_UP" == "true" ]
-then
-  >&2 echo "INFO: Integration environment will stay up as requested. \
-Tear it down by running: docker-compose run --rm integration-teardown."
-else
-  scripts/integration_teardown
-fi
