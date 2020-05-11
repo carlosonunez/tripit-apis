@@ -29,9 +29,8 @@ def test_callbacks_when_access_key_has_token(
     access_key = "fake-key"
     request_token = "fake-request-token"
     request_token_secret = "fake-request-token-secret"
-    set_request_token_table(access_key, request_token, request_token_secret)
+    set_request_token_table(request_token, access_key, request_token_secret)
 
-    callback_token_from_tripit = "callback-token"
     access_token_from_tripit = "access-token"
     access_token_secret = "token-secret"
     monkeypatch.setattr(
@@ -41,7 +40,7 @@ def test_callbacks_when_access_key_has_token(
             "token_secret": access_token_secret,
         },
     )
-    assert handle_callback(access_key, callback_token_from_tripit) is True
+    assert handle_callback(request_token) is True
     try:
         assert query_access_token_table(access_key="fake-key") == {
             "access_key": access_key,
@@ -60,5 +59,5 @@ def test_callbacks_when_access_key_does_not_have_token(caplog):
     """
     We should fail if the access key using the callback doesn't have a token yet.
     """
-    assert handle_callback("access-key", "callback-token") is False
-    assert "This access key hasn't authorized yet: access-key" in caplog.text
+    assert handle_callback("unmapped-request-token") is False
+    assert "This token hasn't been mapped yet: unmapped-request-token" in caplog.text

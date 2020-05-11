@@ -10,7 +10,7 @@ from tripit.cloud_helpers.aws.api_gateway import return_ok
 @pytest.mark.unit
 # pylint: disable=bad-continuation
 def test_begin_authentication_endpoint(
-    monkeypatch, query_request_token_table, drop_request_token_table, drop_access_token_table
+    monkeypatch, query_request_token_table, drop_request_token_table
 ):
     # pylint: enable=bad-continuation
     """
@@ -36,7 +36,7 @@ def test_begin_authentication_endpoint(
     )
     expected_response = return_ok(message=expected_message)
     assert begin_authentication(fake_event, None) == expected_response
-    request_token_mapping = query_request_token_table("fake-key")
+    request_token_mapping = query_request_token_table("fake_request_token")
     assert request_token_mapping == {
         "access_key": "fake-key",
         "token": "fake_request_token",

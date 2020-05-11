@@ -19,7 +19,7 @@ def get_authn_url(api_gateway_endpoint, host, access_key, reauthorize=False):
         logger.debug("Access key already has token: %s", access_key)
         return None
     if reauthorize:
-        delete_existing_request_tokens(access_key)
+        delete_existing_access_tokens(access_key)
 
     token_data = request_request_token()
     if token_data is None:
@@ -39,8 +39,8 @@ def get_authn_url(api_gateway_endpoint, host, access_key, reauthorize=False):
             "",
         )
     )
-    associate_access_key_with_request_token(
-        access_key, token_data["token"], token_data["token_secret"]
+    associate_request_token_with_access_key(
+        token_data["token"], access_key, token_data["token_secret"]
     )
     return auth_url
 
@@ -61,22 +61,26 @@ def access_key_has_access_token(access_key):
         return False
 
 
-def associate_access_key_with_request_token(access_key, token, token_secret):
+def associate_request_token_with_access_key(token, access_key, token_secret):
     """
-    Associates access keys with request token/secret pairs so that
-    we can retrieve an access token after manually authorizing this application
+    Associates tokens with access keys and request secrets so that
+    we can retrieve an access key after manually authorizing this application
     on TripIt.
+
+    (This is only used by the callback function. Since Tripit won't attach our
+    AWS access key to the GET request to /callback, we need to be able to
+    resolve it from the token that Tripit gives us.)
     """
-    logger.debug("Inserting a new access token for key %s", access_key)
-    TripitRequestToken.insert(access_key=access_key, token=token, token_secret=token_secret)
+    logger.debug("Inserting a new token for our access key %s", access_key)
+    TripitRequestToken.insert(token, access_key=access_key, token_secret=token_secret)
 
 
-def delete_existing_request_tokens(access_key):
+def delete_existing_access_tokens(access_key):
     """
-    Delete request tokens associated with an access key, if any found.
+    Delete access tokens associated with an access key, if any found.
     """
     logger.debug("Deleting existing access tokens for key %s", access_key)
     try:
-        TripitRequestToken.delete_tokens_by_access_key(access_key)
-    except (GetError, TripitRequestToken.DoesNotExist):
+        TripitAccessToken.delete_tokens_by_access_key(access_key)
+    except (GetError, TripitAccessToken.DoesNotExist):
         logger.warning("No request tokens found for key: %s", access_key)

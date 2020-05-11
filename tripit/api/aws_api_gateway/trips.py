@@ -11,7 +11,7 @@ from tripit.cloud_helpers.aws.api_gateway import (
 )
 
 
-def get_trips(event, _context):
+def get_trips(event, _context=None):
     """
     Gets all trips associated with a TripIt account.
     """

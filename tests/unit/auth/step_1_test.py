@@ -40,7 +40,7 @@ def test_generating_auth_url_without_tokens(monkeypatch, query_request_token_tab
     )
     url = get_authn_url(access_key="fake-key", host="foo.com", api_gateway_endpoint="/develop")
     assert url == expected_url
-    request_token_mapping = query_request_token_table("fake-key")
+    request_token_mapping = query_request_token_table("fake-request-token")
     assert request_token_mapping == {
         "access_key": "fake-key",
         "token": "fake-request-token",
@@ -54,7 +54,7 @@ def test_generating_auth_url_with_tokens(set_access_token_table, drop_access_tok
     During step 1, if our access key already has an access token associated with it,
     then it should not continue with the authorization process.
     """
-    set_access_token_table("fake-key", "fake-token", "fake-token-secret")
+    set_access_token_table("fake-token", "fake-key", "fake-token-secret")
     assert get_authn_url(access_key="fake-key", host="foo", api_gateway_endpoint="foo") is None
     drop_access_token_table()
 
@@ -86,7 +86,7 @@ def test_asking_for_reauthorization(monkeypatch, query_request_token_table, set_
         access_key="fake-key", host="foo.com", api_gateway_endpoint="/develop", reauthorize=True,
     )
     assert url == expected_url
-    request_token_mapping = query_request_token_table("fake-key")
+    request_token_mapping = query_request_token_table("fake-request-token")
     assert request_token_mapping == {
         "access_key": "fake-key",
         "token": "fake-request-token",
@@ -126,7 +126,7 @@ def test_reauthorizing_when_authorizing_for_first_time(
         access_key="fake-key", host="foo.com", api_gateway_endpoint="/develop", reauthorize=True,
     )
     assert url == expected_url
-    request_token_mapping = query_request_token_table("fake-key")
+    request_token_mapping = query_request_token_table("fake-request-token")
     assert request_token_mapping == {
         "access_key": "fake-key",
         "token": "fake-request-token",

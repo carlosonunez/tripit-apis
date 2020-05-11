@@ -9,18 +9,22 @@ from tripit.core.v1.oauth import request_access_token
 from tripit.logging import logger
 
 
-def handle_callback(access_key, callback_token):
+def handle_callback(request_token):
     """
     Handles TripIt callbacks and persists access tokens with access keys for
     future use.
     """
-    request_token_secret = get_request_token_secret_from_key(access_key)
-    if request_token_secret is None:
-        logger.error("This access key hasn't authorized yet: %s", access_key)
+    access_key = get_access_key_from_request_token(request_token)
+    if access_key is None:
+        logger.error("This token hasn't been mapped yet: %s", request_token)
         return False
-    access_token_data = request_access_token(callback_token, request_token_secret)
+    request_token_secret = get_token_secret_from_request_token(request_token)
+    if request_token_secret is None:
+        logger.error("BUG: No token secret mapped to request token from step 1: %s", access_key)
+        return False
+    access_token_data = request_access_token(request_token, request_token_secret)
     if access_token_data is None:
-        logger.error("Failed to obtain an access token for callback token %s", callback_token)
+        logger.error("Failed to obtain an access token from request token %s", request_token)
         return False
     try:
         TripitAccessToken.insert(
@@ -34,11 +38,21 @@ def handle_callback(access_key, callback_token):
         return False
 
 
-def get_request_token_secret_from_key(access_key):
+def get_token_secret_from_request_token(token):
     """
-    Retrieves request token secrets from access keys.
+    Retrieves request token secrets from request_tokens
     """
     try:
-        return TripitRequestToken.as_dict(access_key)["token_secret"]
+        return TripitRequestToken.as_dict(token)["token_secret"]
+    except TripitRequestToken.DoesNotExist:
+        return None
+
+
+def get_access_key_from_request_token(token):
+    """
+    Retrieves access key from request_tokens
+    """
+    try:
+        return TripitRequestToken.as_dict(token)["access_key"]
     except TripitRequestToken.DoesNotExist:
         return None

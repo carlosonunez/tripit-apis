@@ -15,19 +15,19 @@ from tripit.logging import logger
 @pytest.fixture
 def query_request_token_table():
     """
-    Retrieves request tokens associated with an access key.
+    Retrieves request access keys associated with a token.
     """
 
-    def _run(access_key):
+    def _run(token):
         try:
-            item = TripitRequestToken.get(access_key)
+            item = TripitRequestToken.get(token)
             return {
                 "access_key": item.access_key,
                 "token": item.token,
                 "token_secret": item.token_secret,
             }
         except TripitRequestToken.DoesNotExist:
-            logger.error("Key not found during test: %s", access_key)
+            logger.error("Token not found during test: %s", token)
 
     return _run
 
@@ -42,7 +42,7 @@ def set_request_token_table():
         try:
             if not TripitRequestToken.exists():
                 TripitRequestToken.create_table(wait=True)
-            new_mapping = TripitRequestToken(access_key, token=token, token_secret=secret)
+            new_mapping = TripitRequestToken(token, access_key=access_key, token_secret=secret)
             new_mapping.save()
             new_mapping.refresh()
         except TransactWriteError:

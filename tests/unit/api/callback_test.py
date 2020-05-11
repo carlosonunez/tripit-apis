@@ -31,7 +31,7 @@ def test_callback_endpoint(
     )
     fake_event = {
         "requestContext": {"path": "/develop/callback", "identity": {"apiKey": "fake-key"},},
-        "queryStringParameters": {"oauth_token": "fake-token"},
+        "queryStringParameters": {"oauth_token": "request-token"},
         "headers": {"Host": "example.fake"},
     }
     expected_response = {

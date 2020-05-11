@@ -12,7 +12,7 @@ from tripit.cloud_helpers.aws.api_gateway import (
 )
 
 
-def begin_authentication(event, _context):
+def begin_authentication(event, _context=None):
     """
     Begin authenticating into TripIt by authorizing your account (and AWS access key)
     with Tripit.

@@ -29,57 +29,46 @@ class TripitRequestToken(Model):
         if os.environ.get("AWS_DYNAMODB_ENDPOINT_URL"):
             host = os.environ.get("AWS_DYNAMODB_ENDPOINT_URL")
 
-    access_key = UnicodeAttribute(hash_key=True)
-    token = UnicodeAttribute()
+    token = UnicodeAttribute(hash_key=True)
+    access_key = UnicodeAttribute()
     token_secret = UnicodeAttribute()
 
     @staticmethod
-    def as_dict(access_key, **attributes):
+    def as_dict(token, **attributes):
         """
         Returns the token data mapped to this access key as a hash.
         """
         try:
-            data = TripitRequestToken.get(access_key, **attributes)
+            data = TripitRequestToken.get(token, **attributes)
             return {
-                "access_key": access_key,
+                "access_key": data.access_key,
                 "token": data.token,
                 "token_secret": data.token_secret,
             }
         except (TableDoesNotExist, GetError):
-            logger.warning("Request token not created yet for key %s", access_key)
+            logger.warning("Access key not created yet for token %s", token)
             return None
 
     @staticmethod
-    def insert(access_key, token, token_secret):
+    def insert(token, access_key, token_secret):
         """
         Inserts a new access token.
         """
         try:
             if not TripitRequestToken.exists():
                 TripitRequestToken.create_table()
-            new_mapping = TripitRequestToken(access_key, token=token, token_secret=token_secret)
-            new_mapping.save()
-            new_mapping.refresh()
+            try:
+                TripitRequestToken.get(token)
+                logger.info("Access key already has token: %s", access_key)
+                return None
+            except TripitRequestToken.DoesNotExist:
+                new_mapping = TripitRequestToken(
+                    token, access_key=access_key, token_secret=token_secret
+                )
+                new_mapping.save()
+                new_mapping.refresh()
         except TransactWriteError as failed_write_error:
-            logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
-
-    @staticmethod
-    def delete_tokens_by_access_key(access_key):
-        """
-        Deletes a token associated with an access key.
-        """
-        try:
-            existing_request_token_mapping = TripitRequestToken.get(access_key)
-            existing_request_token_mapping.delete()
-            existing_request_token_mapping.save()
-            existing_request_token_mapping.refresh()
-            return None
-        except TransactWriteError as failed_write_error:
-            logger.error("Failed to write new data for ak %s: %s", access_key, failed_write_error)
-            return None
-        except TableDoesNotExist:
-            logger.warning("Request token not created yet for key %s", access_key)
-            return None
+            logger.error("Failed to write new data for token %s: %s", token, failed_write_error)
 
 
 # pylint: disable=too-few-public-methods
