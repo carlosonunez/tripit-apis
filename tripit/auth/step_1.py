@@ -50,6 +50,7 @@ def access_key_has_token(access_key):
     """
     try:
         TripitRequestToken.get(access_key)
+        logger.info("Access key has token: %s", access_key)
         return True
     except GetError:
         return False
@@ -65,6 +66,7 @@ def associate_access_key_with_request_token(access_key, token, token_secret):
     we can retrieve an access token after manually authorizing this application
     on TripIt.
     """
+    logger.debug("Inserting a new access token for key %s", access_key)
     TripitRequestToken.insert(access_key=access_key, token=token, token_secret=token_secret)
 
 
@@ -72,4 +74,5 @@ def delete_existing_request_tokens(access_key):
     """
     Delete request tokens associated with an access key, if any found.
     """
+    logger.debug("Deleting existing access tokens for key %s", access_key)
     TripitRequestToken.delete_tokens_by_access_key(access_key)

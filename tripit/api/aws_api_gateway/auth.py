@@ -2,7 +2,6 @@
 API endpoint for authentication functions
 """
 from tripit.auth.step_1 import get_authn_url
-from tripit.auth.step_2 import handle_callback
 from tripit.cloud_helpers.aws.api_gateway import (
     get_endpoint,
     get_access_key,
