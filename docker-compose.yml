@@ -16,8 +16,6 @@ services:
     environment:
       ENVIRONMENT: test
     env_file: .env
-    volumes:
-      - $PWD:/app
     working_dir: /app
   dynamodb:
     image: amazon/dynamodb-local
@@ -49,11 +47,11 @@ services:
       - "$PWD/vendor:/vendor:cached"
       - "$PWD/requirements.txt:/requirements.txt"
     command:
-      - download
-      - -r
-      - /requirements.txt
-      - -d
+      - install
+      - --target
       - /vendor
+      - -r
+      - requirements.txt
   lint:
     extends: python
     entrypoint: pylint
@@ -65,14 +63,16 @@ services:
     depends_on:
       - dynamodb
     extends: python
-    entrypoint: pytest
+    entrypoint: python
     environment:
+      ENVIRONMENT: test
+      PYTHONPATH: ./vendor
       TRIPIT_APP_CLIENT_ID: fake-client-id
       TRIPIT_APP_CLIENT_SECRET: fake-client-secret
       AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
-    volumes:
-      - "$PWD:/app:cached"
     command:
+      - -m
+      - pytest
       - --maxfail=1
       - -s
       - -m
@@ -82,15 +82,17 @@ services:
     depends_on:
       - dynamodb
     extends: python
-    entrypoint: pytest
+    entrypoint: python
     environment:
+      ENVIRONMENT: test
+      PYTHONPATH: ./vendor
       TRIPIT_APP_CLIENT_ID: fake-client-id
       TRIPIT_APP_CLIENT_SECRET: fake-client-secret
       AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
       LOG_LEVEL: debug
-    volumes:
-      - "$PWD:/app:cached"
     command:
+      - -m
+      - pytest
       - -m
       - unit
       - /app/tests
@@ -99,16 +101,41 @@ services:
     depends_on:
       - selenium
     extends: python
-    entrypoint: pytest
+    entrypoint: python
     environment:
+      ENVIRONMENT: test
+      PYTHONPATH: ./vendor
       TRIPIT_APP_CLIENT_ID: fake-client-id
       TRIPIT_APP_CLIENT_SECRET: fake-client-secret
       SELENIUM_HOST: selenium
       SELENIUM_PORT: 4444
     volumes:
-      - "$PWD:/app:cached"
       - "$PWD/secrets:/secrets:cached"
     command:
+      - -m
+      - pytest
+      - --maxfail=1
+      - -s
+      - -m
+      - integration
+      - /app/tests
+  integration:
+    depends_on:
+      - selenium
+    extends: python
+    entrypoint: python
+    environment:
+      ENVIRONMENT: test
+      PYTHONPATH: ./vendor
+      TRIPIT_APP_CLIENT_ID: fake-client-id
+      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
+      SELENIUM_HOST: selenium
+      SELENIUM_PORT: 4444
+    volumes:
+      - "$PWD/secrets:/secrets:cached"
+    command:
+      - -m
+      - pytest
       - --maxfail=1
       - -s
       - -m

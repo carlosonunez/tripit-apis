@@ -1,21 +1,14 @@
-FROM python:3.8-alpine as base
+FROM python:3.8-alpine
 MAINTAINER Carlos Nunez <dev@carlosnunez.me>
-ARG IS_FOR_VENDORING_SERVICE
-
-COPY vendor /vendored
-COPY requirements.txt /
-RUN if [ "$IS_FOR_VENDORING_SERVICE" != "true" ]; \
-    then \
-      pip install -r /requirements.txt --no-index --find-links file:///vendored; \
-    fi
-
-FROM base as app
 ENV PYTHONPATH="${PYTHONPATH};/vendor"
+
+COPY ./vendor /vendor
+
+# There are massive performance problems while running Docker on
+# non-Linux systems due to realtime volume sync. I could use Docker Sync
+# to resolve that, but it's just easier to rebuild the image every time,
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
 
-# I don't know where this came from but it's namespace prevents my fixtures
-# from loading.
-RUN rm -r /usr/local/lib/python3.8/site-packages/tests || true
 USER nobody
