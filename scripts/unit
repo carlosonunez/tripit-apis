@@ -49,5 +49,5 @@ run_unit_tests() {
 vendor_dependencies &&
   start_mock_persistence &&
   update_app_into_unit_testing_service &&
-  run_unit_tests &&
-  teardown
+  run_unit_tests
+teardown
