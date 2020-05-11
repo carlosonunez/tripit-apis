@@ -25,6 +25,10 @@ start_mock_persistence() {
   docker-compose up -d "$PERSISTENCE_SERVICE"
 }
 
+stop_persistence_if_running() {
+  docker-compose stop "$PERSISTENCE_SERVICE"
+}
+
 update_app_into_unit_testing_service() {
   if _source_code_changes_detected
   then
@@ -47,7 +51,8 @@ run_unit_tests() {
 }
 
 
-vendor_dependencies &&
+stop_persistence_if_running &&
+  vendor_dependencies &&
   start_mock_persistence &&
   update_app_into_unit_testing_service &&
   run_unit_tests
