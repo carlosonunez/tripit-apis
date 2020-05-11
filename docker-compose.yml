@@ -9,14 +9,6 @@ services:
     ports:
       - 4444:4444
       - 5900:5900
-  serverless:
-    build:
-      dockerfile: serverless.Dockerfile
-      context: .
-    environment:
-      ENVIRONMENT: test
-    env_file: .env
-    working_dir: /app
   dynamodb:
     image: amazon/dynamodb-local
     ports:
@@ -44,8 +36,8 @@ services:
     entrypoint: pip
     user: root
     volumes:
-      - "$PWD:/app:cached"
-      - "$PWD/vendor:/vendor:cached"
+      - "$PWD:/app"
+      - "$PWD/vendor:/vendor"
       - "$PWD/requirements.txt:/requirements.txt"
     command:
       - install
@@ -57,7 +49,7 @@ services:
     extends: python
     entrypoint: pylint
     volumes:
-      - "$PWD:/app:cached"
+      - "$PWD:/app"
     command:
       - -E
   unit:
@@ -79,25 +71,6 @@ services:
       - -m
       - unit
       - /app/tests
-  unit-verbose:
-    depends_on:
-      - dynamodb
-    extends: python
-    entrypoint: python
-    environment:
-      ENVIRONMENT: test
-      PYTHONPATH: ./vendor
-      TRIPIT_APP_CLIENT_ID: fake-client-id
-      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
-      AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
-      LOG_LEVEL: debug
-    command:
-      - -m
-      - pytest
-      - -m
-      - unit
-      - /app/tests
-      - -vv
   integration:
     depends_on:
       - selenium
@@ -111,7 +84,7 @@ services:
       SELENIUM_HOST: selenium
       SELENIUM_PORT: 4444
     volumes:
-      - "$PWD/secrets:/secrets:cached"
+      - "$PWD/secrets:/secrets"
     command:
       - -m
       - pytest
@@ -120,45 +93,3 @@ services:
       - -m
       - integration
       - /app/tests
-  integration:
-    depends_on:
-      - selenium
-    extends: python
-    entrypoint: python
-    environment:
-      ENVIRONMENT: test
-      PYTHONPATH: ./vendor
-      TRIPIT_APP_CLIENT_ID: fake-client-id
-      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
-      SELENIUM_HOST: selenium
-      SELENIUM_PORT: 4444
-    volumes:
-      - "$PWD/secrets:/secrets:cached"
-    command:
-      - -m
-      - pytest
-      - --maxfail=1
-      - -s
-      - -m
-      - integration
-      - /app/tests
-  integration-setup:
-   extends: serverless
-   entrypoint: bash
-   volumes:
-     - "$PWD/secrets:/secrets:cached"
-   environment:
-     ENVIRONMENT: test
-   command:
-     - -c
-     - ./scripts/integration_setup.sh
-  integration-teardown:
-    extends: serverless
-    entrypoint: bash
-    volumes:
-      - "$PWD/secrets:/secrets:cached"
-    environment:
-      ENVIRONMENT: test
-    command:
-      - -c
-      - ./scripts/integration_teardown.sh
