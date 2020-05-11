@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source "./scripts/helpers/logging.sh"
+
+usage() {
+  cat <<-USAGE
+$(basename $0)
+Deploys our service into production.
+This script takes no arguments or environment variables.
+USAGE
+}
+
+vendor_dependencies() {
+  info "Updating app dependencies."
+  test -d "./vendor" && mkdir "./vendor"
+  docker-compose run --rm vendor
+}
+
+info "Deploying into production."
+vendor_dependencies && ENVIRONMENT=production scripts/deploy
