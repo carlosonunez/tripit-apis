@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-docker-compose up -d dynamodb && \
-docker-compose run --rm unit
+KEEP_ENV_UP="${KEEP_ENV_UP:-false}"
+source_code_changes_detected() {
+  git status --porcelain | awk '{print $2}' | grep -q ^tripit
+}
+
+docker-compose up -d dynamodb || exit 1
+if source_code_changes_detected
+then
+  docker-compose build unit || exit 1
+fi
+docker-compose run --rm unit || exit 1
 if [ "${KEEP_ENV_UP:-false}" != "true" ]
 then
    >&2 echo "INFO: Unit test services are still running. Run 'docker-compose down' to stop them."

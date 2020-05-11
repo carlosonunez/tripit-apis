@@ -32,15 +32,16 @@ then
   exit 0
 fi
 
+>&2 echo "INFO: Rebuilding integration services."
+docker-compose build --parallel serverless integration-setup integration integration-teardown
+
 >&2 echo "INFO: Staging integration environment."
 docker-compose up -d selenium
 
 ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy || exit 1
-for stage in integration-setup integration
-do
-  >&2 echo "INFO: Running stage: $stage"
-  docker-compose run --rm "$stage" || exit 1
-done
+docker-compose run --rm integration-setup || exit 1
+docker-compose run --rm integration || exit 1
+
 if [ "$KEEP_INTEGRATION_ENVIRONMENT_UP" == "true" ]
 then
   >&2 echo "INFO: Integration environment will stay up as requested. \
