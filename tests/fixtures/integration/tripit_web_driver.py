@@ -22,6 +22,12 @@ class TripitWebDriver:
             desired_capabilities={"browserName": "chrome", "args": ["--no-default-browser-check"]},
         )
 
+    def page(self):
+        """
+        Gets the text of the page.
+        """
+        return self.driver.page_source
+
     def visit(self, site):
         """
         Ported from Capybara. Visits a page.
