@@ -1,0 +1,7 @@
+.terraform
+env
+.serverless
+.git
+scripts
+.pytest_cache
+__pycache__
