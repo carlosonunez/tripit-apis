@@ -36,7 +36,6 @@ services:
     entrypoint: pip
     user: root
     volumes:
-      - "$PWD:/app"
       - "$PWD/vendor:/vendor"
       - "$PWD/requirements.txt:/requirements.txt"
     command:
@@ -44,12 +43,10 @@ services:
       - --target
       - /vendor
       - -r
-      - requirements.txt
+      - /requirements.txt
   lint:
     extends: python
     entrypoint: pylint
-    volumes:
-      - "$PWD:/app"
     command:
       - -E
   unit:
