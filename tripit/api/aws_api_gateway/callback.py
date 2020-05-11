@@ -12,7 +12,7 @@ from tripit.cloud_helpers.aws.api_gateway import (
 )
 
 # TODO: Handle token reauthorizations. Do this after we get passing integration tests.
-def callback(event):
+def callback(event, _context):
     """
     Handle the callback from TripIt.
     """

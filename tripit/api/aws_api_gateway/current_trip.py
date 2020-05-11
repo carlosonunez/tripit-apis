@@ -10,7 +10,7 @@ from tripit.cloud_helpers.aws.api_gateway import (
 )
 
 
-def current_trip(event):
+def current_trip(event, _context):
     """
     Gets all trips associated with a TripIt account.
     """
