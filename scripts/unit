@@ -6,6 +6,12 @@ _source_code_changes_detected() {
   git status --porcelain | awk '{print $2}' | grep -q ^tripit
 }
 
+vendor_dependencies() {
+  info "Updating app dependencies."
+  test -d "./vendor" && mkdir "./vendor"
+  docker-compose run --rm vendor
+}
+
 start_mock_persistence() {
   info "Starting mock persistence."
   docker-compose up -d "$PERSISTENCE_SERVICE"
@@ -33,7 +39,8 @@ run_unit_tests() {
 }
 
 
-start_mock_persistence &&
+vendor_dependencies &&
+  start_mock_persistence &&
   update_app_into_unit_testing_service &&
   run_unit_tests &&
   teardown
