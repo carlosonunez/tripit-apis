@@ -10,7 +10,7 @@ from tripit.cloud_helpers.aws.api_gateway import return_ok
 @pytest.mark.unit
 # pylint: disable=bad-continuation
 def test_begin_authentication_endpoint(
-    monkeypatch, query_request_token_table, drop_request_token_table
+    monkeypatch, query_request_token_table, drop_request_token_table, drop_access_token_table
 ):
     # pylint: enable=bad-continuation
     """

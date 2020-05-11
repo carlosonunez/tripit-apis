@@ -6,7 +6,7 @@ Core functions can be found in tripit/core/v1.
 import urllib
 from pynamodb.exceptions import TableDoesNotExist, GetError
 from tripit.core.v1.oauth import request_request_token
-from tripit.auth.models import TripitRequestToken
+from tripit.auth.models import TripitRequestToken, TripitAccessToken
 from tripit.logging import logger
 
 
@@ -15,7 +15,7 @@ def get_authn_url(api_gateway_endpoint, host, access_key, reauthorize=False):
     Generates an authentication URL for an access key if no request or access
     tokens exist for it.
     """
-    if access_key_has_token(access_key) and not reauthorize:
+    if access_key_has_access_token(access_key) and not reauthorize:
         logger.debug("Access key already has token: %s", access_key)
         return None
     if reauthorize:
@@ -45,19 +45,19 @@ def get_authn_url(api_gateway_endpoint, host, access_key, reauthorize=False):
     return auth_url
 
 
-def access_key_has_token(access_key):
+def access_key_has_access_token(access_key):
     """
-    Checks if an access key has a token associated with it.
+    Checks if an access key has an access token associated with it.
     """
     try:
-        TripitRequestToken.get(access_key)
+        TripitAccessToken.get(access_key)
         logger.info("Access key has token: %s", access_key)
         return True
     except GetError:
         return False
     except TableDoesNotExist:
         return False
-    except TripitRequestToken.DoesNotExist:
+    except TripitAccessToken.DoesNotExist:
         return False
 
 
