@@ -6,10 +6,17 @@ _source_code_changes_detected() {
   git status --porcelain | awk '{print $2}' | grep -q ^tripit
 }
 
+_requirements_txt_change_detected() {
+  git status --porcelain | awk '{print $2}' | grep -Eq ".*requirements.txt$"
+}
+
 vendor_dependencies() {
-  info "Updating app dependencies."
-  test -d "./vendor" && mkdir "./vendor"
-  docker-compose run --rm vendor
+  if _requirements_txt_change_detected
+  then
+    info "Updating app dependencies."
+    test -d "./vendor" && mkdir "./vendor"
+    docker-compose run --rm vendor
+  fi
 }
 
 start_mock_persistence() {
