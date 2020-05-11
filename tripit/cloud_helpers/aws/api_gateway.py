@@ -26,7 +26,7 @@ def get_endpoint(event):
     try:
         return event["requestContext"]["path"]
     except (KeyError, TypeError):
-        logger.error(
+        logger.warning(
             "Failed to get endpoint path from requestContext, %s",
             json.dumps(event["requestContext"]),
         )
@@ -40,7 +40,9 @@ def get_access_key(event):
     try:
         return event["requestContext"]["identity"]["apiKey"]
     except (KeyError, TypeError):
-        logger.error("Failed to get access key from event, %s", json.dumps(event["requestContext"]))
+        logger.warning(
+            "Failed to get access key from event, %s", json.dumps(event["requestContext"])
+        )
         return None
 
 
@@ -51,7 +53,7 @@ def get_query_parameter(event, parameter):
     try:
         return event["queryStringParameters"][parameter]
     except (KeyError, TypeError):
-        logger.error("Couldn't find parameter %s in event %s", parameter, json.dumps(event))
+        logger.warning("Couldn't find parameter %s in event %s", parameter, json.dumps(event))
         return None
 
 
