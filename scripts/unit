@@ -10,8 +10,9 @@ _requirements_txt_change_detected() {
   git status --porcelain | awk '{print $2}' | grep -Eq ".*requirements.txt$"
 }
 
+# TODO: Move vendoring stuff into separate helper library.
 vendor_dependencies() {
-  if _requirements_txt_change_detected
+  if ! test -d "./vendor" || _requirements_txt_change_detected
   then
     info "Updating app dependencies."
     test -d "./vendor" && mkdir "./vendor"
