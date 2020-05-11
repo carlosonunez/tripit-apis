@@ -33,13 +33,13 @@ then
 fi
 
 >&2 echo "INFO: Rebuilding integration services."
-docker-compose build --parallel serverless integration-setup integration integration-teardown
+docker-compose build integration
 
 >&2 echo "INFO: Staging integration environment."
 docker-compose up -d selenium
 
 ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy || exit 1
-docker-compose run --rm integration-setup || exit 1
+./scripts/integration_setup.sh || exit 1
 docker-compose run --rm integration || exit 1
 
 if [ "$KEEP_INTEGRATION_ENVIRONMENT_UP" == "true" ]

@@ -28,3 +28,7 @@ write_secret() {
   secret_filepath="./secrets/$secret_filename"
   printf "$secret" > "$secret_filepath"
 }
+
+remove_secret_folder_if_present() {
+  test -d "./secrets" && rm -r ./secrets || true
+}

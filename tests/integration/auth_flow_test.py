@@ -35,3 +35,7 @@ def test_getting_an_authorization_url(create_api_gateway_url, access_key):
     matches = expected_tripit_auth_url_pattern.match(response.json()["message"])
     assert matches is not None
     assert len(matches.groups()) == 1
+
+
+# @pytest.mark.integration
+# def test_getting_a_token_after_callback(create_api_gateway_url, access_key):

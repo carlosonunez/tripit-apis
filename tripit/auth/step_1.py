@@ -16,6 +16,7 @@ def get_authn_url(api_gateway_endpoint, host, access_key, reauthorize=False):
     tokens exist for it.
     """
     if access_key_has_token(access_key) and not reauthorize:
+        logger.debug("Access key already has token: %s", access_key)
         return None
     if reauthorize:
         delete_existing_request_tokens(access_key)

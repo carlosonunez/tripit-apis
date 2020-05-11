@@ -42,6 +42,7 @@ services:
         IS_FOR_VENDORING_SERVICE: "true"
     env_file: .env
     entrypoint: pip
+    user: root
     volumes:
       - "$PWD:/app:cached"
       - "$PWD/vendor:/vendor:cached"
@@ -144,6 +145,8 @@ services:
   integration-setup:
    extends: serverless
    entrypoint: bash
+   volumes:
+     - "$PWD/secrets:/secrets:cached"
    environment:
      ENVIRONMENT: test
    command:
@@ -152,6 +155,8 @@ services:
   integration-teardown:
     extends: serverless
     entrypoint: bash
+    volumes:
+      - "$PWD/secrets:/secrets:cached"
     environment:
       ENVIRONMENT: test
     command:
