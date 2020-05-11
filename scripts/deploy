@@ -76,11 +76,6 @@ write_infrastructure_secrets_for_integration_testing() {
   done
 }
 
-vendor_dependencies() {
-  info "Vendoring dependencies."
-  docker-compose run --rm vendor
-}
-
 deploy_serverless_infrastructure() {
   info "Deploying serverless infrastructure."
   docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-infra-"$ENVIRONMENT" &&
@@ -104,6 +99,5 @@ then
 fi
 
 remove_secret_folder_if_present &&
-  vendor_dependencies &&
   deploy_serverless_infrastructure &&
   deploy_serverless_functions
