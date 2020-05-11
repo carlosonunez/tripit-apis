@@ -4,8 +4,20 @@ authorizing this application to access their TripIt account details.
 """
 
 import re
+import time
 import pytest
 import requests
+import timeout_decorator
+
+
+@timeout_decorator.timeout(5)
+def wait_until_lambda_ready(response):
+    """
+    We might get 403 Forbidden's while Lambda starts up.
+    This waits for them to clear out.
+    """
+    if response.status_code == 403:
+        time.sleep(1)
 
 
 @pytest.mark.integration
@@ -30,6 +42,7 @@ def test_getting_an_authorization_url(create_api_gateway_url, access_key):
             ]
         )
     )
+    wait_until_lambda_ready(response)
     assert response.status_code == 200
 
     matches = expected_tripit_auth_url_pattern.match(response.json()["message"])
