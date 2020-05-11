@@ -35,7 +35,7 @@ def test_begin_authentication_endpoint(
         ]
     )
     expected_response = return_ok(message=expected_message)
-    assert begin_authentication(fake_event, begin_auth_function_name="auth") == expected_response
+    assert begin_authentication(fake_event, None) == expected_response
     request_token_mapping = query_request_token_table("fake-key")
     assert request_token_mapping == {
         "access_key": "fake-key",

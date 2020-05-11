@@ -13,7 +13,7 @@ from tripit.cloud_helpers.aws.api_gateway import (
 )
 
 
-def begin_authentication(event, begin_auth_function_name):
+def begin_authentication(event, _context):
     """
     Begin authenticating into TripIt by authorizing your account (and AWS access key)
     with Tripit.
@@ -21,13 +21,16 @@ def begin_authentication(event, begin_auth_function_name):
     access_key = get_access_key(event)
     if not access_key:
         return return_error(message="Failed to get access key from event.")
-    endpoint = trim_auth_from_endpoint(get_endpoint(event), begin_auth_function_name)
+    endpoint = trim_auth_from_endpoint(get_endpoint(event), "auth")
     if not endpoint:
         return return_error(message="Failed to get endpoint from event.")
     host = get_host(event)
     if not host:
         return return_error(message="Failed to get endpoint from event.")
-    auth_url = get_authn_url(access_key=access_key, host=host, api_gateway_endpoint=endpoint)
+    reauthorize = get_query_parameter(event, "reauthorize") or False
+    auth_url = get_authn_url(
+        access_key=access_key, host=host, reauthorize=reauthorize, api_gateway_endpoint=endpoint
+    )
     if not auth_url:
         return return_error(message="No authorization URL received.")
     message = "".join(
