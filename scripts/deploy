@@ -30,7 +30,7 @@ write_lambda_secrets_for_integration_testing() {
   then
     return
   fi
-  >&2 echo "INFO: Getting integration test API Gateway endpoint."
+  info "Getting integration test API Gateway endpoint."
   endpoint_url=$(docker-compose -f docker-compose.deploy.yml run \
       --rm serverless info --stage develop | \
     grep -E 'http.*\/ping' | \
@@ -38,7 +38,7 @@ write_lambda_secrets_for_integration_testing() {
     tr -d $'\r' | \
     tr -d $'\n')
 
-  >&2 echo "INFO: Getting API Gateway default API key."
+  info "Getting API Gateway default API key."
   api_key=$(docker-compose -f docker-compose.deploy.yml \
       run --rm serverless info --stage develop | \
     grep -E 'default-tripit-key-dev:' | \
@@ -48,12 +48,12 @@ write_lambda_secrets_for_integration_testing() {
   )
   if test -z "$endpoint_url"
   then
-    >&2 echo "ERROR: We couldn't find a deployed endpoint."
+    error "We couldn't find a deployed endpoint."
     exit 1
   fi
   if test -z "$api_key"
   then
-    >&2 echo "ERROR: We couldn't find an API key."
+    error "We couldn't find an API key."
     exit 1
   fi
   write_secret "$endpoint_url" "endpoint_name"
@@ -65,7 +65,7 @@ write_infrastructure_secrets_for_integration_testing() {
   then
     return
   fi
-  >&2 echo "INFO: Getting infrastructure secrets."
+  info "Getting infrastructure secrets."
   for output_var in app_account_ak app_account_sk certificate_arn
   do
     secret_value="$(docker-compose -f docker-compose.deploy.yml run --rm terraform output "$output_var" | \
