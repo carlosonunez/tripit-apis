@@ -19,7 +19,9 @@ class TripitRequestToken(Model):
     class Meta:
         """ Table configuration. """
 
-        table_name = "tripit_request_tokens"
+        aws_access_key_id = os.environ.get("APP_AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.environ.get("APP_AWS_SECRET_ACCESS_KEY")
+        table_name = "tripit_request_tokens_" + os.environ.get("ENVIRONMENT")
         read_capacity_units = os.environ.get("AWS_DYNAMODB_RCU") or 2
         write_capacity_units = os.environ.get("AWS_DYNAMODB_WCU") or 2
         if os.environ.get("AWS_REGION"):
@@ -89,7 +91,9 @@ class TripitAccessToken(Model):
     class Meta:
         """ Table configuration. """
 
-        table_name = "tripit_access_tokens"
+        aws_access_key_id = os.environ.get("APP_AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.environ.get("APP_AWS_SECRET_ACCESS_KEY")
+        table_name = "tripit_access_tokens_" + os.environ.get("ENVIRONMENT")
         read_capacity_units = os.environ.get("AWS_DYNAMODB_RCU") or 2
         write_capacity_units = os.environ.get("AWS_DYNAMODB_WCU") or 2
         if os.environ.get("AWS_REGION"):
