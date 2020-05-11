@@ -76,4 +76,7 @@ def delete_existing_request_tokens(access_key):
     Delete request tokens associated with an access key, if any found.
     """
     logger.debug("Deleting existing access tokens for key %s", access_key)
-    TripitRequestToken.delete_tokens_by_access_key(access_key)
+    try:
+        TripitRequestToken.delete_tokens_by_access_key(access_key)
+    except (GetError, TripitRequestToken.DoesNotExist):
+        logger.warning("No request tokens found for key: %s", access_key)

@@ -60,6 +60,7 @@ def test_generating_auth_url_with_tokens(set_access_token_table, drop_access_tok
 
 
 @pytest.mark.unit
+# pylint: disable=bad-continuation
 def test_asking_for_reauthorization(monkeypatch, query_request_token_table, set_access_token_table):
     """
     If we already have tokens during step 1 of the authentication process, but we ask
@@ -67,6 +68,46 @@ def test_asking_for_reauthorization(monkeypatch, query_request_token_table, set_
     """
     request_tokens = lambda: {"token": "fake-request-token", "token_secret": "fake-secret"}
     set_access_token_table("fake-key", "fake-access-token", "fake-secret")
+    monkeypatch.setattr("tripit.core.v1.oauth.fetch_token", request_tokens)
+    expected_callback_url = urllib.parse.urlunparse(
+        ("https", "foo.com", "/develop/callback", "", "", "")
+    )
+    expected_url = urllib.parse.urlunparse(
+        (
+            "https",
+            "www.tripit.com",
+            "/oauth/authorize",
+            "",
+            "".join(["oauth_token=fake-request-token&oauth_callback=", expected_callback_url]),
+            "",
+        )
+    )
+    url = get_authn_url(
+        access_key="fake-key", host="foo.com", api_gateway_endpoint="/develop", reauthorize=True,
+    )
+    assert url == expected_url
+    request_token_mapping = query_request_token_table("fake-key")
+    assert request_token_mapping == {
+        "access_key": "fake-key",
+        "token": "fake-request-token",
+        "token_secret": "fake-secret",
+    }
+
+
+@pytest.mark.unit
+# pylint: disable=bad-continuation
+def test_reauthorizing_when_authorizing_for_first_time(
+    monkeypatch, query_request_token_table, drop_request_token_table
+):
+    # pylint: enable=bad-continuation
+    """
+    I would get 502s during integration tests when I attempt to reauthorize
+    before having authorized at all.
+
+    This test catches that.
+    """
+    drop_request_token_table()
+    request_tokens = lambda: {"token": "fake-request-token", "token_secret": "fake-secret"}
     monkeypatch.setattr("tripit.core.v1.oauth.fetch_token", request_tokens)
     expected_callback_url = urllib.parse.urlunparse(
         ("https", "foo.com", "/develop/callback", "", "", "")
