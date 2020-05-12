@@ -42,7 +42,7 @@ functions:
     timeout: 30
     environment:
       PYTHONPATH: "/var/task/vendor:/var/runtime"
-      LOG_LEVEL: "debug"
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
       TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
@@ -64,6 +64,7 @@ functions:
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: callback
@@ -79,6 +80,7 @@ functions:
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
       TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: trips
@@ -97,6 +99,7 @@ functions:
       TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS: ${env:TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS}
       TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS: ${env:TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS}
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: current_trip
@@ -109,12 +112,16 @@ functions:
     environment:
       PYTHONPATH: "/var/task/vendor:/var/runtime"
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: ping
           method: get
 
 custom:
+  logLevel:
+    develop: 'debug'
+    v1: 'info'
   keyName:
     develop: default-tripit-key-dev
     v1: default-tripit-key-prod
