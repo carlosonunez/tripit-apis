@@ -87,7 +87,7 @@ functions:
           method: get
           private: true
   current_trip:
-    handler: tripit/api/aws_api_gateway/trips.current_trip
+    handler: tripit/api/aws_api_gateway/current_trip.current_trip
     description: Retrieves one's current TripIt trip.
     timeout: 30
     environment:
