@@ -52,10 +52,14 @@ def test_generating_auth_url_without_tokens(monkeypatch, query_request_token_tab
 def test_generating_auth_url_with_tokens(set_access_token_table, drop_access_token_table):
     """
     During step 1, if our access key already has an access token associated with it,
-    then it should not continue with the authorization process.
+    then it should not continue with the authorization process. Instead, it should
+    return a URL where the user can see their existing tokens.
     """
-    set_access_token_table("fake-token", "fake-key", "fake-token-secret")
-    assert get_authn_url(access_key="fake-key", host="foo", api_gateway_endpoint="foo") is None
+    set_access_token_table("fake-key", "fake-token", "fake-token-secret")
+    expected_url = "https://foo/foo/token"
+    assert (
+        get_authn_url(access_key="fake-key", host="foo", api_gateway_endpoint="foo") == expected_url
+    )
     drop_access_token_table()
 
 

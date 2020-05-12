@@ -40,11 +40,7 @@ def set_access_token_table():
 
     def _run(access_key, token, secret):
         try:
-            if not TripitAccessToken.exists():
-                TripitAccessToken.create_table(wait=True)
-            new_mapping = TripitAccessToken(access_key, token=token, token_secret=secret)
-            new_mapping.save()
-            new_mapping.refresh()
+            TripitAccessToken.insert(access_key, token, secret)
         except TransactWriteError:
             logger.error("Failed to mock a request token mapping for %s", access_key)
 
