@@ -29,7 +29,7 @@ USAGE
 
 vendor_dependencies() {
   info "Updating app dependencies."
-  test -d "./vendor" && mkdir "./vendor"
+  ! test -d "./vendor" && mkdir "./vendor"
   docker-compose run --rm vendor
 }
 
@@ -73,10 +73,13 @@ then
   exit 0
 fi
 
-vendor_dependencies &&
-  update_app_in_integration_service &&
-  ensure_selenium_is_running &&
-  deploy_to_integration &&
-  setup; \
-    run_integration_tests; \
-    teardown
+if [ "$DEPLOY_FUNCTIONS_ONLY" != "true" ]
+then
+  vendor_dependencies
+fi
+update_app_in_integration_service &&
+ensure_selenium_is_running &&
+deploy_to_integration &&
+setup; \
+  run_integration_tests; \
+  teardown

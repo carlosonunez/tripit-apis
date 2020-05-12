@@ -98,6 +98,12 @@ then
   exit 0
 fi
 
-remove_secret_folder_if_present &&
-  deploy_serverless_infrastructure &&
+if [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
+then
+  warn "Only deploying functions, as requested."
   deploy_serverless_functions
+else
+  remove_secret_folder_if_present &&
+    deploy_serverless_infrastructure &&
+    deploy_serverless_functions
+fi

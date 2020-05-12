@@ -32,6 +32,8 @@ def begin_authentication(event, _context=None):
     )
     if not auth_url:
         return return_error(message="No authorization URL received.")
+    if auth_url.split("/")[-1] == "token":
+        return return_ok(message="Already authorized.")
     message = "".join(
         [
             "You will need to authenticate into TripIt first; ",

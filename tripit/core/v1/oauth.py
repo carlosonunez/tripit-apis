@@ -31,7 +31,7 @@ def fetch_token(token=None, token_secret=None):
 
     client_id = os.environ.get("TRIPIT_APP_CLIENT_ID")
     client_secret = os.environ.get("TRIPIT_APP_CLIENT_SECRET")
-    timestamp = datetime.now().timestamp()
+    timestamp = int(datetime.now().timestamp())
     nonce = secrets.token_hex()
     """ If we are trying to request tokens and already have a token
         secret, then that means we already went through the first step
@@ -55,22 +55,13 @@ def fetch_token(token=None, token_secret=None):
     oauth_sig = generate_signature(
         method="GET", consumer_secret=client_secret, **common_arguments, **access_token_arguments
     )
-    auth_header = generate_sha1_auth_header(signature=oauth_sig, **common_arguments)
-    payload = {
-        "oauth_consumer_key": client_id,
-        "oauth_nonce": nonce,
-        "oauth_signature": oauth_sig,
-        "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp": timestamp,
-        "oauth_version": "1.0",
-    }
-    if token_secret is not None:
-        payload["oauth_token"] = token
-        payload["oauth_token_secret"] = token_secret
-
-    response = requests.get(request_uri, headers={"Authorization": auth_header}, payload=payload)
+    auth_header = generate_sha1_auth_header(
+        signature=oauth_sig, **common_arguments, **access_token_arguments
+    )
+    logger.debug("Auth header: %s", auth_header)
+    response = requests.get(request_uri, headers={"Authorization": auth_header})
     if response.status_code != 200:
-        logging.error("Failed to get an OAuth authentication header: %s)", response.text)
+        logging.error("Failed to get token data: %s)", response.text)
         return None
     token_data = {}
     for token_part in response.text.split("&"):
@@ -104,7 +95,7 @@ def generate_authenticated_headers_for_request(
 
 
 # pylint: disable=too-many-arguments
-def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token=None):
+def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, token=None, **kwargs):
     """
     Generates an OAuth v1 authencation header for HTTP requests to endpoints
     requiring OAuth v1 authentication.
@@ -114,10 +105,11 @@ def generate_sha1_auth_header(uri, signature, consumer_key, nonce, timestamp, to
         "oauth_nonce": nonce,
         "oauth_signature_method": "HMAC-SHA1",
         "oauth_timestamp": int(timestamp),
+        "oauth_token": token or "",
         "oauth_version": "1.0",
     }
-    if token is not None:
-        headers["oauth_token"] = token
+    if token is None:
+        headers.pop("oauth_token")
     encoded_sig = urllib.parse.quote_plus(signature)
     auth_header_parts = [
         f'OAuth realm="{uri}"',
@@ -155,4 +147,11 @@ def generate_signature(
         [method, urllib.parse.quote_plus(uri), urllib.parse.quote_plus(param_parts)]
     )
     signature = hmac.new(bytes(encrypt_key, "utf8"), bytes(base_string_for_signature, "utf8"), sha1)
+
+    # Trying to figure out why access tokens have bad sigs
+    for param in params.keys():
+        logger.debug("%s: %s", param, params[param])
+    logger.debug("Encryption key, if any: %s", encrypt_key)
+    logger.debug("Signature base: %s", base_string_for_signature)
+    logger.debug("Signature: %s", base64.b64encode(signature.digest()))
     return base64.b64encode(signature.digest())
