@@ -47,15 +47,25 @@ def test_trips_api(
     trips_response = get_and_wait_for_lambda_ready(create_api_gateway_url("trips"), access_key)
     expected_trips = [
         {
-            "city": "Dallas, TX",
+            "id": 293554303,
+            "name": "Work: Test Client - Week 3",
+            "city": "Dayton, OH",
+            "ends_on": 1599955200,
             "ended": False,
-            "ends_on": 1589932800,
+            "link": "https://www.tripit.com/trip/show/id/293554303",
+            "starts_on": 1599696000,
             "flights": [],
-            "id": 301233428,
-            "link": "https://www.tripit.com/trip/show/id/301233428",
-            "name": "Dallas, TX, May 2020",
-            "starts_on": 1589760000,
-        }
+        },
+        {
+            "id": 293554288,
+            "name": "Personal: Test Trip",
+            "city": "New York, NY",
+            "ends_on": 1599264000,
+            "ended": False,
+            "link": "https://www.tripit.com/trip/show/id/293554288",
+            "starts_on": 1598918400,
+            "flights": [],
+        },
     ]
 
     assert trips_response.status_code == 200
