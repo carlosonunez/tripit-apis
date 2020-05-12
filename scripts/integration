@@ -29,7 +29,7 @@ USAGE
 
 vendor_dependencies() {
   info "Updating app dependencies."
-  test -d "./vendor" && mkdir "./vendor"
+  ! test -d "./vendor" && mkdir "./vendor"
   docker-compose run --rm vendor
 }
 
