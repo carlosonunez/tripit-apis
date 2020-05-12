@@ -52,7 +52,7 @@ def get_all_trips(token, token_secret, human_times=False):
 
     We only care about flights and notes. Every other TripIt object is stripped out.
     """
-    trip_data = get_from_tripit_v1(endpoint="/trips", token=token, token_secret=token_secret)
+    trip_data = get_from_tripit_v1(endpoint="/list/trip", token=token, token_secret=token_secret)
     logger.debug("Response: %d, Text: %s", trip_data.status_code, trip_data.text)
     if trip_data.status_code != 200:
         logger.error("Failed to get trips: %s", trip_data.status_code)
@@ -61,7 +61,7 @@ def get_all_trips(token, token_secret, human_times=False):
     if "Trip" not in trips_json:
         logger.info("No trips found.")
         return []
-    return join_trips(trips_json["Trip"], token, token_secret, human_times)
+    return join_trips(normalize_trip_objects(trips_json["Trip"]), token, token_secret, human_times)
 
 
 def join_trips(trip_refs, token, token_secret, human_times):
@@ -234,6 +234,15 @@ def normalize_flight_time_to_tz(time_object):
     )
     datetime_unix = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S %z").timestamp()
     return int(datetime_unix)
+
+
+def normalize_trip_objects(trip):
+    """
+    This ensure that all trips are in an array.
+    """
+    if not isinstance(trip, list):
+        return [trip]
+    return trip
 
 
 def normalize_air_objects_within_trip(trip):
