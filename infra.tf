@@ -110,7 +110,7 @@ resource "aws_acm_certificate_validation" "app_cert" {
 
 resource "aws_dynamodb_table" "request_tokens_table" {
   name = "${var.app_name}_request_tokens_${var.environment}"
-  hash_key = "access_key"
+  hash_key = "token"
   read_capacity = 2
   write_capacity = 2
   attribute {
