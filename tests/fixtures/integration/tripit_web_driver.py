@@ -54,23 +54,30 @@ class TripitWebDriver:
         """
         self.driver.get(site)
 
-    def fill_in(self, element_id, value):
+    def fill_in(self, element_id, value, element_type=None):
         """
         Ported from Capybara. Fill in an element.
         """
-        element = self._find_element(element_id)
+        element = self._find_element(element_id, element_type)
         if not element:
             raise NoSuchElementException(f"Couldn't find this in page: {element_id}")
         element.send_keys(value)
 
-    def click_button(self, element_id):
+    def click_button(self, element_id, element_type="button"):
         """
         Ported from Capybara. Click on a button by its element_id.
         """
-        element = self._find_element(element_id)
+        element = self._find_element(element_id, element_type)
         if not element:
             raise NoSuchElementException(f"Couldn't find this in page: {element_id}")
         element.click()
+
+    def close(self):
+        """
+        Closes the automated browser window.
+        """
+        if os.environ.get("KEEP_BROWSER_WINDOWS_OPEN") != "true":
+            self.driver.close()
 
     def _find_element(self, element_id, element_type="*"):
         """

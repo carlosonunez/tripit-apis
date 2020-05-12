@@ -21,10 +21,11 @@ def authorize_tripit():
             session.visit(authz_url)
             session.fill_in("email_address", os.environ.get("TRIPIT_SANDBOX_ACCOUNT_EMAIL"))
             session.fill_in("password", os.environ.get("TRIPIT_SANDBOX_ACCOUNT_PASSWORD"))
-            session.click_button("Sign In")
+            session.click_button("Sign In", element_type="button")
             junk_prefix = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
             junk_postfix = "</pre></body></html>"
             result = session.page().replace(junk_prefix, "").replace(junk_postfix, "")
+            session.close()
             return json.loads(result)
         # We want a broad exception here.
         # pylint: disable=broad-except
