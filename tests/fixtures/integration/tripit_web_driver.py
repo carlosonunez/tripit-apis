@@ -28,6 +28,12 @@ class TripitWebDriver:
         """
         return self.driver.page_source
 
+    def has_element(self, element_id, element_type=None):
+        """
+        Tests whether an element is on the page or not.
+        """
+        return self._find_element(element_id, element_type) is not None
+
     def visit(self, site):
         """
         Ported from Capybara. Visits a page.
@@ -52,7 +58,7 @@ class TripitWebDriver:
             raise NoSuchElementException(f"Couldn't find this in page: {element_id}")
         element.click()
 
-    def _find_element(self, element_id):
+    def _find_element(self, element_id, element_type="*"):
         """
         Attempts to find a matching element, first by ID, then by (slower) XPath.
         """
@@ -66,7 +72,8 @@ class TripitWebDriver:
             This might be the wrong element!
             """
             try:
-                return self.driver.find_element(By.XPATH, f"//*[contains(text(), '{element_id}')]")
+                xpath_query = f"//{element_type}[contains(text(), '{element_id}')]"
+                return self.driver.find_element(By.XPATH, xpath_query)
             except NoSuchElementException:
                 logger.warning("Element not found: %s", element_id)
                 return None

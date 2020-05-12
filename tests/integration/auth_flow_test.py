@@ -36,6 +36,8 @@ def authorize_tripit(authz_url):
     session = TripitWebDriver()
     try:
         session.visit(authz_url)
+        if session.has_element("Agree and Proceed", element_type="a"):
+            session.click_button("Agree and Proceed")
         session.fill_in("email_address", os.environ.get("TRIPIT_SANDBOX_ACCOUNT_EMAIL"))
         session.fill_in("password", os.environ.get("TRIPIT_SANDBOX_ACCOUNT_PASSWORD"))
         session.click_button("Sign In")
@@ -58,7 +60,9 @@ def test_getting_an_authorization_url(create_api_gateway_url, access_key):
     Do we get a URL that we can click on to authorize our application?
     """
     expected_callback_url = create_api_gateway_url("callback")
-    response = get_and_wait_for_lambda_ready(create_api_gateway_url("auth"), access_key)
+    response = get_and_wait_for_lambda_ready(
+        create_api_gateway_url("auth") + "?reauthorize=true", access_key
+    )
 
     # pylint doesn't know that this will be compiled into a regex
     # pylint:disable=anomalous-backslash-in-string
@@ -97,7 +101,9 @@ def test_getting_a_token_after_callback(create_api_gateway_url, access_key):
             ]
         )
     )
-    response = get_and_wait_for_lambda_ready(create_api_gateway_url("auth"), access_key)
+    response = get_and_wait_for_lambda_ready(
+        create_api_gateway_url("auth") + "?reauthorize=true", access_key
+    )
     matches = tripit_auth_url_pattern.match(response.json()["message"])
     authz_url = matches.groups()[0]
     expected_callback_response = authorize_tripit(authz_url + "&is_sign_in=1")
