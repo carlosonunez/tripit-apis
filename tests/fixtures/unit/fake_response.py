@@ -60,7 +60,7 @@ def fake_response_from_route():
                 json_object={"timestamp": 123, "num_bytes": 78},
             )
 
-        if endpoint == "/trips":
+        if endpoint == "/list/trip":
             if kwargs.get("fake_trip_data"):
                 fake_trip_data = kwargs["fake_trip_data"]
             else:
