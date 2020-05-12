@@ -79,7 +79,7 @@ deploy_serverless_infrastructure() {
   then
     docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-domain-production
   fi &&
-  write_infrastructure_secrets_for_integration_testing
+  write_infrastructure_secrets
 }
 
 deploy_serverless_functions() {
