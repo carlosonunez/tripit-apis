@@ -154,4 +154,5 @@ def generate_signature(
     logger.debug("Encryption key, if any: %s", encrypt_key)
     logger.debug("Signature base: %s", base_string_for_signature)
     logger.debug("Signature: %s", base64.b64encode(signature.digest()))
+    logger.debug("Method: %s, URI: %s", method, uri)
     return base64.b64encode(signature.digest())
