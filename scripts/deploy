@@ -1,29 +1,109 @@
 #!/usr/bin/env bash
+source $(dirname "$0")/helpers/shared_secrets.sh
+source $(dirname "$0")/helpers/logging.sh
 ENVIRONMENT="${ENVIRONMENT:-test}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
 set -e
 
-docker-compose run --rm vendor
-case "$ENVIRONMENT" in
-  test)
-    for stage in deploy-serverless-infra-test deploy-serverless-functions-test
-    do
-      if test "$stage" == "deploy-serverless-infra-test" && \
-        test "$DEPLOY_FUNCTIONS_ONLY" == "true"
-      then
-        continue
-      fi
-      docker-compose -f docker-compose.deploy.yml run --rm "$stage"
-    done
-    ;;
-  production)
-    for stage in deploy-serverless-infra deploy-serverless-domain deploy-serverless-functions
-    do
-      docker-compose -f docker-compose.deploy.yml run -e ENVIRONMENT=production --rm "$stage"
-    done
-    ;;
-  *)
-    >&2 echo "ERROR: Invalid environment: $ENVIRONMENT"
+usage() {
+  cat <<-USAGE
+$(basename $0)
+Deploys our functions onto serverless infrastructure.
+
+ARGUMENTS
+
+  -h, --help                    Prints this help screen.
+
+ENVIRONMENT VARIABLES
+
+  ENVIRONMENT=test              The environment being deployed into.
+
+  DEPLOY_FUNCTIONS_ONLY=false   Disable re-deploying infrastructure and skip
+                                straight to deploying functions.
+
+USAGE
+}
+
+
+write_lambda_secrets_for_integration_testing() {
+  if test "$ENVIRONMENT" != "test"
+  then
+    return
+  fi
+  info "Getting integration test API Gateway endpoint."
+  endpoint_url=$(docker-compose -f docker-compose.deploy.yml run \
+      --rm serverless info --stage develop | \
+    grep -E 'http.*\/ping' | \
+    sed 's/.*\(http.*\)\/ping/\1/' | \
+    tr -d $'\r' | \
+    tr -d $'\n')
+
+  info "Getting API Gateway default API key."
+  api_key=$(docker-compose -f docker-compose.deploy.yml \
+      run --rm serverless info --stage develop | \
+    grep -E 'default-tripit-key-dev:' | \
+    sed 's/.*default-tripit-key-dev: //' | \
+    tr -d $'\r' | \
+    tr -d $'\n'
+  )
+  if test -z "$endpoint_url"
+  then
+    error "We couldn't find a deployed endpoint."
     exit 1
-    ;;
-esac
+  fi
+  if test -z "$api_key"
+  then
+    error "We couldn't find an API key."
+    exit 1
+  fi
+  write_secret "$endpoint_url" "endpoint_name"
+  write_secret "$api_key" "api_key"
+}
+
+write_infrastructure_secrets_for_integration_testing() {
+  if test "$ENVIRONMENT" != "test"
+  then
+    return
+  fi
+  info "Getting infrastructure secrets."
+  for output_var in app_account_ak app_account_sk certificate_arn
+  do
+    secret_value="$(docker-compose -f docker-compose.deploy.yml run --rm terraform output "$output_var" | \
+      tail -1 | \
+      tr -d $'\r' | \
+      tr -d $'\n')"
+    write_secret "$secret_value" "$output_var"
+  done
+}
+
+deploy_serverless_infrastructure() {
+  info "Deploying serverless infrastructure."
+  docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-infra-"$ENVIRONMENT" &&
+  if test "$ENVIRONMENT" == "production"
+  then
+    docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-domain-production
+  fi &&
+  write_infrastructure_secrets_for_integration_testing
+}
+
+deploy_serverless_functions() {
+  info "Deploying serverless functions."
+  docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-functions-"$ENVIRONMENT" &&
+    write_lambda_secrets_for_integration_testing
+}
+
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]
+then
+  usage
+  exit 0
+fi
+
+if [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
+then
+  warn "Only deploying functions, as requested."
+  deploy_serverless_functions
+else
+  remove_secret_folder_if_present &&
+    deploy_serverless_infrastructure &&
+    deploy_serverless_functions
+fi

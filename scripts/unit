@@ -1,4 +1,59 @@
 #!/usr/bin/env bash
-docker-compose up -d dynamodb && \
-docker-compose run --rm unit
-docker-compose down
+source $(dirname "$0")/helpers/logging.sh
+KEEP_ENV_UP="${KEEP_ENV_UP:-false}"
+PERSISTENCE_SERVICE=dynamodb
+_source_code_changes_detected() {
+  git status --porcelain | awk '{print $2}' | grep -q ^tripit
+}
+
+_requirements_txt_change_detected() {
+  git status --porcelain | awk '{print $2}' | grep -Eq ".*requirements.txt$"
+}
+
+# TODO: Move vendoring stuff into separate helper library.
+vendor_dependencies() {
+  if ! test -d "./vendor" || _requirements_txt_change_detected
+  then
+    info "Updating app dependencies."
+    test -d "./vendor" && mkdir "./vendor"
+    docker-compose run --rm vendor
+  fi
+}
+
+start_mock_persistence() {
+  info "Starting mock persistence."
+  docker-compose up -d "$PERSISTENCE_SERVICE"
+}
+
+stop_persistence_if_running() {
+  docker-compose stop "$PERSISTENCE_SERVICE"
+}
+
+update_app_into_unit_testing_service() {
+  if _source_code_changes_detected
+  then
+    info "App changes detected. Rebuilding unit Docker service."
+    docker-compose build unit || exit 1
+  fi
+}
+
+teardown() {
+  if [ "${KEEP_ENV_UP}" == "true" ]
+  then
+     info "Unit test services are still running. Run 'docker-compose down' to stop them."
+  else
+     docker-compose down
+  fi
+}
+
+run_unit_tests() {
+  docker-compose run --rm unit
+}
+
+
+stop_persistence_if_running &&
+  vendor_dependencies &&
+  start_mock_persistence &&
+  update_app_into_unit_testing_service &&
+  run_unit_tests
+teardown

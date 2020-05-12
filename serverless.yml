@@ -9,9 +9,9 @@ frameworkVersion: '>=1.0.0'
 
 provider:
   name: aws
-  runtime: ruby2.5
+  runtime: python3.6
   region: ${env:AWS_REGION, 'us-east-2'}
-  memorySize: 256
+  memorySize: 128
   deploymentBucket:
     name: ${env:SERVERLESS_BUCKET_NAME}-${env:ENVIRONMENT}
   deploymentPrefix: serverless
@@ -22,8 +22,7 @@ provider:
 
 package:
   include:
-    - lib/**
-    - bin/**
+    - tripit/**
     - vendor/**
   exclude:
     - scripts/**
@@ -33,14 +32,17 @@ package:
     - .terraform/**
     - spec/**
     - .env*
+    - tests/**
+    - env/**
 
 functions:
   auth:
-    handler: bin/tripit.begin_authentication
+    handler: tripit/api/aws_api_gateway/auth.begin_authentication
     description: Function that directs the user to start the TripIt OAuth flow.
     timeout: 30
     environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
+      PYTHONPATH: "/var/task/vendor:/var/runtime"
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
       TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
@@ -52,58 +54,44 @@ functions:
           method: get
           private: true
   callback:
-    handler: bin/tripit.handle_callback
+    handler: tripit/api/aws_api_gateway/callback.callback
     description: Function that receives TripIt OAuth callbacks.
     timeout: 30
     environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
+      PYTHONPATH: "/var/task/vendor:/var/runtime"
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
       TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: callback
           method: get
-  token:
-    handler: bin/tripit.token
-    description: Retrieves tokens for authenticated users.
-    timeout: 30
-    environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
-      APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
-      APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
-      TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
-      TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
-      ENVIRONMENT: ${env:ENVIRONMENT}
-    events:
-      - http:
-          path: token
-          method: get
-          private: true
   trips:
-    handler: bin/tripit.trips
+    handler: tripit/api/aws_api_gateway/trips.get_trips
     description: Retrieves all trips associated with a TripIt account.
     timeout: 30
     environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
+      PYTHONPATH: "/var/task/vendor:/var/runtime"
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
       TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: trips
           method: get
           private: true
   current_trip:
-    handler: bin/tripit.current_trip
-    description: Retrieves all trips associated with a TripIt account.
+    handler: tripit/api/aws_api_gateway/current_trip.current_trip
+    description: Retrieves one's current TripIt trip.
     timeout: 30
     environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
+      PYTHONPATH: "/var/task/vendor:/var/runtime"
       APP_AWS_ACCESS_KEY_ID: ${file(./secrets/app_account_ak)}
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
@@ -111,24 +99,29 @@ functions:
       TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS: ${env:TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS}
       TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS: ${env:TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS}
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: current_trip
           method: get
           private: true
   ping:
-    handler: bin/tripit.ping
+    handler: tripit/api/aws_api_gateway/ping.ping
     description: Healthiness endpoint for APIs.
     timeout: 30
     environment:
-      GEM_PATH: vendor/bundle/ruby/2.5.0
+      PYTHONPATH: "/var/task/vendor:/var/runtime"
       ENVIRONMENT: ${env:ENVIRONMENT}
+      LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:
       - http:
           path: ping
           method: get
 
 custom:
+  logLevel:
+    develop: 'debug'
+    v1: 'info'
   keyName:
     develop: default-tripit-key-dev
     v1: default-tripit-key-prod

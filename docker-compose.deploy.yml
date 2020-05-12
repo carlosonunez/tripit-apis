@@ -5,6 +5,8 @@ services:
       dockerfile: serverless.Dockerfile
       context: .
     env_file: .env
+    environment:
+      ENVIRONMENT: test
     volumes:
       - $PWD:/app
     working_dir: /app

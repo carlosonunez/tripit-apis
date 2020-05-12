@@ -1,0 +1,11 @@
+flask
+pytest
+pylint
+pynamodb
+requests
+freezegun
+selenium
+setuptools
+setuptools_scm
+timeout-decorator
+wheel

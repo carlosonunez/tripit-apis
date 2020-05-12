@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source $(dirname "$0")/helpers/logging.sh
+
 remove_secret() {
   secret_name="${1?Please provide a secret.}"
   rm -f "./secrets/${secret_name}"
@@ -20,11 +22,15 @@ write_secret() {
     )
     if test -z "$secret_filename"
     then
-      >&2 echo "ERROR: Something went wrong while creating a secret, \
-  as no data was received."
+      error "Something went wrong while creating a secret, \
+as no data was received."
       exit 1
     fi
   fi
   secret_filepath="./secrets/$secret_filename"
   printf "$secret" > "$secret_filepath"
+}
+
+remove_secret_folder_if_present() {
+  test -d "./secrets" && rm -r ./secrets || true
 }
