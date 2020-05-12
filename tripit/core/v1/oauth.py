@@ -11,12 +11,13 @@ import logging
 import secrets
 import requests
 from tripit.environment import EnvironmentCheck
+from tripit.logging import logger
 from tripit.helpers import sort_dict
 
 
 def get_missing_client_id_and_secret_env_vars():
     """ tfw the function name is the documentation """
-    env_check = EnvironmentCheck(['TRIPIT_APP_CLIENT_SECRET', 'TRIPIT_APP_CLIENT_ID'])
+    env_check = EnvironmentCheck(["TRIPIT_APP_CLIENT_SECRET", "TRIPIT_APP_CLIENT_ID"])
     return env_check.missing_vars
 
 
@@ -30,6 +31,8 @@ def fetch_token(token=None, token_secret=None):
 
     client_id = os.environ.get("TRIPIT_APP_CLIENT_ID")
     client_secret = os.environ.get("TRIPIT_APP_CLIENT_SECRET")
+    timestamp = int(datetime.now().timestamp())
+    nonce = secrets.token_hex()
     """ If we are trying to request tokens and already have a token
         secret, then that means we already went through the first step
         of the OAuth process and are now trying to get access tokens. """
@@ -41,8 +44,8 @@ def fetch_token(token=None, token_secret=None):
     common_arguments = {
         "uri": request_uri,
         "consumer_key": client_id,
-        "nonce": secrets.token_hex(),
-        "timestamp": datetime.now().timestamp()
+        "nonce": nonce,
+        "timestamp": timestamp,
     }
     access_token_arguments = {}
     if token_secret is not None:
