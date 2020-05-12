@@ -64,7 +64,10 @@ write_infrastructure_secrets() {
   info "Getting infrastructure secrets."
   for output_var in app_account_ak app_account_sk certificate_arn
   do
-    secret_value="$(docker-compose -f docker-compose.deploy.yml run --rm terraform output "$output_var" | \
+    secret_value="$(docker-compose -f docker-compose.deploy.yml run \
+      -e ENVIRONMENT="$ENVIRONMENT" \
+      --rm \
+      terraform output "$output_var" | \
       tail -1 | \
       tr -d $'\r' | \
       tr -d $'\n')"
