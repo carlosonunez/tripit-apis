@@ -25,6 +25,7 @@ services:
   validate-serverless-infra-production:
     extends: terraform
     environment:
+      ENVIRONMENT: "production"
       TF_VAR_environment: "production"
     command:
       - plan
@@ -32,6 +33,7 @@ services:
   deploy-serverless-infra-production:
     extends: terraform
     environment:
+      ENVIRONMENT: "production"
       TF_VAR_environment: "production"
     command:
       - apply
