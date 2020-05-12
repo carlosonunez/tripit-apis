@@ -22,14 +22,14 @@ services:
     entrypoint: 
       - sh
       - ./scripts/execute_terraform.sh
-  validate-serverless-infra:
+  validate-serverless-infra-production:
     extends: terraform
     environment:
       TF_VAR_environment: "production"
     command:
       - plan
       - --input=false
-  deploy-serverless-infra:
+  deploy-serverless-infra-production:
     extends: terraform
     environment:
       TF_VAR_environment: "production"
@@ -37,7 +37,7 @@ services:
       - apply
       - --auto-approve=true
       - --input=false
-  deploy-serverless-domain:
+  deploy-serverless-domain-production:
     extends: serverless
     environment:
       ENVIRONMENT: "production"
@@ -45,7 +45,7 @@ services:
       - create_domain
       - --stage
       - v1
-  deploy-serverless-functions:
+  deploy-serverless-functions-production:
     extends: serverless
     environment:
       ENVIRONMENT: "production"
