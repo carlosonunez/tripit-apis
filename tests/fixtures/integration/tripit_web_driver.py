@@ -21,6 +21,20 @@ class TripitWebDriver:
             command_executor=f"http://{host}:{port}/wd/hub",
             desired_capabilities={"browserName": "chrome", "args": ["--no-default-browser-check"]},
         )
+        self.comply_with_gdpr_notice()
+
+    def comply_with_gdpr_notice(self):
+        """
+        Consents to the TRUSTe GDPR notice to suppress the popup during integration
+        testing.
+        """
+        self.visit("https://www.tripit.com")
+        self.driver.add_cookie(
+            {"name": "notice_gdpr_prefs", "domain": "tripit.com", "value": "0,1,2:"}
+        )
+        self.driver.add_cookie(
+            {"name": "notice_preferences", "domain": "tripit.com", "value": "2:"}
+        )
 
     def page(self):
         """
