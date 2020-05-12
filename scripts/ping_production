@@ -2,4 +2,4 @@
 toplevel=$(cat .env | grep DOMAIN_PATH | cut -f2 -d =)
 domain=$(cat .env | grep DOMAIN_TLD | cut -f2 -d =)
 code=$(curl -o /dev/null -s -w '%{http_code}' "https://${toplevel}.${domain}/v1/ping")
-[ "$code" == "200 ]
+[ "$code" == "200" ]
