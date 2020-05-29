@@ -2,7 +2,6 @@
 Logging module for TripIt APIs.
 """
 import logging
-import inspect
 import os
 import sys
 
@@ -12,15 +11,18 @@ class Log:
     """
     Behold! A log.
     """
-    def __init__(self, log_name):
+
+    def __init__(self):
         """
         Creates or retrieves a logger, set its log level and configures it
         to write to stdout.
         """
         log_level = os.getenv("LOG_LEVEL").upper() if os.getenv("LOG_LEVEL") else "INFO"
-        log = logging.getLogger(log_name)
+        log = logging.getLogger(__name__)
         log.setLevel(log_level)
-        formatter = logging.Formatter('%(asctime)s [%(name)s]: %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s [%(filename)s::%(funcName)s:%(lineno)d]: %(message)s"
+        )
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(formatter)
         handler.setLevel(log_level)
@@ -28,4 +30,4 @@ class Log:
         self.logger = log
 
 
-logger = Log(inspect.stack()[1].function).logger
+logger = Log().logger
