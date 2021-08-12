@@ -6,16 +6,22 @@ services:
       context: .
     env_file: .env
     environment:
-      ENVIRONMENT: test
+      - ENVIRONMENT=test
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
     volumes:
       - $PWD:/app
     working_dir: /app
   terraform:
-    image: hashicorp/terraform:0.12.18
+    image: carlosnunez/terraform:0.13.5
     env_file: .env
     environment:
       - TF_CLI_ARGS_destroy="-force"
       - TF_DATA_DIR=/tmp
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
     volumes:
       - $PWD:/app
     working_dir: /app
