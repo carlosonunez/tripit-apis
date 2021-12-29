@@ -62,15 +62,21 @@ write_lambda_secrets_for_integration_testing() {
 
 write_infrastructure_secrets() {
   info "Getting infrastructure secrets."
+  tf_output=$(2>&1 docker-compose -f docker-compose.deploy.yml run \
+    -e ENVIRONMENT="$ENVIRONMENT" \
+    --rm \
+    terraform output)
+  info "Output: $tf_output"
   for output_var in app_account_ak app_account_sk certificate_arn
   do
-    secret_value="$(docker-compose -f docker-compose.deploy.yml run \
-      -e ENVIRONMENT="$ENVIRONMENT" \
-      --rm \
-      terraform output "$output_var" | \
-      tail -1 | \
-      tr -d $'\r' | \
-      tr -d $'\n')"
+    secret_value=$(grep -E "^$output_var = " <<< "$tf_output" | \
+      sed "s/^$output_var = //")
+    if test -z "$secret_value"
+    then
+      error "Unable to resolve secret: $output_var"
+      exit 1
+    fi
+    info "===> ${output_var}: $secret_value"
     write_secret "$secret_value" "$output_var"
   done
 }
