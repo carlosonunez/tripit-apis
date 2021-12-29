@@ -11,3 +11,4 @@ alias remove_infra="docker-compose -f docker-compose.deploy.yml run --rm terrafo
 alias deploy="scripts/deploy"
 alias logs="docker-compose -f docker-compose.deploy.yml run --rm serverless logs --stage develop"
 alias logs_prod="docker-compose -f docker-compose.deploy.yml run --rm serverless logs --stage v1"
+alias serverless="docker-compose -f docker-compose.deploy.yml run --rm serverless"
