@@ -193,7 +193,10 @@ def resolve_start_time(trip, flights, human_times):
     This will need to be refactored once we start taking other trip objects into account.
     """
     if not flights:
-        return retrieve_trip_time_as_unix(trip["start_date"])
+        logger.debug("Trip: %s", str(trip))
+        if "start_date" not in trip.keys():
+            logger.warn("Trip %s doesn't have a start time!", trip["id"])
+        return retrieve_trip_time_as_unix(trip.get("start_date", "1970-01-01"))
 
     first_flight_segment_start_time = flights[0]["depart_time"]
     if human_times:
@@ -216,7 +219,9 @@ def resolve_end_time(trip, flights, human_times):
     This will need to be refactored once we start taking other trip objects into account.
     """
     if not flights:
-        return retrieve_trip_time_as_unix(trip["end_date"])
+        if "end_date" not in trip.keys():
+            logger.warn("Trip %s doesn't have an end date!", trip["id"])
+        return retrieve_trip_time_as_unix(trip.get("end_date", "1970-01-01"))
 
     last_flight_segment_end_time = flights[-1]["arrive_time"]
     if human_times:
