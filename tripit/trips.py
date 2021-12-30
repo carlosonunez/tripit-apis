@@ -99,7 +99,7 @@ def resolve_trip(trip_reference, token, token_secret, human_times):
         )
     trip_object = trip_info.json()["Trip"]
 
-    if trip_is_empty(trip_info.json()):
+    if trip_is_empty(trip_object):
         logger.warn("Trip %s is empty", trip_object["id"])
         return {}
 
@@ -297,7 +297,7 @@ def trip_is_empty(trip):
     """
     Determines if a trip is empty.
     """
-    required_keys = ["AirObject", "WeatherObject", "NoteObject"]
+    required_keys = ["primary_location", "start_date", "end_date"]
     missing_keys = [key for key in required_keys if key in trip.keys()]
     return len(missing_keys) == 0
 
