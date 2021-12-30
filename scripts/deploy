@@ -86,6 +86,7 @@ deploy_serverless_infrastructure() {
   docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-infra-"$ENVIRONMENT" &&
   if test "$ENVIRONMENT" == "production"
   then
+    docker-compose -f docker-compose.deploy.yml build deploy-serverless-domain-production &&
     docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-domain-production
   fi &&
   write_infrastructure_secrets
@@ -93,6 +94,7 @@ deploy_serverless_infrastructure() {
 
 deploy_serverless_functions() {
   info "Deploying serverless functions."
+  docker-compose -f docker-compose.deploy.yml build deploy-serverless-functions-"$ENVIRONMENT" &&
   docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-functions-"$ENVIRONMENT" &&
     write_lambda_secrets_for_integration_testing
 }
