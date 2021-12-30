@@ -46,7 +46,16 @@ update_app_in_integration_service() {
 
 ensure_selenium_is_running() {
   info "Starting selenium to enable webdriving."
-  docker-compose up -d selenium
+  docker-compose up -d "$(selenium_service)"
+}
+
+selenium_service() {
+  if grep -Eiq 'arm' <<< "$(uname -m)"
+  then
+    echo "selenium-arm64"
+  else
+    echo "selenium-x86_64"
+  fi
 }
 
 deploy_to_integration() {
@@ -70,7 +79,9 @@ Tear it down by running: docker-compose run --rm integration-teardown."
 
 run_integration_tests() {
   info "Running integration tests."
-  docker-compose run --rm integration
+  SELENIUM_HOST="$(selenium_service)" \
+    SELENIUM_PORT=4444 \
+    docker-compose run --service-ports --rm integration
 }
 
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
