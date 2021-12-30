@@ -3,6 +3,7 @@ source $(dirname "$0")/helpers/logging.sh
 KEEP_ENV_UP="${KEEP_ENV_UP:-false}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
 VENDOR_ANYWAY="${VENDOR_ANYWAY:-false}"
+NO_DEPLOY="${NO_DEPLOY:-false}"
 set -e
 
 usage() {
@@ -26,6 +27,8 @@ ENVIRONMENT VARIABLES
   KEEP_ENV_UP=false                 Will disable tearing down the integration environment.
                                     Useful if you're running into bugs in integration
                                     that need debugging.
+
+  NO_DEPLOY=false                   Don't deploy anything; use what's available, if anything
 
 USAGE
 }
@@ -59,8 +62,11 @@ selenium_service() {
 }
 
 deploy_to_integration() {
-  info "Deploying integration environment."
-  ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy
+  if grep -Eiq '^false$' <<< "$NO_DEPLOY"
+  then
+    info "Deploying integration environment."
+    ENVIRONMENT=test DEPLOY_FUNCTIONS_ONLY="$DEPLOY_FUNCTIONS_ONLY" scripts/deploy
+  fi
 }
 
 setup() {
@@ -97,6 +103,6 @@ fi
 update_app_in_integration_service &&
 ensure_selenium_is_running &&
 deploy_to_integration &&
-setup; \
-  run_integration_tests; \
-  teardown
+setup
+run_integration_tests
+teardown
