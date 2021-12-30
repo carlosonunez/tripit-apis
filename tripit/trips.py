@@ -77,7 +77,7 @@ def join_trips(trip_refs, token, token_secret, human_times):
             )
 
     parsed_trips = [future.result() for future in parsed_trip_futures]
-    return parsed_trips
+    return [trip for trip in parsed_trips if trip]
 
 
 def resolve_trip(trip_reference, token, token_secret, human_times):
@@ -99,11 +99,16 @@ def resolve_trip(trip_reference, token, token_secret, human_times):
         )
     trip_object = trip_info.json()["Trip"]
 
+    if trip_is_empty(trip_object):
+        logger.warn("Trip %s is empty", trip_object["id"])
+        return {}
+
     flight_objects = trip_info.json().get("AirObject") or []
     note_objects = trip_info.json().get("NoteObject") or []
     flights = resolve_flights(flight_objects, human_times)
     trip_start_time = resolve_start_time(trip_object, flights, human_times)
     trip_end_time = resolve_end_time(trip_object, flights, human_times)
+    primary_location = resolve_primary_location(trip_object)
 
     summarized_trip = {
         "id": int(trip_object["id"]),
@@ -210,6 +215,15 @@ def resolve_start_time(trip, flights, human_times):
     return first_flight_segment_start_time + trip_ingress_seconds
 
 
+def resolve_primary_location(trip):
+    """
+    Retrieves the primary location of this trip, if one is present.
+    """
+    if "primary_location" not in trip.keys():
+        logger.warn("Trip %s does not have a primary location! Object: %s", trip["id"], str(trip))
+    return trip["primary_location"]
+
+
 def resolve_end_time(trip, flights, human_times):
     """
     Resolves the correct start time for a trip based on its flights
@@ -277,6 +291,15 @@ def retrieve_trip_time_as_unix(time_to_retrieve):
     Returns a trip's time in UNIX time format.
     """
     return int(time.mktime(time.strptime(time_to_retrieve, "%Y-%m-%d")))
+
+
+def trip_is_empty(trip):
+    """
+    Determines if a trip is empty.
+    """
+    required_keys = ["primary_location", "start_date", "end_date"]
+    missing_keys = [key for key in required_keys if key in trip.keys()]
+    return len(missing_keys) == 0
 
 
 def determine_if_trip_ended(trip_end_time, note_objects):
