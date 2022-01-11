@@ -3,7 +3,7 @@ name: TripIt API Deployment
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   unit_tests:
