@@ -15,7 +15,7 @@ vendor_dependencies() {
   if ! test -d "./vendor" || _requirements_txt_change_detected
   then
     info "Updating app dependencies."
-    test -d "./vendor" && mkdir "./vendor"
+    test -d "./vendor" || mkdir "./vendor"
     docker-compose run --rm vendor
   fi
 }
