@@ -1,7 +1,8 @@
 version: '2.2'
 services:
   gpg:
-    image: vladgh/gpg
+    build:
+      dockerfile: gpg.Dockerfile
     volumes:
       - $PWD:/app
     working_dir: /app
