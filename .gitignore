@@ -9,3 +9,7 @@ __pycache__
 
 # Don't commit our virtualenv
 env/
+cscope.*
+cscope.*
+tags
+tags
