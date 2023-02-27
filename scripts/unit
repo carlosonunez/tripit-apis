@@ -3,7 +3,7 @@ source $(dirname "$0")/helpers/logging.sh
 KEEP_ENV_UP="${KEEP_ENV_UP:-false}"
 PERSISTENCE_SERVICE=dynamodb
 _source_code_changes_detected() {
-  git status --porcelain | awk '{print $2}' | grep -q ^tripit
+  git status --porcelain | awk '{print $2}' | grep -Eq '^(tripit|Dockerfile)'
 }
 
 _requirements_txt_change_detected() {
