@@ -10,7 +10,7 @@ from tripit.core.v1.oauth import generate_authenticated_headers_for_request
 
 
 def get_from_tripit_v1(endpoint, token, token_secret, params=None):
-    """ GET against authenticated TripIt endpoints. """
+    """GET against authenticated TripIt endpoints."""
     params_string = _join_params_by_slash(params)
     endpoint = _strip_leading_slash_from_endpoint(endpoint)
     clean_endpoint = f"{endpoint}/{params_string}format/json"
