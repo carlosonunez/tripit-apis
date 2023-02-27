@@ -88,7 +88,7 @@ def resolve_trip(trip_reference, token, token_secret, human_times):
     This involves a nested API call and might be time-expensive!
     """
     logger.debug("Fetching trip %s", trip_reference["id"])
-    params = {"includeObjects": True}
+    params = {"include_objects": "true/"}
     trip_info = get_from_tripit_v1(
         endpoint="".join(["/get/trip/id/", trip_reference["id"]]),
         token=token,
