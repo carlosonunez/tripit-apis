@@ -29,8 +29,6 @@ services:
     environment:
       PIP_NO_CACHE_DIR: "off"
       PYTHONDONTWRITEBYTECODE: 1 # disable generating __pycache__ directories.
-    volumes:
-      - $PWD:/app:ro,delegated
     working_dir: /app
     entrypoint: sh
     command:
@@ -69,6 +67,7 @@ services:
       TRIPIT_APP_CLIENT_ID: fake-client-id
       TRIPIT_APP_CLIENT_SECRET: fake-client-secret
       AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
+      REBUILD_UNIT_IMAGE: "${REBUILD_UNIT_IMAGE}"
     command:
       - -m
       - pytest
