@@ -115,7 +115,7 @@ def resolve_trip(trip_reference, token, token_secret, human_times):
     summarized_trip = {
         "id": int(trip_object["id"]),
         "name": trip_object["display_name"],
-        "city": trip_object["primary_location"],
+        "city": primary_location,
         "ends_on": trip_end_time,
         "ended": determine_if_trip_ended(trip_end_time, note_objects),
         "link": "https://www.tripit.com" + trip_object["relative_url"],
@@ -223,6 +223,7 @@ def resolve_primary_location(trip):
     """
     if "primary_location" not in trip.keys():
         logger.warn("Trip %s does not have a primary location! Object: %s", trip["id"], str(trip))
+        return "Anywhere, Earth"
     return trip["primary_location"]
 
 
