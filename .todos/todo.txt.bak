@@ -1,0 +1,2 @@
+Move to Docker runtime from built-in Python runtime
+Connect to Tailscale before calling TripIt
