@@ -1,0 +1,13 @@
+version: '2.2'
+services:
+  aws:
+    image: amazon/aws-cli:2.2.9
+    env_file: .env
+  obtain-aws-session-credentials:
+    extends: aws
+    environment:
+      AWS_SESSION_TOKEN: ""
+    volumes:
+      - $PWD/scripts/generate_aws_session_token.sh:/entrypoint.sh
+      - $PWD/secrets:/secrets
+    entrypoint: /entrypoint.sh

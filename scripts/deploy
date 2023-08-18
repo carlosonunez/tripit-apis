@@ -105,6 +105,11 @@ then
   exit 0
 fi
 
+aws_session_creds=$(DOCKER_DEFAULT_PLATFORM=linux/amd64 docker-compose -f docker-compose.aws.yml \
+  run --rm obtain-aws-session-credentials) || exit 1
+
+eval "$aws_session_creds"
+
 if [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
 then
   warn "Only deploying functions, as requested."
@@ -112,5 +117,7 @@ then
 else
   remove_secret_folder_if_present &&
     deploy_serverless_infrastructure &&
-    deploy_serverless_functions
+    deploy_serverless_functions &&
+    exit 0
 fi
+exit 1
