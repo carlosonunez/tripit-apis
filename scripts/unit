@@ -3,6 +3,7 @@ source $(dirname "$0")/helpers/logging.sh
 KEEP_ENV_UP="${KEEP_ENV_UP:-false}"
 PERSISTENCE_SERVICE=dynamodb
 REBUILD_UNIT_IMAGE="${REBUILD_UNIT_IMAGE:-false}"
+VERBOSE="${VERBOSE:-false}"
 
 _rebuild_unit_image_anyway() {
   test "${REBUILD_UNIT_IMAGE,,}" == 'true'
@@ -53,7 +54,10 @@ teardown() {
 }
 
 run_unit_tests() {
-  docker-compose run --rm unit
+  if test "${VERBOSE,,}" == true
+  then docker-compose run --rm unit-verbose
+  else docker-compose run --rm unit
+  fi
 }
 
 

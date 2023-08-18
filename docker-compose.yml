@@ -76,6 +76,27 @@ services:
       - -m
       - unit
       - /app/tests
+  unit-verbose:
+    depends_on:
+      - dynamodb
+    extends: python
+    entrypoint: python
+    environment:
+      ENVIRONMENT: test
+      PYTHONPATH: ./vendor
+      TRIPIT_APP_CLIENT_ID: fake-client-id
+      TRIPIT_APP_CLIENT_SECRET: fake-client-secret
+      AWS_DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
+      REBUILD_UNIT_IMAGE: "${REBUILD_UNIT_IMAGE}"
+    command:
+      - -m
+      - pytest
+      - --maxfail=1
+      - -s
+      - -m
+      - unit
+      - -vv
+      - /app/tests
   integration:
     extends: python
     entrypoint: python
