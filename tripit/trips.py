@@ -235,15 +235,18 @@ def resolve_end_time(trip, flights, human_times):
     Note that this assumes that our trips end with flights. That isn't always the case.
     This will need to be refactored once we start taking other trip objects into account.
     """
+    if "end_date" not in trip:
+        logger.warn("Trip %s doesn't have an end date!", trip["id"])
+    trip_end_time = retrieve_trip_time_as_unix(trip.get("end_date", "1970-01-01"))
     if not flights:
-        if "end_date" not in trip.keys():
-            logger.warn("Trip %s doesn't have an end date!", trip["id"])
-        return retrieve_trip_time_as_unix(trip.get("end_date", "1970-01-01"))
+        return trip_end_time
 
     last_flight_segment_end_time = flights[-1]["arrive_time"]
     if human_times:
         last_flight_segment_end_time = convert_human_dt_to_ts(last_flight_segment_end_time)
 
+    if trip_end_time > last_flight_segment_end_time:
+        return trip_end_time
     return last_flight_segment_end_time
 
 
