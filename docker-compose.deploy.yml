@@ -12,7 +12,11 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
+    volumes:
+      - $PWD:/app
     working_dir: /app
+    entrypoint:
+      - serverless
   terraform:
     image: carlosnunez/terraform:0.13.5
     env_file: .env

@@ -2,8 +2,7 @@
 plugins:
   - serverless-domain-manager
 
-service:
-  name: tripit-apis
+service: tripit-apis
 
 frameworkVersion: '>=1.0.0'
 
@@ -15,8 +14,9 @@ provider:
   deploymentBucket:
     name: ${env:SERVERLESS_BUCKET_NAME}-${env:ENVIRONMENT}
   deploymentPrefix: serverless
-  apiKeys:
-    - ${self:custom.keyName.${opt:stage, self:provider.stage}}
+  apiGateway:
+    apiKeys:
+      - ${self:custom.keyName.${opt:stage, self:provider.stage}}
   tracing:
     apiGateway: true
 
@@ -96,8 +96,6 @@ functions:
       APP_AWS_SECRET_ACCESS_KEY: ${file(./secrets/app_account_sk)}
       TRIPIT_APP_CLIENT_ID: ${env:TRIPIT_APP_CLIENT_ID}
       TRIPIT_APP_CLIENT_SECRET: ${env:TRIPIT_APP_CLIENT_SECRET}
-      TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS: ${env:TRIPIT_DEFAULT_ORIGIN_EGRESS_HOURS}
-      TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS: ${env:TRIPIT_DEFAULT_DESTINATION_INGRESS_HOURS}
       ENVIRONMENT: ${env:ENVIRONMENT}
       LOG_LEVEL: ${self:custom.logLevel.${opt:stage, self:provider.stage}}
     events:

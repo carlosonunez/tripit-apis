@@ -1,13 +1,5 @@
-FROM carlosnunez/serverless:v2.69.1
+FROM node:alpine
 MAINTAINER Carlos Nunez <dev@carlosnunez.me>
 
-RUN npm install serverless-domain-manager --save-dev
-
-# python3 has a bad symlink in this image, but it is installed.
-RUN ln -s /usr/bin/python3 /usr/local/bin/python3
-
-# Copy the app into the container to improve performance
-# on non-Linux operating systems.
-COPY . /app
-
-ENTRYPOINT [ "serverless" ]
+RUN npm install -g serverless@3.38.0 --progress=false --no-audit
+RUN npm install -g serverless-domain-manager@6.3.1 --save-dev --progress=false --no-audit

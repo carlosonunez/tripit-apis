@@ -87,9 +87,9 @@ deploy_serverless_infrastructure() {
   if test "$ENVIRONMENT" == "production"
   then
     docker-compose -f docker-compose.deploy.yml build deploy-serverless-domain-production &&
+    write_infrastructure_secrets &&
     docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-domain-production
-  fi &&
-  write_infrastructure_secrets
+  fi
 }
 
 deploy_serverless_functions() {
