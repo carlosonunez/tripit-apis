@@ -1,26 +1,47 @@
 version: '2.2'
 services:
   gpg:
-    build:
-      dockerfile: gpg.Dockerfile
-      context: .
+    image: vladgh/gpg
     volumes:
       - $PWD:/app
     working_dir: /app
   encrypt-env:
     extends: gpg
+    environment:
+      ENV_FILE: ".env"
+    entrypoint: ["sh"]
     command:
-      - --batch
-      - --yes
-      - --passphrase=$ENV_PASSWORD
-      - --output=env.gpg
-      - --symmetric
-      - .env
+      - -c
+      - |-
+        fp=$(basename "$ENV_FILE")
+        if ! test -f "$$fp"
+        then
+          >&2 echo "ERROR: File not found: /app/$$fp"
+          exit 1
+        fi
+        fp_nodot="$(echo "$$fp" | sed 's/^.//')"
+        enc_fp="$${fp_nodot}.gpg"
+        gpg --batch --yes --passphrase="$ENV_PASSWORD" \
+            --output="$$enc_fp" --symmetric "$$fp"
   decrypt-env:
     extends: gpg
+    environment:
+      ENV_FILE_NAME: ".env"
+    entrypoint: ["sh"]
     command:
-      - '--decrypt'
-      - '--batch'
-      - "--passphrase=$ENV_PASSWORD"
-      - '--output=.env'
-      - env.gpg
+      - -c
+      - |-
+        fp=$(basename "$ENV_FILE")
+        test -f "$$fp" && mv "$$fp" "$${fp}.backup"
+        trap 'rc=$$?; mv "$${fp}.backup" "$$fp"; exit $$rc' INT HUP EXIT
+        fp_nodot="$(echo "$$fp" | sed 's/^.//')"
+        enc_fp="$${fp_nodot}.gpg"
+        if ! test -f "$$enc_fp"
+        then
+          >&2 echo "ERROR: File not found: /app/$$enc_fp"
+          exit 1
+        fi
+        gpg --batch --decrypt --passphrase="$ENV_PASSWORD" \
+            --output="$$fp" "$$enc_fp"
+        trap '-' INT HUP EXIT
+        rm "$${fp}.backup"
