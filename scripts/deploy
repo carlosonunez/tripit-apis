@@ -132,9 +132,14 @@ then
 fi
 
 confirm_environment_or_fail
+>&2 echo "INFO: Starting deployment, environment: $ENVIRONMENT"
 
 start_localstack_if_local || exit 1
-is_local && export AWS_ENDPOINT_URL="http://localstack:4566"
+if is_local
+then
+  >&2 echo "INFO: Running in local mode (AWS will not be used)"
+  export AWS_ENDPOINT_URL="http://localstack:4566"
+fi
 
 aws_session_creds=$(docker-compose -f docker-compose.aws.yml \
   run --service-ports --rm obtain-aws-session-credentials) || exit 1
