@@ -3,6 +3,7 @@ source $(dirname "$0")/helpers/shared_secrets.sh
 source $(dirname "$0")/helpers/logging.sh
 ENVIRONMENT="${ENVIRONMENT:-test}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
+IS_LOCAL="${IS_LOCAL:-false}"
 set -e
 
 usage() {
@@ -16,8 +17,9 @@ ARGUMENTS
 
 ENVIRONMENT VARIABLES
 
+  IS_LOCAL=false                Runs everything locally if true.
+
   ENVIRONMENT=test              The environment being deployed into.
-                                Valid choices: test, production, local
 
   DEPLOY_FUNCTIONS_ONLY=false   Disable re-deploying infrastructure and skip
                                 straight to deploying functions.
@@ -25,8 +27,12 @@ ENVIRONMENT VARIABLES
 USAGE
 }
 
+is_local() {
+  test "${IS_LOCAL,,}" == true
+}
+
 confirm_environment_or_fail() {
-  grep -Eq "^(test|local|production)$" <<< "$ENVIRONMENT" && return 0
+  grep -Eq "^(test|production)$" <<< "$ENVIRONMENT" && return 0
 
   usage
   >&2 echo "Not a valid environment: $ENVIRONMENT"
@@ -39,7 +45,7 @@ write_lambda_secrets_for_integration_testing() {
     return
   fi
   info "Getting integration test API Gateway endpoint."
-  endpoint_url=$(docker-compose -f docker-compose.deploy.yml run \
+  endpoint_url=$(docker-compose -f docker-compose.deploy.yml run --service-ports \
       --rm serverless info --stage develop | \
     grep -E 'http.*\/ping' | \
     sed 's/.*\(http.*\)\/ping/\1/' | \
@@ -48,7 +54,7 @@ write_lambda_secrets_for_integration_testing() {
 
   info "Getting API Gateway default API key."
   api_key=$(docker-compose -f docker-compose.deploy.yml \
-      run --rm serverless info --stage develop | \
+      run --service-ports --rm serverless info --stage develop | \
     grep -E 'default-tripit-key-dev:' | \
     sed 's/.*default-tripit-key-dev: //' | \
     tr -d $'\r' | \
@@ -70,7 +76,7 @@ write_lambda_secrets_for_integration_testing() {
 
 write_infrastructure_secrets() {
   info "Getting infrastructure secrets."
-  tf_output=$(2>&1 docker-compose -f docker-compose.deploy.yml run \
+  tf_output=$(2>&1 docker-compose -f docker-compose.deploy.yml run --service-ports \
     -e ENVIRONMENT="$ENVIRONMENT" \
     --rm \
     terraform output | tr -d $'\r')
@@ -91,21 +97,33 @@ write_infrastructure_secrets() {
 
 deploy_serverless_infrastructure() {
   info "Deploying serverless infrastructure."
-  docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-infra-"$ENVIRONMENT" &&
-  if test "$ENVIRONMENT" == "production"
+  docker-compose -f docker-compose.deploy.yml run --service-ports --rm deploy-serverless-infra-"$ENVIRONMENT" &&
+  if test "$ENVIRONMENT" == "production" && ! is_local
   then
     docker-compose -f docker-compose.deploy.yml build deploy-serverless-domain-production &&
     write_infrastructure_secrets &&
-    docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-domain-production
+    docker-compose -f docker-compose.deploy.yml run --service-ports --rm deploy-serverless-domain-production
   fi
 }
 
 deploy_serverless_functions() {
   info "Deploying serverless functions."
   docker-compose -f docker-compose.deploy.yml build deploy-serverless-functions-"$ENVIRONMENT" &&
-  docker-compose -f docker-compose.deploy.yml run --rm deploy-serverless-functions-"$ENVIRONMENT" &&
+  docker-compose -f docker-compose.deploy.yml run --service-ports --rm deploy-serverless-functions-"$ENVIRONMENT" &&
     write_lambda_secrets_for_integration_testing
 }
+
+stop_localstack_if_local() {
+  is_local || return 0
+  docker-compose -f docker-compose.deploy.yml stop localstack
+}
+
+start_localstack_if_local() {
+  is_local || return 0
+  docker-compose -f docker-compose.deploy.yml up -d localstack
+}
+
+trap 'rc=$?; stop_localstack_if_local; exit $rc' INT HUP
 
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
@@ -115,19 +133,25 @@ fi
 
 confirm_environment_or_fail
 
+start_localstack_if_local || exit 1
+is_local && export AWS_ENDPOINT_URL="http://localstack:4566"
+
 aws_session_creds=$(docker-compose -f docker-compose.aws.yml \
-  run --rm obtain-aws-session-credentials) || exit 1
+  run --service-ports --rm obtain-aws-session-credentials) || exit 1
 
 eval "$aws_session_creds"
 
-if [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
+if [ "${ENVIRONMENT,,}" != local ] && [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
 then
   warn "Only deploying functions, as requested."
   deploy_serverless_functions
 else
   remove_secret_folder_if_present &&
+    start_localstack_if_local &&
     deploy_serverless_infrastructure &&
     deploy_serverless_functions &&
+    stop_localstack_if_local &&
     exit 0
 fi
+stop_localstack_if_local
 exit 1
