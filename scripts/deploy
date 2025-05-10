@@ -4,6 +4,9 @@ source $(dirname "$0")/helpers/logging.sh
 ENVIRONMENT="${ENVIRONMENT:-test}"
 DEPLOY_FUNCTIONS_ONLY="${DEPLOY_FUNCTIONS_ONLY:-false}"
 IS_LOCAL="${IS_LOCAL:-false}"
+DOCKER_COMPOSE='docker-compose --log-level ERROR'
+DOCKER_COMPOSE_AWS="$DOCKER_COMPOSE -f docker-compose.aws.yml"
+DOCKER_COMPOSE_DEPLOY="$DOCKER_COMPOSE -f docker-compose.deploy.yml"
 set -e
 
 usage() {
@@ -45,7 +48,7 @@ write_lambda_secrets_for_integration_testing() {
     return
   fi
   info "Getting integration test API Gateway endpoint."
-  endpoint_url=$(docker-compose -f docker-compose.deploy.yml run --service-ports \
+  endpoint_url=$($DOCKER_COMPOSE_DEPLOY run --service-ports \
       --rm serverless info --stage develop | \
     grep -E 'http.*\/ping' | \
     sed 's/.*\(http.*\)\/ping/\1/' | \
@@ -53,7 +56,7 @@ write_lambda_secrets_for_integration_testing() {
     tr -d $'\n')
 
   info "Getting API Gateway default API key."
-  api_key=$(docker-compose -f docker-compose.deploy.yml \
+  api_key=$($DOCKER_COMPOSE_DEPLOY \
       run --service-ports --rm serverless info --stage develop | \
     grep -E 'default-tripit-key-dev:' | \
     sed 's/.*default-tripit-key-dev: //' | \
@@ -76,7 +79,7 @@ write_lambda_secrets_for_integration_testing() {
 
 write_infrastructure_secrets() {
   info "Getting infrastructure secrets."
-  tf_output=$(2>&1 docker-compose -f docker-compose.deploy.yml run --service-ports \
+  tf_output=$(2>&1 $DOCKER_COMPOSE_DEPLOY run --service-ports \
     -e ENVIRONMENT="$ENVIRONMENT" \
     --rm \
     terraform output | tr -d $'\r')
@@ -97,30 +100,31 @@ write_infrastructure_secrets() {
 
 deploy_serverless_infrastructure() {
   info "Deploying serverless infrastructure."
-  docker-compose -f docker-compose.deploy.yml run --service-ports --rm deploy-serverless-infra-"$ENVIRONMENT" &&
+  $DOCKER_COMPOSE_DEPLOY run --build --service-ports --rm deploy-serverless-infra-"$ENVIRONMENT" &&
   if test "$ENVIRONMENT" == "production" && ! is_local
   then
-    docker-compose -f docker-compose.deploy.yml build deploy-serverless-domain-production &&
+    $DOCKER_COMPOSE_DEPLOY run --build --service-ports --rm deploy-serverless-domain-production &&
     write_infrastructure_secrets &&
-    docker-compose -f docker-compose.deploy.yml run --service-ports --rm deploy-serverless-domain-production
+    $DOCKER_COMPOSE_DEPLOY run --build --service-ports --rm deploy-serverless-domain-production
   fi
 }
 
 deploy_serverless_functions() {
   info "Deploying serverless functions."
-  docker-compose -f docker-compose.deploy.yml build deploy-serverless-functions-"$ENVIRONMENT" &&
-  docker-compose -f docker-compose.deploy.yml run --service-ports --rm deploy-serverless-functions-"$ENVIRONMENT" &&
+  $DOCKER_COMPOSE_DEPLOY run --build --service-ports --rm deploy-serverless-functions-"$ENVIRONMENT" &&
     write_lambda_secrets_for_integration_testing
 }
 
 stop_localstack_if_local() {
   is_local || return 0
-  docker-compose -f docker-compose.deploy.yml stop localstack
+  info "Stopping Localstack"
+  $DOCKER_COMPOSE_AWS stop localstack
 }
 
 start_localstack_if_local() {
   is_local || return 0
-  docker-compose -f docker-compose.deploy.yml up -d localstack
+  info "Starting Localstack"
+  $DOCKER_COMPOSE_AWS up -d localstack
 }
 
 trap 'rc=$?; stop_localstack_if_local; exit $rc' INT HUP
@@ -132,21 +136,20 @@ then
 fi
 
 confirm_environment_or_fail
->&2 echo "INFO: Starting deployment, environment: $ENVIRONMENT"
+info "Starting deployment, environment: $ENVIRONMENT"
 
 start_localstack_if_local || exit 1
 if is_local
 then
-  >&2 echo "INFO: Running in local mode (AWS will not be used)"
   export AWS_ENDPOINT_URL="http://localstack:4566"
 fi
 
-aws_session_creds=$(docker-compose -f docker-compose.aws.yml \
+aws_session_creds=$($DOCKER_COMPOSE_AWS \
   run --service-ports --rm obtain-aws-session-credentials) || exit 1
 
 eval "$aws_session_creds"
 
-if [ "${ENVIRONMENT,,}" != local ] && [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
+if ! is_local && [ "$DEPLOY_FUNCTIONS_ONLY" == "true" ]
 then
   warn "Only deploying functions, as requested."
   deploy_serverless_functions

@@ -1,3 +1,7 @@
+localstack: configure terraform to deploy to localstack if USE_LOCALSTACK=1
+localstack: configure AWS APIs in Python to use LocalStack when AWS_ENDPOINT_URL specified
+localstack: configure AWS APIs in integration tests to use LocalStack
 Move to Docker runtime from built-in Python runtime
 Connect to Tailscale before calling TripIt
 Use Lambda IAM instance role instead of separate account for Dynamo stuff
+localstack: create script to start up local environment

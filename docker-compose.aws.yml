@@ -1,12 +1,28 @@
+volumes:
+  localstack-data: {}
 services:
+  localstack:
+    image: localstack/localstack
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
   aws:
+    depends_on:
+      confirm-localstack-up-if-local:
+        condition: service_completed_successfully
     image: amazon/aws-cli:2.24.20
     env_file: .env
   obtain-aws-session-credentials:
     extends: aws
     environment:
-      AWS_SESSION_TOKEN: ""
+      - AWS_ENDPOINT_URL
+      - AWS_SESSION_TOKEN=""
     volumes:
       - $PWD/scripts/generate_aws_session_token.sh:/entrypoint.sh
       - $PWD/secrets:/secrets
+    entrypoint: /entrypoint.sh
+  confirm-localstack-up-if-local:
+    image: curlimages/curl
+    volumes:
+      - $PWD/scripts/confirm_localstack.sh:/entrypoint.sh
     entrypoint: /entrypoint.sh
