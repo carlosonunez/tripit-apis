@@ -1,7 +1,6 @@
-version: '2.2'
 services:
   aws:
-    image: amazon/aws-cli:2.2.9
+    image: amazon/aws-cli:2.24.20
     env_file: .env
   obtain-aws-session-credentials:
     extends: aws
