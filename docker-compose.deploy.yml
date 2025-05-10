@@ -1,5 +1,13 @@
 version: '2.2'
+volumes:
+  tofu-data: {}
+  localstack-data: {}
 services:
+  localstack:
+    image: localstack/localstack
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
   serverless:
     build:
       dockerfile: serverless.Dockerfile
@@ -12,21 +20,23 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
+      - AWS_ENDPOINT_URL
     volumes:
       - $PWD:/app
     working_dir: /app
     entrypoint:
       - serverless
   terraform:
-    image: carlosnunez/terraform:0.13.5
+    image: ghcr.io/opentofu/opentofu:v1.9.1
     env_file: .env
     environment:
       - TF_CLI_ARGS_destroy="-force"
-      - TF_DATA_DIR=/tmp
+      - TF_DATA_DIR=/data
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
     volumes:
+      - tofu-data:/data
       - $PWD:/app
     working_dir: /app
     user: root
