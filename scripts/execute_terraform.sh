@@ -9,6 +9,19 @@ set -e
 action=$1
 shift
 
+set -eo pipefail
+
+mkdir /config
+if test "${ENVIRONMENT,,}" == local
+then
+  cp /app/provider-local.tf /config
+  export AWS_ENDPOINT_URL="http://localstack:4566"
+else
+  cp /app/provider.tf /config
+fi
+cp /app/infra.tf /config
+
+cd /config
 terraform init --backend-config="bucket=${TERRAFORM_STATE_S3_BUCKET}" \
   --backend-config="key=${TERRAFORM_STATE_S3_KEY}/${ENVIRONMENT}" \
   --backend-config="region=$AWS_REGION" && \
