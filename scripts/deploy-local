@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+IS_LOCAL=true $(dirname "$0")/deploy
