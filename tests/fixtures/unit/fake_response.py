@@ -42,42 +42,19 @@ def fake_response_from_route():
         fake_trip_name = kwargs.get("fake_trip_name")
         fake_flights_to_load = kwargs.get("fake_flights_scenario")
         endpoint = kwargs.get("endpoint")
-        if fake_flights_to_load:
-            fake_flights = json.loads(
-                Path(f"./tests/mocks/{fake_flights_to_load}.json").read_text()
-            )
-            if filter_notes:
-                del fake_flights["NoteObject"]
-        else:
-            fake_flights = None
-
         fake_response = None
 
-        if not fake_trip_name and not fake_flights_to_load:
-            fake_response = FakeResponse(
-                url="https://api.tripit.com/v1/list/trip/format/json",
+        if not fake_trip_name:
+            return FakeResponse(
+                url="https://api.tripit.com/v1/list/trip/include_objects/true/format/json",
                 status_code=200,
                 json_object={"timestamp": 123, "num_bytes": 78},
             )
 
-        if endpoint == "/list/trip":
-            if kwargs.get("fake_trip_data"):
-                fake_trip_data = kwargs["fake_trip_data"]
-            else:
-                fake_trip_data = FakeTrip(fake_trip_name).trip_data
-            fake_response = FakeResponse(
-                url="https://api.tripit.com/v1/list/trip/format/json",
+        return FakeResponse(
+                url="https://api.tripit.com/v1/list/trip/include_objects/true/format/json",
                 status_code=200,
-                json_object=fake_trip_data,
+                json_object=FakeTrip(fake_trip_name).fake_trip_data
             )
-
-        if re.match(r"/get/trip/id", kwargs["endpoint"]):
-            fake_response = FakeResponse(
-                url="https://api.tripit.com/v1/get/trip/id/123/includeObjects/true",
-                status_code=200,
-                json_object=fake_flights,
-            )
-
-        return fake_response
 
     return _run

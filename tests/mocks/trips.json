@@ -149,6 +149,39 @@
           "is_owner": "true"
         }
       },
+      "id": "123456789",
+      "relative_url": "/trip/show/id/123456789",
+      "start_date": "2023-08-16",
+      "end_date": "2023-08-16",
+      "display_name": "Personal: Multiple Trip Without Location",
+      "image_url": "https://www.tripit.com/images/places/generic.jpg",
+      "is_private": "false",
+      "PrimaryLocationAddress": {
+        "address": "Dayton, OH",
+        "city": "Dayton",
+        "state": "OH",
+        "country": "US",
+        "latitude": "39.758950",
+        "longitude": "-84.191610"
+      },
+      "TripPurposes": {
+        "purpose_type_code": "L",
+        "is_auto_generated": "false"
+      },
+      "last_modified": "1574752207",
+      "is_trip_owner_inner_circle_sharer": "false"
+    },
+    {
+      "TripInvitees": {
+        "Invitee": {
+          "@attributes": {
+            "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
+          },
+          "is_read_only": "false",
+          "is_traveler": "true",
+          "is_owner": "true"
+        }
+      },
       "id": "234567890",
       "relative_url": "/trip/show/id/234567890",
       "start_date": "2019-12-01",
@@ -156,7 +189,7 @@
       "display_name": "Work: Test Client - Week 3",
       "image_url": "https://www.tripit.com/images/places/omaha.jpg",
       "is_private": "false",
-      "primary_location": "Omaha, NE",
+      "primary_location": "Los Angeles, CA",
       "PrimaryLocationAddress": {
         "address": "Omaha, NE",
         "city": "Omaha",
@@ -173,38 +206,587 @@
       "is_trip_owner_inner_circle_sharer": "false"
     },
     {
-      "TripInvitees": {
-        "Invitee": {
+    "TripInvitees": {
+      "Invitee": [
+        {
           "@attributes": {
-            "profile_ref": "j_Ds3yP_suSBK-2ymtQVEw"
+            "profile_ref": "BMHTrKscohVFz6MKY8rj4Q"
           },
           "is_read_only": "false",
           "is_traveler": "true",
           "is_owner": "true"
+        },
+        {
+          "@attributes": {
+            "profile_ref": "r-1InoHP2ySB3UhXl87Qaw"
+          },
+          "is_read_only": "true",
+          "is_traveler": "false"
         }
+      ]
+    },
+    "id": "345678901",
+    "relative_url": "/trip/show/id/345678901",
+    "start_date": "2019-11-27",
+    "end_date": "2019-12-01",
+    "display_name": "Personal: Some Trip That Ended",
+    "image_url": "https://www.tripit.com/images/places/dallas.jpg",
+    "is_private": "false",
+    "primary_location": "Dallas, TX",
+    "PrimaryLocationAddress": {
+      "address": "Dallas, TX",
+      "city": "Dallas",
+      "state": "TX",
+      "country": "US",
+      "latitude": "32.783060",
+      "longitude": "-96.806670"
+    },
+    "TripPurposes": {
+      "purpose_type_code": "B",
+      "is_auto_generated": "false"
+    },
+    "last_modified": "1574746169",
+    "is_trip_owner_inner_circle_sharer": "false"
+    }
+  ],
+  "NoteObject": [
+    {
+      "id": "586853",
+      "trip_id": "345678901",
+      "display_name": "TRIP_ENDED",
+      "DateTime": {
+        "date": "2008-12-09",
+        "time": "14:00:00",
+        "timezone": "America/Los_Angeles",
+        "utc_offset": "-8:00"
       },
-      "id": "345678901",
-      "relative_url": "/trip/show/id/345678901",
-      "start_date": "2019-12-15",
-      "end_date": "2019-12-19",
-      "display_name": "Personal: Some Trip That Ended",
-      "image_url": "https://www.tripit.com/images/places/generic.jpg",
-      "is_private": "false",
-      "primary_location": "Dayton, OH",
-      "PrimaryLocationAddress": {
-        "address": "Dayton, OH",
-        "city": "Dayton",
-        "state": "OH",
+      "Address": {
+        "addr1": "444 DeHaro St.",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94107",
         "country": "US",
-        "latitude": "39.758950",
-        "longitude": "-84.191610"
+        "latitude": "37.764169",
+        "longitude": "-122.402021"
       },
-      "TripPurposes": {
-        "purpose_type_code": "L",
-        "is_auto_generated": "false"
+      "text": "Test note.",
+      "url": "http://www.tripit.com/"
+    }
+  ],
+  "AirObject": [
+    {
+      "id": "1111111111",
+      "trip_id": "234567890",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1111111111",
+      "display_name": "Flight",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574746169",
+      "booking_site_name": "American Airlines",
+      "booking_site_phone": "1-800-433-7300",
+      "booking_site_url": "http://www.aa.com/",
+      "is_purchased": "true",
+      "is_tripit_booking": "false",
+      "Segment": {
+        "Status": {
+          "flight_status": "200",
+          "last_modified": "1574746169"
+        },
+        "StartDateTime": {
+          "date": "2019-11-27",
+          "time": "11:19:00",
+          "timezone": "America/New_York",
+          "utc_offset": "-05:00"
+        },
+        "EndDateTime": {
+          "date": "2019-11-27",
+          "time": "13:01:00",
+          "timezone": "America/Los_Angeles",
+          "utc_offset": "-08:00"
+        },
+        "start_airport_code": "JFK",
+        "start_airport_latitude": "29.984564",
+        "start_airport_longitude": "-90.256391",
+        "start_city_name": "New York",
+        "start_country_code": "US",
+        "start_gate": "B15",
+        "end_airport_code": "LAX",
+        "end_airport_latitude": "32.897462",
+        "end_airport_longitude": "-97.036128",
+        "end_city_name": "Los Angeles",
+        "end_country_code": "US",
+        "end_gate": "D25",
+        "end_terminal": "D",
+        "marketing_airline": "American Airlines",
+        "marketing_airline_code": "AA",
+        "marketing_flight_number": "1",
+        "alternate_flights_url": "/trip_item/flightSearch/id/3097913861/airline_code/AA",
+        "aircraft": "738",
+        "aircraft_display_name": "Boeing 737-800 Passenger",
+        "distance": "446 mi",
+        "duration": "1h, 42m",
+        "stops": "nonstop",
+        "check_in_url": "https://www.aa.com/aa/reservation/flightCheckInViewReservationsAccess.do",
+        "mobile_check_in_url": "https://mobile.aa.com/mt/www.aa.com/reservation/flightCheckInViewReservationsAccess.do?v_locale=en_US&v_mobileUAFlag=MA&un_jtt_redirect",
+        "refund_info_url": "https://prefunds.aa.com/refunds/",
+        "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+        "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+        "web_home_url": "https://www.aa.com/homePage.do",
+        "mobile_home_url": "https://www.aa.com/homePage.do",
+        "is_hidden": "false",
+        "id": "123",
+        "is_international": "false",
+        "Emissions": {
+          "co2": "0.11307"
+        }
+      }
+    },
+    {
+      "id": "1111111111",
+      "trip_id": "345678901",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1111111111",
+      "display_name": "Flight",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574746169",
+      "booking_site_name": "American Airlines",
+      "booking_site_phone": "1-800-433-7300",
+      "booking_site_url": "http://www.aa.com/",
+      "is_purchased": "true",
+      "is_tripit_booking": "false",
+      "Segment": {
+        "Status": {
+          "flight_status": "200",
+          "last_modified": "1574746169"
+        },
+        "StartDateTime": {
+          "date": "2019-11-27",
+          "time": "11:19:00",
+          "timezone": "America/New_York",
+          "utc_offset": "-05:00"
+        },
+        "EndDateTime": {
+          "date": "2019-11-27",
+          "time": "13:01:00",
+          "timezone": "America/Los_Angeles",
+          "utc_offset": "-08:00"
+        },
+        "start_airport_code": "JFK",
+        "start_airport_latitude": "29.984564",
+        "start_airport_longitude": "-90.256391",
+        "start_city_name": "New York",
+        "start_country_code": "US",
+        "start_gate": "B15",
+        "end_airport_code": "LAX",
+        "end_airport_latitude": "32.897462",
+        "end_airport_longitude": "-97.036128",
+        "end_city_name": "Los Angeles",
+        "end_country_code": "US",
+        "end_gate": "D25",
+        "end_terminal": "D",
+        "marketing_airline": "American Airlines",
+        "marketing_airline_code": "AA",
+        "marketing_flight_number": "1",
+        "alternate_flights_url": "/trip_item/flightSearch/id/3097913861/airline_code/AA",
+        "aircraft": "738",
+        "aircraft_display_name": "Boeing 737-800 Passenger",
+        "distance": "446 mi",
+        "duration": "1h, 42m",
+        "stops": "nonstop",
+        "check_in_url": "https://www.aa.com/aa/reservation/flightCheckInViewReservationsAccess.do",
+        "mobile_check_in_url": "https://mobile.aa.com/mt/www.aa.com/reservation/flightCheckInViewReservationsAccess.do?v_locale=en_US&v_mobileUAFlag=MA&un_jtt_redirect",
+        "refund_info_url": "https://prefunds.aa.com/refunds/",
+        "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+        "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+        "web_home_url": "https://www.aa.com/homePage.do",
+        "mobile_home_url": "https://www.aa.com/homePage.do",
+        "is_hidden": "false",
+        "id": "123",
+        "is_international": "false",
+        "Emissions": {
+          "co2": "0.11307"
+        }
+      }
+    },
+    {
+      "id": "1111111111",
+      "trip_id": "123",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1111111111",
+      "display_name": "Flight",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574746169",
+      "booking_site_name": "American Airlines",
+      "booking_site_phone": "1-800-433-7300",
+      "booking_site_url": "http://www.aa.com/",
+      "is_purchased": "true",
+      "is_tripit_booking": "false",
+      "Segment": {
+        "Status": {
+          "flight_status": "200",
+          "last_modified": "1574746169"
+        },
+        "StartDateTime": {
+          "date": "2019-11-27",
+          "time": "11:19:00",
+          "timezone": "America/New_York",
+          "utc_offset": "-05:00"
+        },
+        "EndDateTime": {
+          "date": "2019-11-27",
+          "time": "13:01:00",
+          "timezone": "America/Los_Angeles",
+          "utc_offset": "-08:00"
+        },
+        "start_airport_code": "JFK",
+        "start_airport_latitude": "29.984564",
+        "start_airport_longitude": "-90.256391",
+        "start_city_name": "New York",
+        "start_country_code": "US",
+        "start_gate": "B15",
+        "end_airport_code": "LAX",
+        "end_airport_latitude": "32.897462",
+        "end_airport_longitude": "-97.036128",
+        "end_city_name": "Los Angeles",
+        "end_country_code": "US",
+        "end_gate": "D25",
+        "end_terminal": "D",
+        "marketing_airline": "American Airlines",
+        "marketing_airline_code": "AA",
+        "marketing_flight_number": "1",
+        "alternate_flights_url": "/trip_item/flightSearch/id/3097913861/airline_code/AA",
+        "aircraft": "738",
+        "aircraft_display_name": "Boeing 737-800 Passenger",
+        "distance": "446 mi",
+        "duration": "1h, 42m",
+        "stops": "nonstop",
+        "check_in_url": "https://www.aa.com/aa/reservation/flightCheckInViewReservationsAccess.do",
+        "mobile_check_in_url": "https://mobile.aa.com/mt/www.aa.com/reservation/flightCheckInViewReservationsAccess.do?v_locale=en_US&v_mobileUAFlag=MA&un_jtt_redirect",
+        "refund_info_url": "https://prefunds.aa.com/refunds/",
+        "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+        "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+        "web_home_url": "https://www.aa.com/homePage.do",
+        "mobile_home_url": "https://www.aa.com/homePage.do",
+        "is_hidden": "false",
+        "id": "123",
+        "is_international": "false",
+        "Emissions": {
+          "co2": "0.11307"
+        }
+      }
+    },
+    {
+      "id": "1111111111",
+      "trip_id": "123",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1111111111",
+      "display_name": "Flight",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574746169",
+      "booking_site_name": "American Airlines",
+      "booking_site_phone": "1-800-433-7300",
+      "booking_site_url": "http://www.aa.com/",
+      "is_purchased": "true",
+      "is_tripit_booking": "false",
+      "Segment": {
+        "Status": {
+          "flight_status": "200",
+          "last_modified": "1574746169"
+        },
+        "StartDateTime": {
+          "date": "2019-11-27",
+          "time": "11:19:00",
+          "timezone": "America/New_York",
+          "utc_offset": "-05:00"
+        },
+        "EndDateTime": {
+          "date": "2019-11-27",
+          "time": "13:01:00",
+          "timezone": "America/Los_Angeles",
+          "utc_offset": "-08:00"
+        },
+        "start_airport_code": "JFK",
+        "start_airport_latitude": "29.984564",
+        "start_airport_longitude": "-90.256391",
+        "start_city_name": "New York",
+        "start_country_code": "US",
+        "start_gate": "B15",
+        "end_airport_code": "LAX",
+        "end_airport_latitude": "32.897462",
+        "end_airport_longitude": "-97.036128",
+        "end_city_name": "Los Angeles",
+        "end_country_code": "US",
+        "end_gate": "D25",
+        "end_terminal": "D",
+        "marketing_airline": "American Airlines",
+        "marketing_airline_code": "AA",
+        "marketing_flight_number": "1",
+        "alternate_flights_url": "/trip_item/flightSearch/id/3097913861/airline_code/AA",
+        "aircraft": "738",
+        "aircraft_display_name": "Boeing 737-800 Passenger",
+        "distance": "446 mi",
+        "duration": "1h, 42m",
+        "stops": "nonstop",
+        "check_in_url": "https://www.aa.com/aa/reservation/flightCheckInViewReservationsAccess.do",
+        "mobile_check_in_url": "https://mobile.aa.com/mt/www.aa.com/reservation/flightCheckInViewReservationsAccess.do?v_locale=en_US&v_mobileUAFlag=MA&un_jtt_redirect",
+        "refund_info_url": "https://prefunds.aa.com/refunds/",
+        "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+        "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+        "web_home_url": "https://www.aa.com/homePage.do",
+        "mobile_home_url": "https://www.aa.com/homePage.do",
+        "is_hidden": "false",
+        "id": "123",
+        "is_international": "false",
+        "Emissions": {
+          "co2": "0.11307"
+        }
+      }
+    },
+    {
+      "id": "1107607574",
+      "trip_id": "293554134",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1107607574",
+      "display_name": "Flight",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574717638",
+      "booking_date": "2019-11-22",
+      "booking_site_conf_num": "MJDCBG",
+      "booking_site_name": "American Airlines",
+      "booking_site_phone": "1-800-433-7300",
+      "booking_site_url": "http://www.aa.com/",
+      "supplier_conf_num": "MJDCBG",
+      "is_purchased": "true",
+      "total_cost": "$471.61",
+      "is_tripit_booking": "false",
+      "Segment": [
+        {
+          "Status": {
+            "flight_status": "200",
+            "last_modified": "1574717638"
+          },
+          "StartDateTime": {
+            "date": "2019-12-01",
+            "time": "17:11:00",
+            "timezone": "America/Chicago",
+            "utc_offset": "-06:00"
+          },
+          "EndDateTime": {
+            "date": "2019-12-01",
+            "time": "18:56:00",
+            "timezone": "America/Chicago",
+            "utc_offset": "-06:00"
+          },
+          "start_airport_code": "DFW",
+          "start_airport_latitude": "32.897462",
+          "start_airport_longitude": "-97.036128",
+          "start_city_name": "Dallas",
+          "start_country_code": "US",
+          "end_airport_code": "OMA",
+          "end_airport_latitude": "41.299570",
+          "end_airport_longitude": "-95.899717",
+          "end_city_name": "Omaha",
+          "end_country_code": "US",
+          "marketing_airline": "American Airlines",
+          "marketing_airline_code": "AA",
+          "marketing_flight_number": "356",
+          "aircraft": "738",
+          "aircraft_display_name": "Boeing 737-800 Passenger",
+          "distance": "583 mi",
+          "duration": "1h, 45m",
+          "seats": "15D",
+          "service_class": "Coach (G)",
+          "stops": "nonstop",
+          "refund_info_url": "https://prefunds.aa.com/refunds/",
+          "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+          "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+          "web_home_url": "https://www.aa.com/homePage.do",
+          "mobile_home_url": "https://www.aa.com/homePage.do",
+          "is_hidden": "false",
+          "id": "3097413989",
+          "is_international": "false",
+          "Emissions": {
+            "co2": "0.14538"
+          }
+        },
+        {
+          "Status": {
+            "flight_status": "300",
+            "last_modified": "1573854667"
+          },
+          "StartDateTime": {
+            "date": "2019-12-05",
+            "time": "16:02:00",
+            "timezone": "America/Chicago",
+            "utc_offset": "-06:00"
+          },
+          "EndDateTime": {
+            "date": "2019-12-05",
+            "time": "17:58:00",
+            "timezone": "America/Chicago",
+            "utc_offset": "-06:00"
+          },
+          "start_airport_code": "OMA",
+          "start_airport_latitude": "41.299570",
+          "start_airport_longitude": "-95.899717",
+          "start_city_name": "Omaha",
+          "start_country_code": "US",
+          "end_airport_code": "DFW",
+          "end_airport_latitude": "32.897462",
+          "end_airport_longitude": "-97.036128",
+          "end_city_name": "Dallas",
+          "end_country_code": "US",
+          "marketing_airline": "American Airlines",
+          "marketing_airline_code": "AA",
+          "marketing_flight_number": "2360",
+          "aircraft": "738",
+          "aircraft_display_name": "Boeing 737-800 Passenger",
+          "distance": "583 mi",
+          "duration": "1h, 56m",
+          "seats": "15F",
+          "service_class": "Coach (S)",
+          "stops": "nonstop",
+          "refund_info_url": "https://prefunds.aa.com/refunds/",
+          "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+          "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+          "web_home_url": "https://www.aa.com/homePage.do",
+          "mobile_home_url": "https://www.aa.com/homePage.do",
+          "is_hidden": "false",
+          "id": "3097413993",
+          "is_international": "false",
+          "Emissions": {
+            "co2": "0.14538"
+          }
+        }
+      ],
+      "Traveler": {
+        "first_name": "Carlos",
+        "last_name": "Nunez",
+        "ticket_num": "0012390452824"
+      }
+    },
+    {
+      "id": "1111111111",
+      "trip_id": "123",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1111111111",
+      "display_name": "Flight",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574746169",
+      "booking_site_name": "American Airlines",
+      "booking_site_phone": "1-800-433-7300",
+      "booking_site_url": "http://www.aa.com/",
+      "is_purchased": "true",
+      "is_tripit_booking": "false",
+      "Segment": {
+        "Status": {
+          "flight_status": "200",
+          "last_modified": "1574746169"
+        },
+        "StartDateTime": {
+          "date": "2019-11-27",
+          "time": "11:19:00",
+          "timezone": "America/New_York",
+          "utc_offset": "-05:00"
+        },
+        "EndDateTime": {
+          "date": "2019-11-27",
+          "time": "13:01:00",
+          "timezone": "America/Los_Angeles",
+          "utc_offset": "-08:00"
+        },
+        "start_airport_code": "JFK",
+        "start_airport_latitude": "29.984564",
+        "start_airport_longitude": "-90.256391",
+        "start_city_name": "New York",
+        "start_country_code": "US",
+        "start_gate": "B15",
+        "end_airport_code": "LAX",
+        "end_airport_latitude": "32.897462",
+        "end_airport_longitude": "-97.036128",
+        "end_city_name": "Los Angeles",
+        "end_country_code": "US",
+        "end_gate": "D25",
+        "end_terminal": "D",
+        "marketing_airline": "American Airlines",
+        "marketing_airline_code": "AA",
+        "marketing_flight_number": "1",
+        "alternate_flights_url": "/trip_item/flightSearch/id/3097913861/airline_code/AA",
+        "aircraft": "738",
+        "aircraft_display_name": "Boeing 737-800 Passenger",
+        "distance": "446 mi",
+        "duration": "1h, 42m",
+        "stops": "nonstop",
+        "check_in_url": "https://www.aa.com/aa/reservation/flightCheckInViewReservationsAccess.do",
+        "mobile_check_in_url": "https://mobile.aa.com/mt/www.aa.com/reservation/flightCheckInViewReservationsAccess.do?v_locale=en_US&v_mobileUAFlag=MA&un_jtt_redirect",
+        "refund_info_url": "https://prefunds.aa.com/refunds/",
+        "change_reservation_url": "https://www.aa.com/i18n/urls/changereservation.jsp",
+        "customer_support_url": "https://www.aa.com/contactAA/viewEmailFormAccess.do?eventName=customerRelations",
+        "web_home_url": "https://www.aa.com/homePage.do",
+        "mobile_home_url": "https://www.aa.com/homePage.do",
+        "is_hidden": "false",
+        "id": "123",
+        "is_international": "false",
+        "Emissions": {
+          "co2": "0.11307"
+        }
+      }
+    }
+  ],
+  "LodgingObject": [
+    {
+      "id": "1107607657",
+      "trip_id": "293554134",
+      "is_client_traveler": "true",
+      "relative_url": "/reservation/show/id/1107607657",
+      "display_name": "Hilton Garden Inn Lincoln Downtown/Haymarket",
+      "is_display_name_auto_generated": "true",
+      "last_modified": "1574717689",
+      "booking_site_conf_num": "3164499434",
+      "booking_site_name": "Hampton Inn",
+      "booking_site_url": "https://www.hilton.com/en/hampton/",
+      "supplier_conf_num": "3164499434",
+      "supplier_name": "Hilton Garden Inn Lincoln Downtown/Haymarket",
+      "supplier_phone": "14024759000",
+      "is_purchased": "true",
+      "restrictions": "Your reservation is guaranteed for late arrival. • If your plans change please let us know - it's free to cancel or update your reservation by 11:59pm local hotel time on Nov-29-2019",
+      "total_cost": "542.14 USD",
+      "is_tripit_booking": "false",
+      "EstimatedStartDateTime": {
+        "date": "2019-12-01",
+        "time": "20:56:00",
+        "timezone": "America/Chicago",
+        "utc_offset": "-06:00"
       },
-      "last_modified": "1574752207",
-      "is_trip_owner_inner_circle_sharer": "false"
+      "StartDateTime": {
+        "date": "2019-12-01",
+        "time": "15:00:00",
+        "timezone": "America/Chicago",
+        "utc_offset": "-06:00"
+      },
+      "EndDateTime": {
+        "date": "2019-12-05",
+        "time": "12:00:00",
+        "timezone": "America/Chicago",
+        "utc_offset": "-06:00"
+      },
+      "Address": {
+        "address": "801 R Street Lincoln NE 68508 US",
+        "city": "Lincoln",
+        "state": "NE",
+        "zip": "68508",
+        "country": "US",
+        "latitude": "40.816588",
+        "longitude": "-96.709642"
+      },
+      "Guest": {
+        "first_name": "CARLOS",
+        "last_name": "NUNEZ",
+        "frequent_traveler_supplier": "Hilton Garden Inn Lincoln Downtown/Haymarket"
+      },
+      "number_guests": "1",
+      "number_rooms": "1",
+      "room_type": "2 QUEEN BEDS"
     }
   ],
   "Profile": {

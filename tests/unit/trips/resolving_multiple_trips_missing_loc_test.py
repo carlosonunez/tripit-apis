@@ -20,7 +20,7 @@ def test_that_we_can_get_multiple_trips_missing_loc(monkeypatch, fake_response_f
     monkeypatch.setattr(
         "tripit.trips.get_from_tripit_v1",
         lambda *args, **kwargs: fake_response_from_route(
-            fake_trip_name="Personal: Multiple Trip",
+            fake_trip_name="Personal: Multiple Trip Without Location",
             fake_flights_scenario="personal_multi_trip_without_primary_locs",
             *args,
             **kwargs,
@@ -28,7 +28,7 @@ def test_that_we_can_get_multiple_trips_missing_loc(monkeypatch, fake_response_f
     )
     expected_trip = {
         "id": 123456789,
-        "name": "Personal: Multiple Trip",
+        "name": "Personal: Multiple Trip Without Location",
         "city": "Anywhere, Earth",
         "ends_on": 1692144000,
         "link": "https://www.tripit.com/trip/show/id/123456789",
@@ -36,5 +36,4 @@ def test_that_we_can_get_multiple_trips_missing_loc(monkeypatch, fake_response_f
         "ended": False,
         "flights": [],
     }
-    expected_trips = [expected_trip, expected_trip]
-    assert get_all_trips(token="token", token_secret="token_secret") == expected_trips
+    assert get_all_trips(token="token", token_secret="token_secret") == [ expected_trip ]
