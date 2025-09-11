@@ -17,7 +17,7 @@ jobs:
           version: '2.37.3'
 
       - name: Decrypt environment file
-        run: ./docker-compose -f docker-compose.ci.yml run --rm decrypt-env
+        run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
 
@@ -36,7 +36,7 @@ jobs:
           version: '2.37.3'
 
       - name: Decrypt environment file
-        run: ./docker-compose -f docker-compose.ci.yml run --rm decrypt-env
+        run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
 
@@ -55,7 +55,7 @@ jobs:
           version: '2.37.3'
 
       - name: Decrypt environment file
-        run: ./docker-compose -f docker-compose.ci.yml run --rm decrypt-env
+        run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
 
@@ -74,7 +74,7 @@ jobs:
           version: '2.37.3'
 
       - name: Decrypt environment file
-        run: ./docker-compose -f docker-compose.ci.yml run --rm decrypt-env
+        run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
 
