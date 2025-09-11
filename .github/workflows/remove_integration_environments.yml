@@ -9,12 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-
-      - name: Install Docker Compose
-        run: curl -L ${DOCKER_COMPOSE_URL}/docker-compose-`uname -s`-`uname -m` > ./docker-compose &&
-             chmod +x ./docker-compose
-        env:
-          DOCKER_COMPOSE_URL: https://github.com/docker/compose/releases/download/1.22.0
+      - uses: KengoTODA/actions-setup-docker-compose@main
+        name: Set up Docker Compose
+        with:
+          version: '2.37.3'
 
       - name: Decrypt environment file
         run: ./docker-compose -f docker-compose.ci.yml run --rm decrypt-env
