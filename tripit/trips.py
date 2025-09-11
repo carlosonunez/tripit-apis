@@ -52,7 +52,8 @@ def get_all_trips(token, token_secret, human_times=False):
 
     We only care about flights and notes. Every other TripIt object is stripped out.
     """
-    trip_data = get_from_tripit_v1(endpoint="/list/trip", token=token, token_secret=token_secret)
+    trip_data = get_from_tripit_v1(endpoint="/list/trip", token=token, token_secret=token_secret,
+                                   params={"include_objects": "true"})
     logger.debug("Response: %d, Text: %s", trip_data.status_code, trip_data.text)
     if trip_data.status_code != 200:
         logger.error("Failed to get trips: %s", trip_data.status_code)
@@ -61,52 +62,53 @@ def get_all_trips(token, token_secret, human_times=False):
     if "Trip" not in trips_json:
         logger.info("No trips found.")
         return []
-    return join_trips(normalize_trip_objects(trips_json["Trip"]), token, token_secret, human_times)
+    return join_trips(normalize_trip_objects(trips_json["Trip"]),
+                      flights=trips_json.get("AirObject", []),
+                      notes=trips_json.get("NoteObject", []),
+                      token=token,
+                      token_secret=token_secret,
+                      human_times=human_times)
 
 
-def join_trips(trip_refs, token, token_secret, human_times):
+def join_trips(trips, flights, notes, token, token_secret, human_times):
     """
     Since we need to make API calls to resolve flights in each trip,
     this function delegates these jobs into threads and joins them.
     """
     parsed_trip_futures = []
-    for trip_ref in trip_refs:
+    for trip_obj in trips:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             parsed_trip_futures.append(
-                executor.submit(resolve_trip, trip_ref, token, token_secret, human_times)
-            )
+                    executor.submit(resolve_trip, trip_obj, flights, notes, token,
+                                    token_secret, human_times)
+                    )
 
     parsed_trips = [future.result() for future in parsed_trip_futures]
     return [trip for trip in parsed_trips if trip]
 
 
-def resolve_trip(trip_reference, token, token_secret, human_times):
+def resolve_trip(trip_object, flights, notes, token, token_secret, human_times):
     """
     Generates a summarized version of a trip with expanded flight
     information.
-
-    This involves a nested API call and might be time-expensive!
     """
-    logger.debug("Fetching trip %s", trip_reference["id"])
-    params = {"include_objects": "true/"}
-    trip_info = get_from_tripit_v1(
-        endpoint="".join(["/get/trip/id/", trip_reference["id"]]),
-        token=token,
-        token_secret=token_secret,
-        params=params,
-    )
-    if trip_info.status_code != 200:
-        logger.error(
-            "Unable to fetch trip %s, error %d", trip_reference["id"], trip_info.status_code
-        )
-    trip_object = trip_info.json()["Trip"]
-
+    logger.debug("Fetching trip %s", trip_object["id"])
     if trip_is_empty(trip_object):
         logger.warn("Trip %s is empty", trip_object["id"])
         return {}
-
-    flight_objects = trip_info.json().get("AirObject") or []
-    note_objects = trip_info.json().get("NoteObject") or []
+    
+    flight_objects = [ obj
+                      for obj in flights
+                      if obj["trip_id"] == trip_object["id"]
+                     ]
+    if len(flight_objects) == 0:
+        logger.warn("Trip %s has no flight objects", trip_object["id"])
+    note_objects = [ obj
+                      for obj in notes
+                      if obj["trip_id"] == trip_object["id"]
+                   ]
+    if len(note_objects) == 0:
+        logger.warn("Trip %s has no notes attached to it", trip_object["id"])
     flights = resolve_flights(flight_objects, human_times)
     trip_start_time = resolve_start_time(trip_object, flights, human_times)
     trip_end_time = resolve_end_time(trip_object, flights, human_times)
