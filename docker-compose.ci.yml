@@ -44,4 +44,4 @@ services:
         gpg --batch --decrypt --passphrase="$ENV_PASSWORD" \
             --output="$$fp" "$$enc_fp"
         trap '-' INT HUP EXIT
-        rm "$${fp}.backup"
+        rm -f "$${fp}.backup"
