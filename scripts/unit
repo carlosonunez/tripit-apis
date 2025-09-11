@@ -40,7 +40,7 @@ update_app_into_unit_testing_service() {
   if _source_code_changes_detected || _rebuild_unit_image_anyway
   then
     info "App changes detected or unit image rebuild requested. Rebuilding unit Docker service."
-    docker-compose build unit || exit 1
+    docker-compose build unit unit-verbose || exit 1
   fi
 }
 
