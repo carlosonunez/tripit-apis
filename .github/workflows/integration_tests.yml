@@ -19,6 +19,7 @@ jobs:
         run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
+          ENV_FILE: ${{ secrets.env_file }}
 
       - name: Run integration tests
         run: ./scripts/integration

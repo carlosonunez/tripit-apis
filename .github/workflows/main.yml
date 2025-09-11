@@ -20,6 +20,7 @@ jobs:
         run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
+          ENV_FILE: ${{ secrets.env_file }}
 
       - name: Run unit tests
         run: ./scripts/unit
@@ -39,6 +40,7 @@ jobs:
         run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
+          ENV_FILE: ${{ secrets.env_file }}
 
       - name: Run integration tests
         run: ./scripts/integration
@@ -58,6 +60,7 @@ jobs:
         run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
+          ENV_FILE: ${{ secrets.env_file }}
 
       - name: Deploy to Production
         run: ./scripts/production
@@ -77,6 +80,7 @@ jobs:
         run: docker-compose -f docker-compose.ci.yml run --rm decrypt-env
         env:
           ENV_PASSWORD: ${{ secrets.env_file_encryption_key }}
+          ENV_FILE: ${{ secrets.env_file }}
 
       - name: Run smoke test
         run: ./scripts/ping_production
