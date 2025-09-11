@@ -33,7 +33,7 @@ def _join_params_by_slash(params):
     No idea why.
     """
     if params is not None:
-        return "/".join([f"{key}/{value}" for key, value in sorted(params.items())])
+        return "/".join([f"{key}/{value}" for key, value in sorted(params.items())]) + "/"
     return ""
 
 
