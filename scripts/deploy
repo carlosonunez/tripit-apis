@@ -105,7 +105,7 @@ then
   exit 0
 fi
 
-aws_session_creds=$(DOCKER_DEFAULT_PLATFORM=linux/amd64 docker-compose -f docker-compose.aws.yml \
+aws_session_creds=$(docker-compose -f docker-compose.aws.yml \
   run --rm obtain-aws-session-credentials) || exit 1
 
 eval "$aws_session_creds"
