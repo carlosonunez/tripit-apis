@@ -96,11 +96,10 @@ def resolve_trip(trip_object, flights, notes, token, token_secret, human_times):
     if trip_is_empty(trip_object):
         logger.warn("Trip %s is empty", trip_object["id"])
         return {}
-    
-    flight_objects = [ obj
-                      for obj in flights
-                      if obj["trip_id"] == trip_object["id"]
-                     ]
+
+    flight_objects = [
+        obj for obj in flights if isinstance(obj, dict) and obj["trip_id"] == trip_object["id"]
+    ]
     if len(flight_objects) == 0:
         logger.warn("Trip %s has no flight objects", trip_object["id"])
     note_objects = [ obj
