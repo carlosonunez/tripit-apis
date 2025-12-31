@@ -1,6 +1,7 @@
 """
 TripIt operations.
 """
+
 import concurrent.futures
 import datetime
 import os
@@ -52,8 +53,12 @@ def get_all_trips(token, token_secret, human_times=False):
 
     We only care about flights and notes. Every other TripIt object is stripped out.
     """
-    trip_data = get_from_tripit_v1(endpoint="/list/trip", token=token, token_secret=token_secret,
-                                   params={"include_objects": "true"})
+    trip_data = get_from_tripit_v1(
+        endpoint="/list/trip",
+        token=token,
+        token_secret=token_secret,
+        params={"include_objects": "true"},
+    )
     logger.debug("Response: %d, Text: %s", trip_data.status_code, trip_data.text)
     if trip_data.status_code != 200:
         logger.error("Failed to get trips: %s", trip_data.status_code)
@@ -62,12 +67,14 @@ def get_all_trips(token, token_secret, human_times=False):
     if "Trip" not in trips_json:
         logger.info("No trips found.")
         return []
-    return join_trips(normalize_trip_objects(trips_json["Trip"]),
-                      flights=trips_json.get("AirObject", []),
-                      notes=trips_json.get("NoteObject", []),
-                      token=token,
-                      token_secret=token_secret,
-                      human_times=human_times)
+    return join_trips(
+        normalize_trip_objects(trips_json["Trip"]),
+        flights=trips_json.get("AirObject", []),
+        notes=trips_json.get("NoteObject", []),
+        token=token,
+        token_secret=token_secret,
+        human_times=human_times,
+    )
 
 
 def join_trips(trips, flights, notes, token, token_secret, human_times):
@@ -79,9 +86,10 @@ def join_trips(trips, flights, notes, token, token_secret, human_times):
     for trip_obj in trips:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             parsed_trip_futures.append(
-                    executor.submit(resolve_trip, trip_obj, flights, notes, token,
-                                    token_secret, human_times)
-                    )
+                executor.submit(
+                    resolve_trip, trip_obj, flights, notes, token, token_secret, human_times
+                )
+            )
 
     parsed_trips = [future.result() for future in parsed_trip_futures]
     return [trip for trip in parsed_trips if trip]
@@ -102,10 +110,7 @@ def resolve_trip(trip_object, flights, notes, token, token_secret, human_times):
     ]
     if len(flight_objects) == 0:
         logger.warn("Trip %s has no flight objects", trip_object["id"])
-    note_objects = [ obj
-                      for obj in notes
-                      if obj["trip_id"] == trip_object["id"]
-                   ]
+    note_objects = [obj for obj in notes if obj["trip_id"] == trip_object["id"]]
     if len(note_objects) == 0:
         logger.warn("Trip %s has no notes attached to it", trip_object["id"])
     flights = resolve_flights(flight_objects, human_times)
