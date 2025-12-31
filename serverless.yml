@@ -8,7 +8,7 @@ frameworkVersion: '>=1.0.0'
 
 provider:
   name: aws
-  runtime: python3.9
+  runtime: python3.11
   region: ${env:AWS_REGION, 'us-east-2'}
   memorySize: 128
   deploymentBucket:

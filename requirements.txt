@@ -1,11 +1,6 @@
-flask
-pytest
-pylint
-pynamodb
-requests
-freezegun
-selenium
-setuptools
-setuptools_scm
-timeout-decorator
-wheel
+freezegun==1.5.5
+pynamodb==6.1.0
+pytest==9.0.1
+Requests==2.32.5
+selenium==4.39.0
+timeout_decorator==0.5.0
