@@ -26,12 +26,13 @@ services:
   decrypt-env:
     extends: gpg
     environment:
-      ENV_FILE_NAME: ".env"
+      ENV_FILE: ".env"
     entrypoint: ["sh"]
     command:
       - -c
       - |-
-        fp=$(basename "$ENV_FILE")
+        set -x
+        fp=$(basename "$$ENV_FILE")
         test -f "$$fp" && mv "$$fp" "$${fp}.backup"
         trap 'rc=$$?; mv "$${fp}.backup" "$$fp"; exit $$rc' INT HUP EXIT
         fp_nodot="$(echo "$$fp" | sed 's/^.//')"
