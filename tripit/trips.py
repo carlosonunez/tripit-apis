@@ -110,7 +110,9 @@ def resolve_trip(trip_object, flights, notes, token, token_secret, human_times):
     ]
     if len(flight_objects) == 0:
         logger.warn("Trip %s has no flight objects", trip_object["id"])
-    note_objects = [obj for obj in notes if obj["trip_id"] == trip_object["id"]]
+    note_objects = [
+        obj for obj in notes if isinstance(obj, dict) and obj["trip_id"] == trip_object["id"]
+    ]
     if len(note_objects) == 0:
         logger.warn("Trip %s has no notes attached to it", trip_object["id"])
     flights = resolve_flights(flight_objects, human_times)
