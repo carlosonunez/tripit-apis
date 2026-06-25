@@ -5,6 +5,7 @@ TripIt operations.
 import concurrent.futures
 import datetime
 import os
+from pathlib import Path
 import time
 from tripit.core.v1.api import get_from_tripit_v1
 from tripit.logging import logger
@@ -157,8 +158,16 @@ def resolve_flights(trip_object, human_times):
     for flight in flights:
         segments = normalize_segments_from_flight(flight)
         for segment in segments:
+            airline_code = segment.get('marketing_airline_code')
+            if airline_code is None:
+                airline_code_path = segment.get('alternate_flights_url')
+                if airline_code_path is not None:
+                    airline_code = Path(segment.get('alternate_flights_url')).stem
+                else:
+                    for word in segment['marketing_airline'].split(' '):
+                        airline_code = airline_code + word[0].upper()
             flight_number = "".join(
-                [segment["marketing_airline_code"], segment["marketing_flight_number"]]
+                [airline_code, segment["marketing_flight_number"]]
             )
             summarized_segment = {
                 "flight_number": flight_number,
